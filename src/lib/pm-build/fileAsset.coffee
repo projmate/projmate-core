@@ -11,7 +11,7 @@ Function::property = (prop, desc) ->
 class FileAsset
   constructor: (options) ->
     {filename, cwd, text} = options
-    filename = Utils.unixPath(filenaem)
+    filename = Utils.unixPath(filename)
     @filename = filename
     @originalFilename = filename
     @_extname = Path.extname(filename)

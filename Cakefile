@@ -1,4 +1,4 @@
-sh = require("sex")
+sh = require("projmate-shell")
 
 task "build", "Builds the project.", ->
   sh.run "./node_modules/.bin/coffee", ["-c", "-o", "dist", "src"], (err) ->

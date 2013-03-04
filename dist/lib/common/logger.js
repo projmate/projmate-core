@@ -2,7 +2,7 @@
 (function() {
   var logmagic;
 
-  logmagic = require("logmagic");
+  logmagic = require("mgutz-logmagic");
 
   logmagic.route(logmagic.ROOT, "DEBUG", "console");
 

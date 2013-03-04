@@ -37,7 +37,7 @@
       userFilters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       if (!this.filterCollection) {
         this.filterCollection = new FilterCollection;
-        this.filterCollection.loadPackage("projmate-contrib");
+        this.filterCollection.loadPackage("projmate-filters");
       }
       if (userFilters.length > 0) {
         for (_i = 0, _len = userFilters.length; _i < _len; _i++) {

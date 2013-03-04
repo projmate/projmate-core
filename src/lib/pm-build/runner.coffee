@@ -23,7 +23,7 @@ class Runner
     # Start with official filters
     unless @filterCollection
       @filterCollection = new FilterCollection
-      @filterCollection.loadPackage "projmate-contrib"
+      @filterCollection.loadPackage "projmate-filters"
 
     if userFilters.length > 0
       for filterPackage in userFilters
