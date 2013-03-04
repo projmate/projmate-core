@@ -1,0 +1,10 @@
+node_modules/
+src/test/res/*--*
+dist/test/res/*--*
+
+src/test/output/
+!src/test/output/.gitkeep
+test/build
+test/res
+npm-debug.log
+.idea/

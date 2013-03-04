@@ -1,0 +1,7 @@
+module.exports = (t) ->
+  t.body ->
+    t.block "body"
+
+
+
+

@@ -1,0 +1,6 @@
+layout = require("./layout")
+
+module.exports = (t, data) ->
+  t.extends layout
+  t.block "body", ->
+    t.p()

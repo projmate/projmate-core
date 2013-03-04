@@ -1,0 +1,38 @@
+#. Run tests
+function test {
+    compile
+    mocha -R spec --compilers coffee:coffee-script src/test/*Test.coffee
+}
+
+
+#. Cleans any file|directory that can be recompiled.
+function clean {
+    rm -rf dist
+    rm -f */test/res/*--*
+    rm -rf src/test/output/res
+}
+
+
+#. Compiles files to dist.
+function compile {
+    coffee -b -c -o . src
+}
+
+
+#. Updates YUI CSS Min compressor.
+function update_cssmin {
+    cd src/support
+    rm -f cssmin.js
+    wget https://raw.github.com/yui/yuicompressor/master/ports/js/cssmin.js
+    echo "module.exports = YAHOO.compressor;" >> cssmin.js
+}
+
+
+function watch {
+    coffee -b -c -o . -w src
+}
+
+
+function run {
+    node bin/pm.js build -f TestProjfile.coffee scripts
+}
