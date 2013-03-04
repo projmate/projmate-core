@@ -12,7 +12,7 @@
 
   Path = require("path");
 
-  Sex = require("sex");
+  Sex = require("projmate-shell");
 
   Task = require("./task");
 
