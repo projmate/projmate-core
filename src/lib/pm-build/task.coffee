@@ -121,11 +121,21 @@ class Task
 
 
   _executeFunctionTask: (fn, cb) ->
-    if fn.length == 2
-      fn cb
+    that = @
+    watch = @program.watch
+
+    console.log "fn.length", fn.length
+
+
+    if fn.length == 1
+      fn (err) ->
+        return cb(err) if err
+        if watch then that._watch()
+        cb()
     else
       try
         fn()
+        if watch then that._watch()
         cb()
       catch ex
         cb ex
