@@ -10,7 +10,8 @@ Function::property = (prop, desc) ->
 
 class FileAsset
   constructor: (options) ->
-    {filename, cwd, text} = options
+    {cwd, filename, parent, text} = options
+    throw new Error("parent property is required") unless options.parent?
     filename = Utils.unixPath(filename)
     @filename = filename
     @originalFilename = filename
@@ -19,6 +20,7 @@ class FileAsset
     @basename = Path.basename(filename)
     @cwd = cwd
     @_text = text
+    @parent = parent
 
   @property "text",
     get: -> @_text

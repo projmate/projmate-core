@@ -19,8 +19,11 @@
   FileAsset = (function() {
 
     function FileAsset(options) {
-      var cwd, filename, text;
-      filename = options.filename, cwd = options.cwd, text = options.text;
+      var cwd, filename, parent, text;
+      cwd = options.cwd, filename = options.filename, parent = options.parent, text = options.text;
+      if (options.parent == null) {
+        throw new Error("parent property is required");
+      }
       filename = Utils.unixPath(filename);
       this.filename = filename;
       this.originalFilename = filename;
@@ -29,6 +32,7 @@
       this.basename = Path.basename(filename);
       this.cwd = cwd;
       this._text = text;
+      this.parent = parent;
     }
 
     FileAsset.property("text", {

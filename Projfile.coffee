@@ -2,6 +2,7 @@ exports.project = (pm) ->
   f = pm.filters()
   sh = pm.shell()
 
+
   writeToCurrentDir = f.writeFile(lchomp: "src", destinationDir: ".")
 
   addHeader = f.functoid(name: "foo", process: (asset, options) ->
@@ -12,6 +13,10 @@ exports.project = (pm) ->
     #{asset.text}
     """
   )
+
+
+  pm.server = directory: 'dist', http: 80, https: 443, domain: 'dev.projmate.com'
+
 
   pm.registerTasks
     scripts:

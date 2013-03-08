@@ -1,6 +1,6 @@
 Path = require("path")
 
-Str =
+Utils =
   between: (s, startToken, endToken) ->
     startPos = s.indexOf(startToken)
     endPos = s.indexOf(endToken)
@@ -32,5 +32,12 @@ Str =
       s
 
 
+  # Changes the extname of a filename.
+  #
+  # @param {String} filename
+  # @param {String} extname The extension including leading dot.
+  changeExtname: (filename, extname) ->
+    filename.replace /\.\w+$/, extname
 
-module.exports = Str
+
+module.exports = Utils
