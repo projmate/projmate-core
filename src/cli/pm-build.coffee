@@ -1,47 +1,35 @@
 Fs = require("fs")
-Logger = require("../../dist/lib/common/logger")
+Logger = require("../lib/common/logger")
 PackageJson = require("../../package.json")
 Path = require("path")
 Program = require("commander")
-Runner = require("../../dist/lib/pm-build/runner")
+Runner = require("../lib/pm-build/runner")
 Str = require("underscore.string")
+Utils = require("../lib/common/utils")
 
 log = Logger.getLogger("pm-build")
 version = PackageJson.version
 
 
+# Parse options
 Program
   .version(version)
   .option("-e, --environment [env]", "Set build environment", "development")
   .option("-f, --projfile [file]", "Set project file", "")
   .option("-w, --watch", "Watch and rerun tasks as needed")
+  .option("-s, --serve [dir]", "Runs HTTP/HTTPS server")
   .parse(process.argv)
 
 
-##
-# Finds dir from current and up containing `basename` file
-# @param basename
-# @param dir
-# @returns {*}
-#
-findUpDir = (basename, dir=process.cwd()) ->
-  return dir if Fs.existsSync(Path.join(dir, basename))
-  parent = Path.normalize(Path.join(dir, ".."))
-  if parent != dir
-    return findUpDir(basename, parent)
-  else
-    return null
-
-
-##
 # Finds project file from current directory, up.
+#
 # @returns {*}
 #
 findProjfile = ->
   files = [Program.projfile, "Projfile.js", "Projfile.coffee"]
   for projfile in files
     if projfile
-      dir = findUpDir(projfile)
+      dir = Utils.findDirUp(projfile)
     return Path.join(dir, projfile) if dir
 
   if Program.projfile
@@ -79,7 +67,7 @@ taskDescriptions = (cb) ->
         desc.push Str.sprintf("  %-#{L}s  #{taskDesc}", name)
       cb null, desc.sort().join("\n")
 
-    # call the exported `project` method in projfile
+    # Executes the projfile async/sync
     if proj.project.length == 1
       proj.project runner
       executeTasks()
@@ -90,7 +78,6 @@ taskDescriptions = (cb) ->
     log.error e
 
 
-##
 # Loads the project file module.
 #
 loadProjfile = ->
@@ -108,30 +95,23 @@ loadProjfile = ->
   require(moduleName)
 
 
-##
 # Runs this script
 #
 exports.run = ->
   try
-    # skip first arg which is "build"
+    # Skips "build"
     tasks = Program.args.slice(1)
 
     projfile = findProjfile()
-    log.debug """
-              .
-                environment: #{Program.environment}
-                projfile: #{projfile}
-              """
-    # Create a run environment from Projfile
-    runner = new Runner()
-    runner.program = Program
+    log.info "#{Program.environment}: #{projfile}"
 
     # Set current working directory to location of projfile
     cwd = process.cwd()
     process.chdir Path.dirname(projfile)
     proj = loadProjfile()
-
     throw new Error("#{projfile} does not export `project` function") unless proj.project
+
+    runner = new Runner(program: Program)
 
     executeTasks = (err) ->
       return log.error(err) if err
@@ -139,7 +119,7 @@ exports.run = ->
       runner.executeTasks tasks, (err) ->
         log.error(err) if err
 
-    # call the exported `project` method in projfile
+    # Execute the projfile
     if proj.project.length == 1
       proj.project runner
       executeTasks()
@@ -150,12 +130,13 @@ exports.run = ->
     log.error e
 
 
-##
-# Metadata about this script
+# Returns metadata.
 #
 exports.meta =
   name: "build"
+
   description: "Builds a project"
+
   quickUsage: -> """
 #{taskDescriptions()}
 """
@@ -176,4 +157,5 @@ exports.meta =
           -e, --environment=ENV_NAME  Build environment, default 'development'
           -f, --projfile=PROJFILE     Custom project file
           -w, --watch                 Watch and rebuild tasks as needed
+          -s, --serve=DIR            Runs HTTP/HTTPS server
         """

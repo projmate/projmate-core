@@ -1,3 +1,10 @@
+exports.server =
+  directory: 'dist'
+  http: 80
+  https: 443
+  domain: 'dev.projmate.com'
+
+
 exports.project = (pm) ->
   f = pm.filters()
   sh = pm.shell()
@@ -8,14 +15,12 @@ exports.project = (pm) ->
   addHeader = f.functoid(name: "foo", process: (asset, options) ->
     """
     /**
+     *
      * Copyright (c) 2013, Mario L Gutierrez
      */
     #{asset.text}
     """
   )
-
-
-  pm.server = directory: 'dist', http: 80, https: 443, domain: 'dev.projmate.com'
 
 
   pm.registerTasks
@@ -46,4 +51,3 @@ exports.project = (pm) ->
       development: ->
         sh.mkdir "-p", "test/res"
         sh.cp "-rf", "src/test/res/*", "test/res"
-

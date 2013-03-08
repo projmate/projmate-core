@@ -13,7 +13,6 @@ Projmate =
   extendsTaskProcessor: (derived) ->
     CoffeeFill.extends(derived, TaskProcessor)
 
-##
 # Manages filters.
 #
 class FilterCollection
@@ -23,7 +22,6 @@ class FilterCollection
     @filters = {}
 
 
-  ##
   # Loads built-in filters.
   #
   # @param {String} dirname The directory path.
@@ -43,9 +41,7 @@ class FilterCollection
 
         # allows simple syntax, e.g. f.coffee({bare: true}, {extnames: ['.coffee', '.funcd']})
         that.filters[name] = (processOptions={}, config={}) ->
-          instance = new FilterClass(config, processOptions)
-          # coffeescript not longer assigns name property
-          instance.name = name
+          instance = new FilterClass(name, config, processOptions)
 
           if processOptions.$addExtname
             newext = processOptions.$addExtname

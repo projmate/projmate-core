@@ -51,8 +51,7 @@
             if (config == null) {
               config = {};
             }
-            instance = new FilterClass(config, processOptions);
-            instance.name = name;
+            instance = new FilterClass(name, config, processOptions);
             if (processOptions.$addExtname) {
               newext = processOptions.$addExtname;
               extnames = instance.extname;

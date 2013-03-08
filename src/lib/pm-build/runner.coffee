@@ -6,17 +6,20 @@ Sex = require("projmate-shell")
 Task = require("./task")
 Util = require("util")
 _ = require("lodash")
+Server = require("./server")
 
 log = Logger.getLogger("runner")
 
+# Runs the command line app.
+#
 class Runner
 
   constructor: (@options) ->
     global.PROJMATE = {}
     PROJMATE.encoding = "utf8"
     @tasks = {}
+    @program = @options.program
 
-  ##
   # Gets the wrapped filters, array of Filter.partialProcess
   #
   filters: (userFilters...) ->
@@ -32,13 +35,11 @@ class Runner
     @filterCollection.filters
 
 
-  ##
   # Gets the shell object which contains cross-platform shell helpers.
   #
   shell: (@shellOptions = {}) -> Sex
 
 
-  ##
   # Registers one or more tasks.
   #
   # @param {Object} tasksDef The tasks JSON definition.
@@ -55,7 +56,6 @@ class Runner
     null
 
 
-  ##
   # Executes the environment pipeline including their dependecies
   # in one or more tasks.
   #
@@ -84,6 +84,8 @@ class Runner
         log.error "FAIL"
       else
         log.info("OK") unless that.program.watch
+        if that.program.serve
+          Server.serve dirname: that.program.serve
 
       cb err
     null

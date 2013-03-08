@@ -11,8 +11,8 @@ class Filter
   ##
   # Creates an instance of this Filter.
   #
-  constructor: (@config={}, @processOptions={}) ->
-    @log = Logger.getLogger(@name)
+  constructor: (@name, @config={}, @processOptions={}) ->
+    @log = Logger.getLogger("Filter."+@name)
     _.extend @, @config
 
     if !@extnames

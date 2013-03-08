@@ -171,7 +171,7 @@ class Task
             filter._process asset, (err, result) ->
               if err
                 asset.err = err
-                filter.log.error err
+                filter.log.error "Error", err
                 cb err
               else
                 cb()

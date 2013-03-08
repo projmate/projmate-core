@@ -173,7 +173,7 @@
               return filter._process(asset, function(err, result) {
                 if (err) {
                   asset.err = err;
-                  filter.log.error(err);
+                  filter.log.error("Error", err);
                   return cb(err);
                 } else {
                   return cb();

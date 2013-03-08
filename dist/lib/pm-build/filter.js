@@ -10,10 +10,11 @@
 
   Filter = (function() {
 
-    function Filter(config, processOptions) {
+    function Filter(name, config, processOptions) {
+      this.name = name;
       this.config = config != null ? config : {};
       this.processOptions = processOptions != null ? processOptions : {};
-      this.log = Logger.getLogger(this.name);
+      this.log = Logger.getLogger("Filter." + this.name);
       _.extend(this, this.config);
       if (!this.extnames) {
         throw new Error("`extnames` is required for filter " + this.name);
