@@ -1,3 +1,1 @@
-module.exports =
-  Filter: require("./lib/pm-build/filters/filter")
-  TaskProcessor: require("./lib/pm-build/filters/taskProcessor")
+module.exports = require("./lib")

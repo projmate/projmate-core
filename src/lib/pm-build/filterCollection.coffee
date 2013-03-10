@@ -1,17 +1,6 @@
 _ = require("lodash")
-CoffeeFill = require("../common/coffeeFill")
 Filter = require("./filter")
-TaskProcessor = require("./taskProcessor")
-
-Projmate =
-  FileAsset: require("./fileAsset")
-  Filter: Filter
-  TaskProcessor: TaskProcessor
-  Utils: require("../common/utils")
-  extendsFilter: (derived) ->
-    CoffeeFill.extends(derived, Filter)
-  extendsTaskProcessor: (derived) ->
-    CoffeeFill.extends(derived, TaskProcessor)
+Projmate = require("..")
 
 # Manages filters.
 #

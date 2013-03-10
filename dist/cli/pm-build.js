@@ -45,7 +45,7 @@
   };
 
   taskDescriptions = function(cb) {
-    var cwd, executeTasks, proj, projfile, runner;
+    var cwd, e, executeTasks, proj, projfile, runner;
     try {
       projfile = findProjfile();
       runner = new Runner();
@@ -85,13 +85,14 @@
       } else {
         return proj.project(runner, executeTasks);
       }
-    } catch (e) {
+    } catch (_error) {
+      e = _error;
       return log.error(e);
     }
   };
 
   loadProjfile = function() {
-    var extname, moduleName, projfile;
+    var ex, extname, moduleName, projfile;
     projfile = findProjfile();
     if (!projfile) {
       return;
@@ -100,7 +101,8 @@
     if (extname === ".coffee") {
       try {
         require("coffee-script");
-      } catch (ex) {
+      } catch (_error) {
+        ex = _error;
         throw new Error("coffee-script could not be loaded, is it installed?");
         process.exit(1);
       }
@@ -110,7 +112,7 @@
   };
 
   exports.run = function() {
-    var cwd, executeTasks, proj, projfile, runner, tasks;
+    var cwd, e, executeTasks, proj, projfile, runner, tasks;
     try {
       tasks = Program.args.slice(1);
       projfile = findProjfile();
@@ -140,7 +142,8 @@
       } else {
         return proj.project(runner, executeTasks);
       }
-    } catch (e) {
+    } catch (_error) {
+      e = _error;
       return log.error(e);
     }
   };

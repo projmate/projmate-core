@@ -3,7 +3,7 @@
   "name": "projmate-core",
   "description": "Projmate Core Package",
   "license": "AGPL",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "dependencies": {
     "projmate-filters": "0.0.6",
     "projmate-shell": "0.0.4",

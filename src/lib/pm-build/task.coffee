@@ -124,9 +124,6 @@ class Task
     that = @
     watch = @program.watch
 
-    console.log "fn.length", fn.length
-
-
     if fn.length == 1
       fn (err) ->
         return cb(err) if err

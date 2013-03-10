@@ -119,10 +119,9 @@
     };
 
     Task.prototype._executeFunctionTask = function(fn, cb) {
-      var that, watch;
+      var ex, that, watch;
       that = this;
       watch = this.program.watch;
-      console.log("fn.length", fn.length);
       if (fn.length === 1) {
         return fn(function(err) {
           if (err) {
@@ -140,7 +139,8 @@
             that._watch();
           }
           return cb();
-        } catch (ex) {
+        } catch (_error) {
+          ex = _error;
           return cb(ex);
         }
       }

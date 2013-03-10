@@ -23,7 +23,7 @@
   Program.version(version).option("-p, --port [PORT]", "HTTP port", 8000).option("-s, --ssl-port [HTTPS_PORT]", "HTTPS port", 4430).parse(process.argv);
 
   exports.run = function() {
-    var cwd, executeTasks, proj, projfile, runner, tasks;
+    var cwd, e, executeTasks, proj, projfile, runner, tasks;
     try {
       tasks = Program.args.slice(1);
       projfile = findProjfile();
@@ -53,7 +53,8 @@
       } else {
         return proj.project(runner, executeTasks);
       }
-    } catch (e) {
+    } catch (_error) {
+      e = _error;
       return log.error(e);
     }
   };
