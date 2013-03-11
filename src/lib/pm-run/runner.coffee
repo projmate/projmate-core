@@ -6,7 +6,6 @@ Sex = require("projmate-shell")
 Task = require("./task")
 Util = require("util")
 _ = require("lodash")
-Server = require("./server")
 
 log = Logger.getLogger("runner")
 
