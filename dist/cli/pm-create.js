@@ -21,7 +21,7 @@
   Program.version(version).parse(process.argv);
 
   exports.run = function() {
-    var cwd, e, executeTasks, proj, projfile, runner, tasks;
+    var cwd, executeTasks, proj, projfile, runner, tasks;
     try {
       tasks = Program.args.slice(1);
       projfile = findProjfile();
@@ -50,8 +50,7 @@
       } else {
         return proj.project(runner, executeTasks);
       }
-    } catch (_error) {
-      e = _error;
+    } catch (e) {
       return log.error(e);
     }
   };
