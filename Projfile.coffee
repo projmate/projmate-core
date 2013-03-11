@@ -25,6 +25,7 @@ exports.project = (pm) ->
 
   pm.registerTasks
     scripts:
+      _description: "Builds scripts"
       _files:
         include: ["src/**/*.coffee", "src/**/*.js"]
 
