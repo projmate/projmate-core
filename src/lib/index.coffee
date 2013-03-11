@@ -1,9 +1,9 @@
 CoffeeFill = require("./common/coffeeFill")
-Filter = require("./pm-build/filter")
-TaskProcessor = require("./pm-build/taskProcessor")
+Filter = require("./pm-run/filter")
+TaskProcessor = require("./pm-run/taskProcessor")
 
 Projmate =
-  FileAsset: require("./pm-build/fileAsset")
+  FileAsset: require("./pm-run/fileAsset")
   Filter: Filter
   TaskProcessor: TaskProcessor
   Utils: require("./common/utils")

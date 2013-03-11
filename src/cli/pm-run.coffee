@@ -1,12 +1,13 @@
-program = require("commander")
+Program = require("commander")
 Pkg = require("../../package.json")
 Fs = require("fs")
 Logger = require("../lib/common/logger")
 Path = require("path")
-Runner = require("../lib/pm-build/runner")
+Runner = require("../lib/pm-run/runner")
 Str = require("underscore.string")
 Utils = require("../lib/common/utils")
-log = Logger.getLogger("pm-build")
+
+log = Logger.getLogger("pm-run")
 
 
 # Finds project file from current directory, up.
@@ -14,14 +15,14 @@ log = Logger.getLogger("pm-build")
 # @returns {*}
 #
 findProjfile = ->
-  files = [program.projfile, "Projfile.js", "Projfile.coffee"]
+  files = [Program.projfile, "Projfile.js", "Projfile.coffee"]
   for projfile in files
     if projfile
       dir = Utils.findDirUp(projfile)
     return Path.join(dir, projfile) if dir
 
-  if program.projfile
-    throw new Error("Projfile not found: #{program.projfile}")
+  if Program.projfile
+    throw new Error("Projfile not found: #{Program.projfile}")
   else
     throw new Error("Projfile not found in #{process.cwd()} or any of its parent directories")
   return null
@@ -34,7 +35,7 @@ taskDescriptions = (cb) ->
   # skip first arg which is "build"
     projfile = findProjfile()
     # Create a run environment from Projfile
-    runner = new Runner(program: program)
+    runner = new Runner(Program: Program)
 
     # Set current working directory to location of projfile
     cwd = process.cwd()
@@ -90,10 +91,10 @@ loadProjfile = ->
 #
 run = ->
   try
-    tasks = program.args
+    tasks = Program.args
 
     projfile = findProjfile()
-    log.info "#{program.environment}: #{projfile}"
+    log.info "#{Program.environment}: #{projfile}"
 
     # Set current working directory to location of projfile
     cwd = process.cwd()
@@ -101,7 +102,7 @@ run = ->
     proj = loadProjfile()
     throw new Error("#{projfile} does not export `project` function") unless proj.project
 
-    runner = new Runner(program: program)
+    runner = new Runner(program: Program)
 
     executeTasks = (err) ->
       return log.error(err) if err
@@ -120,7 +121,7 @@ run = ->
     log.error e
 
 
-program.on "--help", ->
+Program.on "--help", ->
   taskDescriptions (err, tasks) ->
     if err
       console.error err
@@ -129,7 +130,7 @@ program.on "--help", ->
       console.log ""
       console.log tasks
 
-program
+Program
   .version(Pkg.version)
   .option("-e, --environment <env>", "Set build environment", "development")
   .option("-f, --projfile <file>", "Set project file", "")
@@ -139,6 +140,6 @@ program
   .parse(process.argv)
 
 if process.argv.length < 3
-  program.outputHelp()
+  Program.outputHelp()
 else
   run()

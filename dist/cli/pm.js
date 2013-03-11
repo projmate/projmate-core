@@ -14,6 +14,6 @@
 
   program.version(pkg.version).extbang({
     ".js": "node"
-  }, __dirname).command("run", "Runs one or more tasks in Projfile").parse(process.argv);
+  }, __dirname).command("run", "Runs one or more tasks in Projfile").command("serve", "Serves pages from directory HTTP/HTTPS").parse(process.argv);
 
 }).call(this);
