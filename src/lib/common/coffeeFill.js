@@ -1,24 +1,21 @@
-/**============================================================================
-    Adds a few utility functions to global space to support extending Coffee
-    classes from JavaScript.
-
-    @example
-      var Filter = require("projmate").Filter;
-
-      function YourFilter() {
-        this.name = "yourFilter";
-        this.extnames = ".ext";
-        Filter.apply(this, arguments);
-      }
-
-      __extends(YourFilter, Filter);
-
-      YourFilter.prototype.process = function(asset, options, cb) {...}
-
-      module.exports = YourFilter;
- ============================================================================*/
-
-
+/**
+ * Support extending Coffee classes from JavaScript.
+ *
+ * @example
+ *   var Filter = require("projmate").Filter;
+ *
+ *   function YourFilter() {
+ *     this.name = "yourFilter";
+ *     this.extnames = ".ext";
+ *     Filter.apply(this, arguments);
+ *   }
+ *
+ *   CoffeeFill.extends(YourFilter, Filter);
+ *
+ *   YourFilter.prototype.process = function(asset, options, cb) {...}
+ *
+ *   module.exports = YourFilter;
+ */
 "use strict";
 
 exports.extends = function(child, parent) {
@@ -32,3 +29,4 @@ exports.extends = function(child, parent) {
   child.__super__ = parent.prototype;
   return child;
 };
+

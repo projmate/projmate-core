@@ -22,7 +22,11 @@
     "underscore.string": "~2.3.1",
     "mgutz-logmagic": "~0.2.0",
     "connect": "~2.7.3",
-    "string": "git://github.com/mgutz/string.js.git"
+    "string": "git://github.com/mgutz/string.js.git",
+    "walkdir": "0.0.5",
+    "read": "~1.0.4",
+    "templayed": "~0.2.3",
+    "sandbox": "~0.8.3"
   },
   "devDependencies": {
     "chai": "~1.5.0",
