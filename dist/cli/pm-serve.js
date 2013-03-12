@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
+ *
+ * See the file COPYING for copying permission.
+ */
+
 var Pkg, Program, Server, main;
 
 Pkg = require("../../package.json");

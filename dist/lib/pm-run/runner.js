@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
+ *
+ * See the file COPYING for copying permission.
+ */
+
 var Async, FilterCollection, Logger, Path, Runner, Sex, Task, Util, log, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
