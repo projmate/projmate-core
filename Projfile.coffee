@@ -4,51 +4,21 @@ exports.server =
   https: 443
   domain: 'dev.projmate.com'
 
-
 exports.project = (pm) ->
   f = pm.filters()
-  sh = pm.shell()
-
-
-  writeToCurrentDir = f.writeFile(lchomp: "src", destinationDir: ".")
-
-  addHeader = f.functoid(name: "foo", process: (asset, options) ->
-    """
-    /**
-     *
-     * Copyright (c) 2013, Mario L Gutierrez
-     */
-    #{asset.text}
-    """
-  )
-
+  $ = pm.shell()
 
   pm.registerTasks
-    scripts:
-      _description: "Builds scripts"
+    source:
+      _desc: "Compiles source files"
       _files:
-        include: ["src/**/*.coffee", "src/**/*.js"]
+        include: [
+          "src/**/*"
+        ]
 
       development: [
         f.coffee(bare: true)
-        writeToCurrentDir
+        # TODO add append/prepend to string.js.
+        f.writeFiles(_filename: {chompLeft: "src", ensureLeft: "dist"})
       ]
 
-      production: [
-        f.coffee
-        addHeader
-        writeToCurrentDir
-      ]
-
-    clean:
-      development: ->
-        sh.rm "-rf", "lib"
-        sh.rm "-rf", "test"
-        sh.rm "-f", "index.js"
-
-    res:
-      _pre: ["clean"]
-
-      development: ->
-        sh.mkdir "-p", "test/res"
-        sh.cp "-rf", "src/test/res/*", "test/res"

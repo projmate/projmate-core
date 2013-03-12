@@ -154,17 +154,16 @@ class Task
 
       filter = wrappedFilter
 
+
       if filter instanceof TaskProcessor
         filter._process that, (err) ->
           filter.log.error(err) if err
           cb err
       else if filter instanceof Filter
-        #ix = 1
         Async.eachSeries that.assets, (asset, cb) ->
-          #console.log "that.assets #{ix} of #{that.assets.length}"
-          #ix++
 
           if filter.canProcess(asset)
+
             filter._process asset, (err, result) ->
               if err
                 asset.err = err

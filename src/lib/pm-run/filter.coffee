@@ -1,6 +1,7 @@
 Logger = require("../common/logger")
 Util = require("util")
 _ = require("lodash")
+S = require("string")
 
 ##
 # A filter participates with one or more filters, creating a pipeline, through which
@@ -36,6 +37,32 @@ class Filter
     return @extnames.indexOf("*") >= 0 or @extnames.indexOf(asset.extname) >= 0
 
 
+  # Filter properties may declaritively modify asset properties.
+  #
+  # As an example,
+  #
+  #   f.writeFiles({_filename: { chompLeft: 'src', prepend: 'build' }})
+  #
+  # Means, convert the filename from `src` to the `build`
+  # directory.
+  #
+  # In code: S(asset.filename).chompLeft('src').prepend('build').
+  checkAssetModifiers: (assetOrTask) ->
+    modifiers = @processOptions._filename
+    if modifiers
+      isAsset = assetOrTask.originalFilename?
+      if isAsset
+        assets = [assetOrTask]
+      else
+        assets = assertOrTask.assets
+
+      for asset in assets
+        chain = S(asset.filename)
+        for fn, args of modifiers
+          args = [args] if typeof args == 'string'
+          chain = chain[fn].apply(chain, args)
+        asset.filename = chain.s
+
   ##
   # Wrapped filter's process to pass processOptions
   #
@@ -46,6 +73,8 @@ class Filter
 
     if inspect
       log.debug "Asset BEFORE", "\n"+assetOrTask.toString()
+
+    @checkAssetModifiers assetOrTask
 
     # some filters modify processOptions which affects the next invocation, clone to start fresh
     @process assetOrTask, _.clone(@processOptions), (err, result) ->

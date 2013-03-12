@@ -8,7 +8,6 @@ Sandbox = require("sandbox")
 Temp = require("temp")
 Utils = require("../common/utils")
 read = require("read")
-templayed = require("templayed")
 
 log = require("../common/logger").getLogger("pm-create")
 walkdir = require("walkdir")
