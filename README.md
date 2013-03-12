@@ -102,7 +102,7 @@ exports.project = (pm) ->
 Note
 
 *   Reserved task properties are prefixed with `_`, eg `_files`.
-*   Tasks define one or more commands for build environments
+*   Tasks define one or more build environment actions.
 
 
 ## pm create
