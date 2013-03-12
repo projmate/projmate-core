@@ -36,32 +36,28 @@ class Filter
   canProcess: (asset) ->
     return @extnames.indexOf("*") >= 0 or @extnames.indexOf(asset.extname) >= 0
 
-
   # Filter properties may declaritively modify asset properties.
   #
   # As an example,
   #
-  #   f.writeFiles({_filename: { chompLeft: 'src', prepend: 'build' }})
+  #   f.writeFiles($asset: {filename: { chompLeft: 'src', prepend: 'build' }}})
   #
-  # Means, convert the filename from `src` to the `build`
-  # directory.
+  # Means, convert the filename from `src` to the `build` directory.
   #
   # In code: S(asset.filename).chompLeft('src').prepend('build').
   checkAssetModifiers: (assetOrTask) ->
-    modifiers = @processOptions._filename
-    if modifiers
+    $asset = @processOptions.$asset
+    if $asset
       isAsset = assetOrTask.originalFilename?
-      if isAsset
-        assets = [assetOrTask]
-      else
-        assets = assertOrTask.assets
+      assets = if isAsset then [assetOrTask] else assertOrTask.assets
 
-      for asset in assets
-        chain = S(asset.filename)
-        for fn, args of modifiers
-          args = [args] if typeof args == 'string'
-          chain = chain[fn].apply(chain, args)
-        asset.filename = chain.s
+      for prop, modifiers of $asset
+        for asset in assets
+          chain = S(asset[prop])
+          for fn, args of modifiers
+            args = [args] if typeof args == 'string'
+            chain = chain[fn].apply(chain, args)
+          asset[prop] = chain.s
 
   ##
   # Wrapped filter's process to pass processOptions

@@ -39,27 +39,31 @@ Filter = (function() {
   };
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
-    var args, asset, assets, chain, fn, isAsset, modifiers, _i, _len, _results;
-    modifiers = this.processOptions._filename;
-    if (modifiers) {
+    var $asset, args, asset, assets, chain, fn, isAsset, modifiers, prop, _results;
+    $asset = this.processOptions.$asset;
+    if ($asset) {
       isAsset = assetOrTask.originalFilename != null;
-      if (isAsset) {
-        assets = [assetOrTask];
-      } else {
-        assets = assertOrTask.assets;
-      }
+      assets = isAsset ? [assetOrTask] : assertOrTask.assets;
       _results = [];
-      for (_i = 0, _len = assets.length; _i < _len; _i++) {
-        asset = assets[_i];
-        chain = S(asset.filename);
-        for (fn in modifiers) {
-          args = modifiers[fn];
-          if (typeof args === 'string') {
-            args = [args];
+      for (prop in $asset) {
+        modifiers = $asset[prop];
+        _results.push((function() {
+          var _i, _len, _results1;
+          _results1 = [];
+          for (_i = 0, _len = assets.length; _i < _len; _i++) {
+            asset = assets[_i];
+            chain = S(asset[prop]);
+            for (fn in modifiers) {
+              args = modifiers[fn];
+              if (typeof args === 'string') {
+                args = [args];
+              }
+              chain = chain[fn].apply(chain, args);
+            }
+            _results1.push(asset[prop] = chain.s);
           }
-          chain = chain[fn].apply(chain, args);
-        }
-        _results.push(asset.filename = chain.s);
+          return _results1;
+        })());
       }
       return _results;
     }

@@ -8,6 +8,13 @@ exports.project = (pm) ->
   f = pm.filters()
   $ = pm.shell()
 
+  # Changes the filename of an asset.
+  #   "src/foo/index.js" =>  "dest/foo/index.js"
+  setDestination =
+    filename:
+      chompLeft: "src"
+      ensureLeft: "dist"
+
   pm.registerTasks
     source:
       _desc: "Compiles source files"
@@ -20,6 +27,6 @@ exports.project = (pm) ->
         f.coffee(bare: true)
         # TODO add append/prepend to string.js.
         f.addHeader(filename: "doc/copyright.js")
-        f.writeFiles(_filename: {chompLeft: "src", ensureLeft: "dist"})
+        f.writeFiles($asset: setDestination)
       ]
 
