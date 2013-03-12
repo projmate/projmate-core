@@ -33,7 +33,7 @@ realUri = (url) ->
 # @param {String} url
 # @param {String} dirname
 #
-fetchProject = (url, dirname) ->
+cloneProject = (url, dirname) ->
   if url.indexOf("file://") == 0
     url = S(url).chompLeft("file://").ensureRight("/").s
     log.info "Copying #{url} to #{dirname}"
@@ -60,17 +60,19 @@ clone = (url, dirname, options, cb) ->
       read opts, (err, result) ->
         if result == "yes"
           $.rm_rf dirname
-          fetchProject(url, dirname)
+          cloneProject(url, dirname)
+          cb()
         else
           cb("Project not created.")
     else
-      fetchProject(url, dirname)
+      cloneProject(url, dirname)
+      cb()
 
-  # In multi-project repos, fetch EVERYTHING, then clone the subproject.
+  # In multi-project repos, fetch EVERYTHING, then start from the subproject
   if options.subProject
     # stage in temporary directory
     return temp.mkdir 'pm-create', (err, tempDir) ->
-      fetchProject url, tempDir
+      cloneProject url, tempDir
       clone "file://" + Path.join(tempDir, options.subProject), dirname, cb
   else
     fetchIt()
@@ -168,9 +170,10 @@ exports.run = (options={}) ->
   inputs = {}
 
   fetchProject = (cb) ->
-    clone url, dirname, options.force, cb
+    clone url, dirname, options, cb
 
   readUserInput = (cb) ->
+    console.log "HERE"
     readSandboxedInputs dirname, (err, readInputs) ->
       inputs = readInputs
       cb err
