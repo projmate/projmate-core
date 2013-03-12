@@ -1,12 +1,15 @@
 Path = require("path")
+Async = require("async")
+S = require("string")
+Fs = require("fs")
 $ = require("projmate-shell")
-async = require("async")
+Utils = require("../common/utils")
+read = require("read")
+templayed = require("templayed")
+Sandbox = require("sandbox")
+
 log = require("../common/logger").getLogger("pm-create")
 walkdir = require("walkdir")
-S = require("string")
-
-strcount = (s, needle) ->
-  s.match
 
 
 # Gets the real URI for a project
@@ -29,39 +32,103 @@ realUri = (url) ->
 # @param {String} url
 # @param {String} projectName
 #
-clone = (url, dirname) ->
-  if url.indexOf("file://")
-    url = S(url).chompLeft("file://").s
-    $.cp_rf url, dirname
+clone = (url, dirname, force, cb) ->
+  fetch = ->
+    if url.indexOf("file://") == 0
+      url = S(url).chompLeft("file://").ensureRight("/").s
+      log.info "Copying #{url} to #{dirname}"
+      $.cp_rf url, dirname
+    else
+      $.exec "git clone #{url} #{dirname}"
+    cb()
+
+  if Fs.existsSync(dirname)
+    read prompt: "Project #{dirname} exists. Overwrite? Type yes or", default: 'N', (err, result) ->
+      if result == "yes"
+        $.rm_rf dirname
+        fetch()
+      else
+        cb("Project not created.")
   else
-    $.exec "git clone #{url} #{dirname}"
+    fetch()
 
 
-# Gets input from user
+# A project skeleton has a meta file with a single variable `meta`. To
+# allow for richer meta fields, simple functions, which can run in
+# a restricted sandbox are allowed. However, these functions sometimes require
+# input from the user which is outside of the sandbox.
+#
+# The workaround is to first get inputs, then use the input values as
+# the context for the functions within the sandbox.
+#
+sandbox = new Sandbox()
+getMeta = (source, cb) ->
+  source = """
+  #{source};
+  JSON.stringify(meta)
+  """
+  sandbox.run source, (output) ->
+    try
+      cb null, JSON.parse(S(output.result).chompLeft("'").chompRight("'").s)
+    catch ex
+      cb "Could not parse meta: " + ex.toString()
+
+updateMeta = (source, inputs, cb) ->
+  source = """
+  #{source};
+  var inputs = #{JSON.stringify(inputs)};
+  for (var key in meta) {
+    if (typeof(meta[key]) === 'function') {
+      inputs[key] = meta[key].apply(inputs);
+    }
+  }
+  JSON.stringify(inputs)
+  """
+  sandbox.run source, (output) ->
+    try
+      cb null, JSON.parse(S(output.result).chompLeft("'").chompRight("'").s)
+    catch ex
+      cb "Could not parse meta: " + ex.toString()
+
+
+# Gets input from user using remote __meta.js
 #
 # @param {String} dirname
 #
 readProjectInput = (dirname, cb) ->
-  jsonFile = dirname + "/projmate.json"
-  if !Fs.existsSync(dirname + "/projmate.json")
-    throw new Error("Invalid project skeleton, `projmate.json` not found")
+  metaFile = dirname + "/__meta.js"
+  if !Fs.existsSync(dirname + "/__meta.js")
+    return cb("Invalid project skeleton, `__meta.js` not found")
 
-  # Allow users to use the current directory name as part of the prompt
+  # Run code in __meta.js in sandbox.
   projectName = Path.basename(dirname)
-  json = Fs.readFileSync(jsonFile)
-  json = json.replace(/\{\{dirname}}/g, projectName)
+  meta = Fs.readFileSync(metaFile, "utf8")
+  $.rm metaFile
+  getMeta meta, (err, inputs) ->
+    return console.error(err) if err
 
-  inputs = JSON.parse(json)
-  async.eachSeries Object.keys(inputs), (key, cb) ->
-    opts = prompt: inputs[key]
-    opts.default = projectName if key == "project"
+    Async.eachSeries Object.keys(inputs), (key, cb) ->
+      opts = prompt: "Enter #{inputs[key]}: "
+      opts.default = projectName if key == "project"
 
-    read prompt:prompt, (err, result) ->
-      return cb(err) if err
-      inputs[key] = result
-  , (err) ->
-    return cb(err) if (err)
-    cb null, inputs
+      read opts, (err, result) ->
+        return cb(err) if err
+        return cb("All inputs are required") if S(result).isEmpty()
+        inputs[key] = result
+        cb()
+    , (err) ->
+      return cb(err) if (err)
+      updateMeta meta, inputs, cb
+
+
+# Simple handlebars like template
+#
+# @example
+#   template("hello {{name}}", {name: "foo"}) // "hello foo"
+template = (text, locals) ->
+  for key, value of locals
+    text = text.replace(new RegExp("\\{\\{#{key}}}", "g"), value)
+  text
 
 
 # Create project from skeleton.
@@ -75,14 +142,43 @@ exports.run = (options={}) ->
   return log.error("options.url is required") unless options.url
   url = realUri(options.url)
   dirname = options.project || process.cwd()
+  inputs = {}
 
-  clone url, dirname
-  readProjectInput dirname, (err, inputs) ->
+  fetchProject = (cb) ->
+    clone url, dirname, options.force, cb
+
+  readUserInput = (cb) ->
+    readProjectInput dirname, (err, readInputs) ->
+      inputs = readInputs
+      cb err
+
+  updateFileAndContentTemplates = (cb) ->
+    # Walk directory deepest entries first
+    Utils.walkDirSync dirname, true, (dirname, subdirs, files) ->
+      for dir in subdirs
+        path = Path.join(dirname, dir)
+        if dir.indexOf("{{") >= 0
+          newPath = Path.join(dirname, template(dir, inputs))
+          $.mv path, newPath
+
+      for file in files
+        path = Path.join(dirname, file)
+        if file.indexOf("{{") >= 0
+          newPath = Path.join(dirname, template(file, inputs))
+          $.mv path, newPath
+
+        if !Utils.isFileBinary(path)
+          content = Fs.readFileSync(path, "utf8")
+          if content.indexOf("{{") >= 0
+            content = template(content, inputs)
+            Fs.writeFileSync path, content
+    cb()
+
+  Async.series [
+    fetchProject
+    readUserInput
+    updateFileAndContentTemplates
+  ], (err) ->
     return log.error(err) if err
-
-    walkdir dirname, (path, stat) ->
-      if stat.isDirectory()
-        console.log "directory: #{path}"
-      else
-        console.log "file: #{path}"
+    log.info "OK"
 

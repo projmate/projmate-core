@@ -90,15 +90,57 @@ Utils =
   #
   # @param {String} filename
   #
-  isFileBinary: (filename, cb) ->
-    Fs.open filename, "r", (err, fd) ->
-      return cb(err) if err
-      buffer = new Buffer(24)
+  isFileBinary: (filename) ->
+    fd = Fs.openSync filename, "r"
+    buffer = new Buffer(24)
 
-      Fs.read fd, buffer, 0, 24, 0, (err, num) ->
-        return cb(err) if err
-        Fs.close fd
-        cb null, getEncoding(buffer) == "binary"
+    Fs.readSync fd, buffer, 0, 24, 0
+    Fs.closeSync fd
+    getEncoding(buffer) == "binary"
 
+
+  # Walks down a tree.
+  #
+  # @param start {String} Current directory relative to start direcotry.
+  # @param deepestFirst {Boolean [optional]} Return deepest entries first.
+  # @param callback {Function} Do work. Signature (dir, subdirs, subfiles, control)
+  #        `dir` starts with `start`
+  #        `subdirs` are relative to `dir`
+  #        `subfiles` are relative to `dir`
+  #        set control.stop = true from callback to stop recursing
+  walkDirSync: (start, deepestFirst, callback) ->
+    stat = Fs.statSync(start)
+
+    if typeof arguments[1] == 'function'
+      callback = arguments[1]
+      deepestFirst = false
+
+    if stat.isDirectory()
+      filenames = Fs.readdirSync(start)
+
+      coll = filenames.reduce (acc, name) ->
+        abspath = Path.join(start, name)
+
+        if Fs.statSync(abspath).isDirectory()
+          acc.dirs.push(name)
+        else
+          acc.names.push(name)
+
+        return acc
+      , "names": [], "dirs": []
+
+      control = {}
+      if !deepestFirst
+         callback start, coll.dirs, coll.names, control
+
+      if not control.stop?
+        coll.dirs.forEach (d) ->
+          abspath = Path.join(start, d)
+          Utils.walkDirSync abspath, deepestFirst, callback
+
+      if deepestFirst
+        callback start, coll.dirs, coll.names
+    else
+      throw new Error("path: " + start + " is not a directory")
 
 module.exports = Utils

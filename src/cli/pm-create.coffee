@@ -1,6 +1,6 @@
 pkg = require("../../package.json")
 program = require("commander")
-create = require("../lib/pm-create")
+Create = require("../lib/pm-create")
 Path = require("path")
 
 # Runs the server
@@ -8,7 +8,7 @@ Path = require("path")
 main = ->
   program.url = program.args[0]
   program.project = program.args[1] || Path.basename(program.url)
-  create.run program
+  Create.run program
 
 
 # Configure program arguments.
@@ -16,7 +16,6 @@ main = ->
 program.on "--help", ->
   console.log """
   Examples:
-
     Create pm-skeleton-jade from //github.com/projmate/skeleton-jade
       pm create projmate/pm-skeleton-jade
 
@@ -28,6 +27,7 @@ program
   .version(pkg.version)
   .description("Create a project from git repo skeleton")
   .usage("url [dirname]")
+  .option("-f, --force", "Force overwriting of existing project")
   .option("-g, --git-init", "Initialize as git repo")
   .parse(process.argv)
 

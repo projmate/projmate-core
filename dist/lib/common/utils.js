@@ -74,21 +74,53 @@
         return null;
       }
     },
-    isFileBinary: function(filename, cb) {
-      return Fs.open(filename, "r", function(err, fd) {
-        var buffer;
-        if (err) {
-          return cb(err);
-        }
-        buffer = new Buffer(24);
-        return Fs.read(fd, buffer, 0, 24, 0, function(err, num) {
-          if (err) {
-            return cb(err);
+    isFileBinary: function(filename) {
+      var buffer, fd;
+      fd = Fs.openSync(filename, "r");
+      buffer = new Buffer(24);
+      Fs.readSync(fd, buffer, 0, 24, 0);
+      Fs.closeSync(fd);
+      return getEncoding(buffer) === "binary";
+    },
+    walkDirSync: function(start, deepestFirst, callback) {
+      var coll, control, filenames, stat;
+      stat = Fs.statSync(start);
+      if (typeof arguments[1] === 'function') {
+        callback = arguments[1];
+        deepestFirst = false;
+      }
+      if (stat.isDirectory()) {
+        filenames = Fs.readdirSync(start);
+        coll = filenames.reduce(function(acc, name) {
+          var abspath;
+          abspath = Path.join(start, name);
+          if (Fs.statSync(abspath).isDirectory()) {
+            acc.dirs.push(name);
+          } else {
+            acc.names.push(name);
           }
-          Fs.close(fd);
-          return cb(null, getEncoding(buffer) === "binary");
+          return acc;
+        }, {
+          "names": [],
+          "dirs": []
         });
-      });
+        control = {};
+        if (!deepestFirst) {
+          callback(start, coll.dirs, coll.names, control);
+        }
+        if (control.stop == null) {
+          coll.dirs.forEach(function(d) {
+            var abspath;
+            abspath = Path.join(start, d);
+            return Utils.walkDirSync(abspath, deepestFirst, callback);
+          });
+        }
+        if (deepestFirst) {
+          return callback(start, coll.dirs, coll.names);
+        }
+      } else {
+        throw new Error("path: " + start + " is not a directory");
+      }
     }
   };
 
