@@ -19,7 +19,7 @@ minified, compressed and made into a single CommonJS module in the browser.
 *   CommonJS in the browser (RequireJS also supported)
 *   Components
 
-## Examples
+## pm run
 
 The following examples read `Projfile.coffee`
 
@@ -103,6 +103,42 @@ Note
 
 *   Reserved task properties are prefixed with `_`, eg `_files`.
 *   Tasks define one or more commands for build environments
+
+
+## pm create
+
+Creating a project skeleton. Idea from [visionmedia/ngen]().
+
+1.  Must have a top-level `__meta.js` file containing a single variable `meta`.
+    The meta declares user inputs. All properties of type string are required
+    input fields. Function properties, are evaluated after reading inputs
+    from user. Functions are evaluated in a sandbox, KISS.
+
+2.  Files and directories are renamed using `{{pm__PROPERTY}}` tokens. For
+    example, given a file named `skeleton/{{pm__name}}.txt` and user input
+    for `name` property is `"hello"`, the file is renamed to `skeleton\hello.txt`.
+
+3.  Similarly, text files may use `{{pm__PROPERTY}}` for replacement during
+    project creation.
+
+The `{{pm__PROPERTY}}` convention was chosen due to popularity of mustachey
+projects. Having to escape curly braces everywhere would not be fun.
+
+
+### Projmate skeletons
+
+    pm create <short-url> <projmate-project-name>
+
+Short Url | Description
+------------------------------|--------------------------
+projmate/skeleton-backbone-spa | Backbone example
+projmate/skeleton-filter | Create a filter
+projmate/skeleton-task | Create a task processor
+projmate/skeleton-skeleton | Create your own skeleton
+
+Example
+
+    pm create projmate/skeleton-backbone-spa bb-example
 
 
 ## License

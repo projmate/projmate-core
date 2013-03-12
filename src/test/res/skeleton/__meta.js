@@ -1,12 +1,12 @@
 var meta = {
-  project: "project name",
-  name: "full name",
-  email: "e-email",
+  project: "Project Name",
+  name: "Full Name",
+  email: "E-mail",
   year: function() {
     return (new Date).getFullYear();
   },
   author: function() {
-    return this.name + "<" + this.email + ">";
+    return this.name + " <" + this.email + ">";
   }
 };
 

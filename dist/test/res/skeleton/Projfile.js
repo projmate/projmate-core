@@ -13,7 +13,7 @@
     $ = pm.shell();
     return pm.regiserTasks({
       appjs: {
-        _desc: "Builds {{project}}'s browser-side CommonJS module app",
+        _desc: "Builds {{pm__project}}'s browser-side CommonJS module app",
         development: function() {}
       },
       clean: {

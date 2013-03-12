@@ -9,12 +9,26 @@ exports.project = (pm) ->
 
   pm.regiserTasks
     appjs:
-      _desc: "Builds {{project}}'s browser-side CommonJS module app"
+      _desc: "Builds {{pm__project}}'s browser-side CommonJS module app"
       development: ->
 
     clean:
       _desc: "Cleans this project"
       development: ->
         $.rm_rf "build"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

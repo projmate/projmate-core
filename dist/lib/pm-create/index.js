@@ -131,7 +131,7 @@
     var key, value;
     for (key in locals) {
       value = locals[key];
-      text = text.replace(new RegExp("\\{\\{" + key + "}}", "g"), value);
+      text = text.replace(new RegExp("\\{\\{pm__" + key + "}}", "g"), value);
     }
     return text;
   };

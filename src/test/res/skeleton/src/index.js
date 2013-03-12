@@ -1,7 +1,12 @@
 /**
- * Copyright (c) {{year}} {{author}} <{{email}}>
+ * Copyright (c) {{pm__year}} {{pm__author}}
+ *
+ * See file LICENSE for copying permissions.
  */
 
-function foo() {
+function Foo() {
   console.log("bar");
 }
+
+module.exports = Foo;
+

@@ -27,7 +27,7 @@ realUri = (url) ->
     url
 
 
-# Clones a git repository.
+# Clones a project skeleton from git repository or file system.
 #
 # @param {String} url
 # @param {String} projectName
@@ -43,7 +43,10 @@ clone = (url, dirname, force, cb) ->
     cb()
 
   if Fs.existsSync(dirname)
-    read prompt: "Project #{dirname} exists. Overwrite? Type yes or", default: 'N', (err, result) ->
+    opts =
+      prompt: "Project #{dirname} exists. Overwrite? Type yes or"
+      default: 'N'
+    read opts, (err, result) ->
       if result == "yes"
         $.rm_rf dirname
         fetch()
@@ -53,13 +56,13 @@ clone = (url, dirname, force, cb) ->
     fetch()
 
 
-# A project skeleton has a meta file with a single variable `meta`. To
-# allow for richer meta fields, simple functions, which can run in
-# a restricted sandbox are allowed. However, these functions sometimes require
-# input from the user which is outside of the sandbox.
+# A project skeleton has a __meta.js file containing a single variable named
+# `meta`. Simple functions, which can run in a restricted sandbox are allowed.
+# However, these functions may rely on user input which occurs outside of the
+# sandbox.
 #
-# The workaround is to first get inputs, then use the input values as
-# the context for the functions within the sandbox.
+# The workaround is two-phase; first get inputs, then pass user's input
+# values as the context for the functions within the sandbox.
 #
 sandbox = new Sandbox()
 getMeta = (source, cb) ->
@@ -95,7 +98,7 @@ updateMeta = (source, inputs, cb) ->
 #
 # @param {String} dirname
 #
-readProjectInput = (dirname, cb) ->
+readSandboxedInputs = (dirname, cb) ->
   metaFile = dirname + "/__meta.js"
   if !Fs.existsSync(dirname + "/__meta.js")
     return cb("Invalid project skeleton, `__meta.js` not found")
@@ -127,7 +130,7 @@ readProjectInput = (dirname, cb) ->
 #   template("hello {{name}}", {name: "foo"}) // "hello foo"
 template = (text, locals) ->
   for key, value of locals
-    text = text.replace(new RegExp("\\{\\{#{key}}}", "g"), value)
+    text = text.replace(new RegExp("\\{\\{pm__#{key}}}", "g"), value)
   text
 
 
@@ -148,7 +151,7 @@ exports.run = (options={}) ->
     clone url, dirname, options.force, cb
 
   readUserInput = (cb) ->
-    readProjectInput dirname, (err, readInputs) ->
+    readSandboxedInputs dirname, (err, readInputs) ->
       inputs = readInputs
       cb err
 
