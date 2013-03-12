@@ -52,11 +52,9 @@ class Task
         # pipeline.
         if load
           unless pipeline[0] instanceof @filters.loadFiles
-            @log.debug "PREPENDING loadFiles"
             pipeline.unshift @filters.loadFiles
         else
           unless pipeline[0] instanceof @filters.loadFilenames
-            @log.debug "PREPENDING loadFilenames"
             pipeline.unshift @filters.loadFilenames
 
         # sanity check
