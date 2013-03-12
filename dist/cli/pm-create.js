@@ -20,7 +20,7 @@
     return console.log("Examples:\n  Create pm-skeleton-jade from //github.com/projmate/skeleton-jade\n    pm create projmate/pm-skeleton-jade\n\n  Create my-project from //github.com/projmate/skeleton-jade\n    pm create projmate/skeleton-jade my-project");
   });
 
-  program.version(pkg.version).description("Create a project from git repo skeleton").usage("url [dirname]").option("-f, --force", "Force overwriting of existing project").option("-g, --git-init", "Initialize as git repo").parse(process.argv);
+  program.version(pkg.version).description("Create a project from git repo skeleton").usage("url [dirname]").option("-s, --sub-project <dirname>", "Select sub project").option("-g, --git-init", "Initialize as git repo").parse(process.argv);
 
   if (program.args < 3) {
     program.outputHelp();

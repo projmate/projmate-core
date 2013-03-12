@@ -1,15 +1,18 @@
-Path = require("path")
-Async = require("async")
-S = require("string")
-Fs = require("fs")
 $ = require("projmate-shell")
+Async = require("async")
+Fs = require("fs")
+Path = require("path")
+Pkg = require("../../../package.json")
+S = require("string")
+Sandbox = require("sandbox")
+Temp = require("temp")
 Utils = require("../common/utils")
 read = require("read")
 templayed = require("templayed")
-Sandbox = require("sandbox")
 
 log = require("../common/logger").getLogger("pm-create")
 walkdir = require("walkdir")
+
 
 
 # Gets the real URI for a project
@@ -27,33 +30,58 @@ realUri = (url) ->
     url
 
 
+# Fetch project from git or file system.
+#
+# @param {String} url
+# @param {String} dirname
+#
+cloneProject = (url, dirname) ->
+  if url.indexOf("file://") == 0
+    url = S(url).chompLeft("file://").ensureRight("/").s
+    log.info "Copying #{url} to #{dirname}"
+    $.cp_rf url, dirname
+  else
+    $.exec "git clone #{url} #{dirname}"
+
+
 # Clones a project skeleton from git repository or file system.
 #
 # @param {String} url
 # @param {String} projectName
 #
-clone = (url, dirname, force, cb) ->
-  fetch = ->
-    if url.indexOf("file://") == 0
-      url = S(url).chompLeft("file://").ensureRight("/").s
-      log.info "Copying #{url} to #{dirname}"
-      $.cp_rf url, dirname
-    else
-      $.exec "git clone #{url} #{dirname}"
-    cb()
+clone = (url, dirname, options, cb) ->
+  if typeof options == 'function'
+    cb = options
+    options = {}
 
-  if Fs.existsSync(dirname)
-    opts =
-      prompt: "Project #{dirname} exists. Overwrite? Type yes or"
-      default: 'N'
-    read opts, (err, result) ->
-      if result == "yes"
-        $.rm_rf dirname
-        fetch()
-      else
-        cb("Project not created.")
+  fetchIt = ->
+    if Fs.existsSync(dirname)
+      opts =
+        prompt: "Project #{dirname} exists. Overwrite? Type yes or"
+        default: 'N'
+      read opts, (err, result) ->
+        if result == "yes"
+          $.rm_rf dirname
+          cloneProject(url, dirname)
+          cb()
+        else
+          cb("Project not created.")
+    else
+      cloneProject(url, dirname)
+      cb()
+
+  # In multi-project repos, fetch EVERYTHING, then start from the subproject
+  if options.subProject
+    console.log "options.subProject", options.subProject
+    # stage in temporary directory
+    return Temp.mkdir 'pm-create', (err, tempDir) ->
+      cloneProject url, tempDir
+      newUrl = "file://" + Path.join(tempDir, options.subProject)
+      console.log "newUrl", newUrl
+      console.log "dirname", dirname
+      clone newUrl, dirname, cb
   else
-    fetch()
+    fetchIt()
 
 
 # A project skeleton has a __meta.js file containing a single variable named
@@ -74,27 +102,31 @@ getMeta = (source, cb) ->
     try
       cb null, JSON.parse(S(output.result).chompLeft("'").chompRight("'").s)
     catch ex
-      cb "Could not parse meta: " + ex.toString()
+      cb "Could not get meta (sandbox): " + ex.toString()
 
+# Now that we have input from user apply it to the original functions
+# to get computed values.
 updateMeta = (source, inputs, cb) ->
   source = """
   #{source};
-  var inputs = #{JSON.stringify(inputs)};
+  var fn, inputs = #{JSON.stringify(inputs)};
   for (var key in meta) {
-    if (typeof(meta[key]) === 'function') {
-      inputs[key] = meta[key].apply(inputs);
+    fn = meta[key];
+    if (typeof fn  === 'function') {
+      inputs[key] = fn.apply(inputs);
     }
   }
   JSON.stringify(inputs)
   """
   sandbox.run source, (output) ->
     try
-      cb null, JSON.parse(S(output.result).chompLeft("'").chompRight("'").s)
+      res = S(output.result).chompLeft("'").chompRight("'").s
+      cb null, JSON.parse(res)
     catch ex
-      cb "Could not parse meta: " + ex.toString()
+      cb "Could not update meta (sandbox): " + ex.toString()
 
 
-# Gets input from user using remote __meta.js
+# Gets input from user based on definitions in __meta.js
 #
 # @param {String} dirname
 #
@@ -121,6 +153,8 @@ readSandboxedInputs = (dirname, cb) ->
         cb()
     , (err) ->
       return cb(err) if (err)
+      # add pre-defined projmate keys
+      inputs.VERSION = Pkg.version
       updateMeta meta, inputs, cb
 
 
@@ -148,7 +182,7 @@ exports.run = (options={}) ->
   inputs = {}
 
   fetchProject = (cb) ->
-    clone url, dirname, options.force, cb
+    clone url, dirname, options, cb
 
   readUserInput = (cb) ->
     readSandboxedInputs dirname, (err, readInputs) ->
@@ -156,26 +190,30 @@ exports.run = (options={}) ->
       cb err
 
   updateFileAndContentTemplates = (cb) ->
-    # Walk directory deepest entries first
-    Utils.walkDirSync dirname, true, (dirname, subdirs, files) ->
-      for dir in subdirs
-        path = Path.join(dirname, dir)
-        if dir.indexOf("{{") >= 0
-          newPath = Path.join(dirname, template(dir, inputs))
-          $.mv path, newPath
+    try
+      # This section is sync with lambda, not async callbacks
+      # Walk directory deepest entries first
+      Utils.walkDirSync dirname, true, (dirname, subdirs, files) ->
+        for dir in subdirs
+          path = Path.join(dirname, dir)
+          if dir.indexOf("{{") >= 0
+            newPath = Path.join(dirname, template(dir, inputs))
+            $.mv path, newPath
 
-      for file in files
-        path = Path.join(dirname, file)
-        if file.indexOf("{{") >= 0
-          newPath = Path.join(dirname, template(file, inputs))
-          $.mv path, newPath
+        for file in files
+          path = Path.join(dirname, file)
+          if !Utils.isFileBinary(path)
+            content = Fs.readFileSync(path, "utf8")
+            if content.indexOf("{{") >= 0
+              content = template(content, inputs)
+              Fs.writeFileSync path, content
 
-        if !Utils.isFileBinary(path)
-          content = Fs.readFileSync(path, "utf8")
-          if content.indexOf("{{") >= 0
-            content = template(content, inputs)
-            Fs.writeFileSync path, content
-    cb()
+          if file.indexOf("{{") >= 0
+            newPath = Path.join(dirname, template(file, inputs))
+            $.mv path, newPath
+      cb()
+    catch ex
+      cb ex
 
   Async.series [
     fetchProject

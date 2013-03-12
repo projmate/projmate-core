@@ -27,7 +27,7 @@ program
   .version(pkg.version)
   .description("Create a project from git repo skeleton")
   .usage("url [dirname]")
-  .option("-f, --force", "Force overwriting of existing project")
+  .option("-s, --sub-project <dirname>", "Select sub project")
   .option("-g, --git-init", "Initialize as git repo")
   .parse(process.argv)
 
