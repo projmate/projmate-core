@@ -10,7 +10,7 @@ pkg = require("../../package.json");
 
 program = require("commander");
 
-Create = require("../lib/pm-create");
+Create = require("../lib/create");
 
 Path = require("path");
 

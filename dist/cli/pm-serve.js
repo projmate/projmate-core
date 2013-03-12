@@ -10,7 +10,7 @@ Pkg = require("../../package.json");
 
 Program = require("commander");
 
-Server = require("../lib/pm-serve/server");
+Server = require("../lib/serve/server");
 
 main = function() {
   var ex;
