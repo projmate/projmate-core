@@ -1,11 +1,12 @@
 Runner = require("./runner")
 Fs = require("fs")
 Path = require("path")
+log = require("../common/logger").getLogger("run")
+Str = require("underscore.string")
 
 # Loads the project file module.
 #
 loadProjfile = (projfilePath)->
-  console.log "projfilePath", projfilePath
   throw new Error("Projfile does not exist: #{projfilePath}") unless Fs.existsSync(projfilePath)
 
   extname = Path.extname(projfilePath)
@@ -29,12 +30,11 @@ loadProjfile = (projfilePath)->
 #   {String} projfilePath The path to Projfile
 #   {Function} executeTasks The execute lambda.
 # }
-_run = (options, cb) ->
+_run = (options, executeTasks, cb) ->
   return cb("Options.program is required") unless options.program
   return cb("Options.projfilePath is required") unless options.projfilePath
-  return cb("Options.executeTasks is required") unless options.executeTasks
 
-  {program, projfilePath, executeTasks} = options
+  {program, projfilePath} = options
 
   runner = new Runner(program: program)
   projfile = loadProjfile(projfilePath)
@@ -43,35 +43,31 @@ _run = (options, cb) ->
   # Execute the projfile
   if projfile.project.length == 1
     projfile.project runner
-    executeTasks runner, projfilePath cb
+    executeTasks runner, projfilePath, cb
   else
     projfile.project runner, (err) ->
       return cb(err) if err
       executeTasks runner, projfilePath, cb
-
-  cb()
 
 
 # Runs task
 exports.run = (options, cb) ->
   {tasks} = options.program
 
-  options.executeTasks = (runner, projfilePath, err) ->
-    return log.error(err) if err
+  executeTasks = (runner, projfilePath, cb) ->
     # Set current working directory to location of projfilePath
     process.chdir Path.dirname(projfilePath)
 
     # Run the tasks
     runner.executeTasks tasks, cb
 
-  _run options, cb
+  _run options, executeTasks, cb
 
 
 # Get task descriptions from project file.
 #
 exports.taskDescriptions = (options, cb) ->
-  options.executeTasks = (err) ->
-    return cb(err) if err
+  executeTasks = (runner, projfilePath, cb) ->
     desc = []
 
     # calc longest name
@@ -85,6 +81,6 @@ exports.taskDescriptions = (options, cb) ->
 
     cb null, desc.sort().join("\n")
 
-  _run options, cb
+  _run options, executeTasks, cb
 
 

@@ -4,5 +4,15 @@
  * See the file COPYING for copying permission.
  */
 
+# pm-create
 
-module.exports = require("./lib");
+
+##
+
+json =
+    name: "Enter name"
+    email: "Enter email"
+    project: "project name={{dirname}}"
+
+
+

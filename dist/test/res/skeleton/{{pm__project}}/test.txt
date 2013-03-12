@@ -4,5 +4,4 @@
  * See the file COPYING for copying permission.
  */
 
-
-module.exports = require("./lib");
+Project name: {{pm__project}}

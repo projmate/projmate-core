@@ -19,9 +19,9 @@ findProjfile = ->
   for projfile in files
     if projfile
       dir = Utils.findDirUp(projfile)
-      projfilePath = Path.join(dir, projfile)
-      log.info "#{Program.environment}: #{projfilePath}"
-      return projfilePath
+      if dir
+        projfilePath = Path.join(dir, projfile)
+        return projfilePath
 
   if Program.projfile
     throw new Error("Projfile not found: #{Program.projfile}")
@@ -36,15 +36,20 @@ run = ->
   try
     Program.tasks = Program.args
     projfilePath = findProjfile()
-    Run.run(program: Program, projfilePath: projfilePath)
+    log.info "#{Program.environment}: #{projfilePath}"
+    Run.run {program: Program, projfilePath: projfilePath}, (err) ->
+      if err
+        log.error err
+      else
+        log.log "OK"
   catch e
     log.error e
 
 # Gets task descriptions from project file
-taskDescriptions = ->
+taskDescriptions = (cb) ->
   try
     projfilePath = findProjfile()
-    Run.taskDescriptions(program: Program, projfilePath: projfilePath)
+    Run.taskDescriptions {program: Program, projfilePath: projfilePath}, cb
   catch e
     log.error e
 
@@ -52,7 +57,7 @@ taskDescriptions = ->
 Program.on "--help", ->
   taskDescriptions (err, tasks) ->
     if err
-      console.error err
+      log.error err
     else
       console.log "  Tasks:"
       console.log ""
