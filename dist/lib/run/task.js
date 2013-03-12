@@ -41,17 +41,26 @@ Task = (function() {
   }
 
   Task.prototype._initPipelines = function(config) {
-    var filter, i, name, notUnderscored, pipeline, _i, _j, _len, _len1, _results;
+    var filter, i, load, name, notUnderscored, pipeline, _i, _j, _len, _len1, _ref, _results;
     notUnderscored = _(config).keys().reject(function(name) {
       return name.indexOf('_') === 0;
     }).value();
+    load = ((_ref = config._files) != null ? _ref.load : void 0) != null ? config._files.load : true;
     _results = [];
     for (_i = 0, _len = notUnderscored.length; _i < _len; _i++) {
       name = notUnderscored[_i];
       pipeline = config[name];
       if (Array.isArray(pipeline)) {
-        if (!(pipeline[0] instanceof this.filters.loadFiles)) {
-          pipeline.unshift(this.filters.loadFiles);
+        if (load) {
+          if (!(pipeline[0] instanceof this.filters.loadFiles)) {
+            this.log.debug("PREPENDING loadFiles");
+            pipeline.unshift(this.filters.loadFiles);
+          }
+        } else {
+          if (!(pipeline[0] instanceof this.filters.loadFilenames)) {
+            this.log.debug("PREPENDING loadFilenames");
+            pipeline.unshift(this.filters.loadFilenames);
+          }
         }
         for (i = _j = 0, _len1 = pipeline.length; _j < _len1; i = ++_j) {
           filter = pipeline[i];

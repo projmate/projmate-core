@@ -9,7 +9,6 @@ str = require("underscore.string")
 
 class Task
 
-  ##
   # Creates an instance of this object.
   #
   #
@@ -32,29 +31,33 @@ class Task
     @_initPipelines config
 
 
-  ##
   # Normalizes pipeline as a series of filters, prepending `loadFiles` to
   # the pipeline (if needed) to kick things off.
   #
   _initPipelines: (config) ->
     notUnderscored = _(config).keys().reject((name) -> name.indexOf('_') == 0).value()
 
+    # Load by default, some tasks disable loading when the task action
+    # does not maninpulate the file. Mocha for example, only needs
+    # the filenames not the content.
+    load = if config._files?.load? then config._files.load else true
+
     for name in notUnderscored
       # The pipeline can either be an array of filters, OR a function.
       pipeline = config[name]
 
       if Array.isArray(pipeline)
-
-        # TODO allow quick, easy ad-hoc filters
-        # for filter, i in pipeline
-        #   if typeof filter == "function"
-        #     pipeline[i] = @filters.functoid(fn: pipeline)
-
-        # Each pipeline starts by loading files. Since this is so common,
-        # prepend it if it is not declared in pipeline.
-        unless pipeline[0] instanceof @filters.loadFiles
-          pipeline.unshift @filters.loadFiles
-
+        # Each pipeline starts by loading files or just the filenames.
+        # Since this is so common, prepend it if it is not declared in
+        # pipeline.
+        if load
+          unless pipeline[0] instanceof @filters.loadFiles
+            @log.debug "PREPENDING loadFiles"
+            pipeline.unshift @filters.loadFiles
+        else
+          unless pipeline[0] instanceof @filters.loadFilenames
+            @log.debug "PREPENDING loadFilenames"
+            pipeline.unshift @filters.loadFilenames
 
         # sanity check
         for filter, i in pipeline
@@ -66,7 +69,6 @@ class Task
       @pipelines[name] = { pipeline, ran: false }
 
 
-  ##
   # Watch files in `_files.watch` or `_files.include` and execute this
   # tasks whenever any matching files changes.
   #
@@ -181,7 +183,6 @@ class Task
       cb()
 
 
-  ##
   # Executes this task's environment pipeline.
   #
   execute: (cb) ->

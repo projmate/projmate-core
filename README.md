@@ -39,6 +39,11 @@ To build pages/stylesheets, watch and serve
 
     pm run pages stylesheets --watch --serve
 
+Disable loading of files for mocha, etc
+
+    _files: { load: false }
+
+Example
 
 ```coffee
 #=== Projfile.coffee
