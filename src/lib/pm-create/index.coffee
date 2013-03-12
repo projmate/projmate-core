@@ -10,6 +10,7 @@ Sandbox = require("sandbox")
 
 log = require("../common/logger").getLogger("pm-create")
 walkdir = require("walkdir")
+Temp = require("temp")
 
 
 # Gets the real URI for a project
@@ -27,33 +28,52 @@ realUri = (url) ->
     url
 
 
+# Fetch project from git or file system.
+#
+# @param {String} url
+# @param {String} dirname
+#
+fetchProject = (url, dirname) ->
+  if url.indexOf("file://") == 0
+    url = S(url).chompLeft("file://").ensureRight("/").s
+    log.info "Copying #{url} to #{dirname}"
+    $.cp_rf url, dirname
+  else
+    $.exec "git clone #{url} #{dirname}"
+
+
 # Clones a project skeleton from git repository or file system.
 #
 # @param {String} url
 # @param {String} projectName
 #
-clone = (url, dirname, force, cb) ->
-  fetch = ->
-    if url.indexOf("file://") == 0
-      url = S(url).chompLeft("file://").ensureRight("/").s
-      log.info "Copying #{url} to #{dirname}"
-      $.cp_rf url, dirname
-    else
-      $.exec "git clone #{url} #{dirname}"
-    cb()
+clone = (url, dirname, options, cb) ->
+  if typeof options == 'function'
+    cb = options
+    options = {}
 
-  if Fs.existsSync(dirname)
-    opts =
-      prompt: "Project #{dirname} exists. Overwrite? Type yes or"
-      default: 'N'
-    read opts, (err, result) ->
-      if result == "yes"
-        $.rm_rf dirname
-        fetch()
-      else
-        cb("Project not created.")
+  fetchIt = ->
+    if Fs.existsSync(dirname)
+      opts =
+        prompt: "Project #{dirname} exists. Overwrite? Type yes or"
+        default: 'N'
+      read opts, (err, result) ->
+        if result == "yes"
+          $.rm_rf dirname
+          fetchProject(url, dirname)
+        else
+          cb("Project not created.")
+    else
+      fetchProject(url, dirname)
+
+  # In multi-project repos, fetch EVERYTHING, then clone the subproject.
+  if options.subProject
+    # stage in temporary directory
+    return temp.mkdir 'pm-create', (err, tempDir) ->
+      fetchProject url, tempDir
+      clone "file://" + Path.join(tempDir, options.subProject), dirname, cb
   else
-    fetch()
+    fetchIt()
 
 
 # A project skeleton has a __meta.js file containing a single variable named
@@ -94,7 +114,7 @@ updateMeta = (source, inputs, cb) ->
       cb "Could not parse meta: " + ex.toString()
 
 
-# Gets input from user using remote __meta.js
+# Gets input from user based on definitions in __meta.js
 #
 # @param {String} dirname
 #
