@@ -53,12 +53,10 @@ Task = (function() {
       if (Array.isArray(pipeline)) {
         if (load) {
           if (!(pipeline[0] instanceof this.filters.loadFiles)) {
-            this.log.debug("PREPENDING loadFiles");
             pipeline.unshift(this.filters.loadFiles);
           }
         } else {
           if (!(pipeline[0] instanceof this.filters.loadFilenames)) {
-            this.log.debug("PREPENDING loadFilenames");
             pipeline.unshift(this.filters.loadFilenames);
           }
         }
