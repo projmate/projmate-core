@@ -226,7 +226,7 @@ Task = (function() {
       this.log.debug("skipping " + this.name + "." + environment + ", already ran");
       return cb();
     }
-    this.log.info("Running " + this.name + "." + environment + " ...");
+    this.log.info("==> " + this.name + "." + environment + " ...");
     if (typeof pipeline === "function") {
       this._executeFunctionTask(pipeline, cb);
     } else {

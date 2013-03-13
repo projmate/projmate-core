@@ -43,8 +43,6 @@ run = ->
     Run.run {program: Program, projfilePath: projfilePath}, (err) ->
       if err
         log.error err
-      else
-        log.log "OK"
   catch e
     log.error e
 

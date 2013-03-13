@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Path, Runner, Str, loadProjfile, log, _run;
+var Fs, Path, Runner, Server, Str, loadProjfile, log, _run;
 
 Runner = require("./runner");
 
@@ -15,6 +15,8 @@ Path = require("path");
 log = require("../common/logger").getLogger("run");
 
 Str = require("underscore.string");
+
+Server = require("../serve/server");
 
 loadProjfile = function(projfilePath) {
   var ex, extname;
@@ -70,15 +72,48 @@ _run = function(options, executeTasks, cb) {
 };
 
 exports.run = function(options, cb) {
-  var executeTasks, tasks;
-  tasks = options.program.tasks;
+  var executeTasks, pjfile, program, startTime, tasks;
+  startTime = Date.now();
+  program = options.program;
+  tasks = program.tasks;
+  pjfile = null;
   executeTasks = function(args, cb) {
     var projfile, projfilePath, runner;
     runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
+    pjfile = projfile;
     process.chdir(Path.dirname(projfilePath));
     return runner.executeTasks(tasks, cb);
   };
-  return _run(options, executeTasks, cb);
+  return _run(options, executeTasks, function(err) {
+    var dirname, elapsed, endTime, serve, serveOptions, serverConfig;
+    if (err) {
+      return cb(err);
+    }
+    serve = program.serve;
+    serverConfig = pjfile.server;
+    if (serve) {
+      dirname = serve;
+      if (dirname.length > 0) {
+        serveOptions = {
+          dirname: dirname
+        };
+      } else if (serverConfig) {
+        serveOptions = serverConfig;
+      } else {
+        serveOptions = {
+          dirname: "."
+        };
+      }
+      return Server.run(serveOptions);
+    } else {
+      endTime = Date.now();
+      elapsed = endTime - startTime;
+      if (!program.watch) {
+        log.info("OK - " + (elapsed / 1000) + " seconds");
+      }
+      return cb();
+    }
+  });
 };
 
 exports.taskDescriptions = function(options, cb) {

@@ -6,7 +6,6 @@ Shell = require("projmate-shell")
 Task = require("./task")
 Util = require("util")
 _ = require("lodash")
-Server = require("../serve/server")
 
 log = Logger.getLogger("runner")
 
@@ -83,22 +82,6 @@ class Runner
       if err
         log.error err
         log.error "FAIL"
-      else
-        serve = that.program.serve
-        serverConfig = that.server
-        if serve
-          dirname = serve
-          if dirname.length > 0
-            serveOptions = {dirname}
-          else if serverConfig
-            serveOptions = serverConfig
-          else
-            serveOptions = dirname: "."
-
-          Server.run serveOptions
-        else
-          log.info("OK") unless that.program.watch
-
       cb err
     null
 

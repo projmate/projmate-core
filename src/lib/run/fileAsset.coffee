@@ -13,7 +13,7 @@ class FileAsset
     {cwd, filename, parent, text, stat} = options
     throw new Error("parent property is required") unless options.parent?
     filename = Utils.unixPath(filename)
-    @filename = filename
+    @_filename = filename
     @originalFilename = filename
     @_extname = Path.extname(filename)
     @dirname = Path.dirname(filename)
@@ -22,6 +22,15 @@ class FileAsset
     @stat = stat
     @_text = text
     @parent = parent
+
+  @property "filename",
+    get: -> @_filename
+    set: (fname) ->
+      filename = Utils.unixPath(fname)
+      @_filename = filename
+      @_extname = Path.extname(filename)
+      @dirname = Path.dirname(filename)
+      @basename = Path.basename(filename)
 
   @property "text",
     get: -> @_text

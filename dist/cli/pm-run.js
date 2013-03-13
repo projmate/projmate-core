@@ -57,8 +57,6 @@ run = function() {
     }, function(err) {
       if (err) {
         return log.error(err);
-      } else {
-        return log.log("OK");
       }
     });
   } catch (_error) {

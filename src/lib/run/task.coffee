@@ -203,7 +203,7 @@ class Task
       @log.debug("skipping #{@name}.#{environment}, already ran")
       return cb()
 
-    @log.info "Running #{@name}.#{environment} ..."
+    @log.info "==> #{@name}.#{environment} ..."
     if typeof pipeline == "function"
       @_executeFunctionTask pipeline, cb
     else

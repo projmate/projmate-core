@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, FilterCollection, Logger, Path, Runner, Server, Shell, Task, Util, log, _,
+var Async, FilterCollection, Logger, Path, Runner, Shell, Task, Util, log, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
 
@@ -23,8 +23,6 @@ Task = require("./task");
 Util = require("util");
 
 _ = require("lodash");
-
-Server = require("../serve/server");
 
 log = Logger.getLogger("runner");
 
@@ -98,32 +96,9 @@ Runner = (function() {
         return task.execute(cb);
       }
     }, function(err) {
-      var dirname, serve, serveOptions, serverConfig;
       if (err) {
         log.error(err);
         log.error("FAIL");
-      } else {
-        serve = that.program.serve;
-        serverConfig = that.server;
-        if (serve) {
-          dirname = serve;
-          if (dirname.length > 0) {
-            serveOptions = {
-              dirname: dirname
-            };
-          } else if (serverConfig) {
-            serveOptions = serverConfig;
-          } else {
-            serveOptions = {
-              dirname: "."
-            };
-          }
-          Server.run(serveOptions);
-        } else {
-          if (!that.program.watch) {
-            log.info("OK");
-          }
-        }
       }
       return cb(err);
     });

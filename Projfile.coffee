@@ -20,6 +20,7 @@ exports.project = (pm) ->
       development: [
         f.coffee(bare: true)
         f.addHeader(filename: "doc/copyright.js")
-        f.writeFiles($asset: toDist)
+        #f.writeFiles($asset: toDist)
+        f.writeFiles(_filename: {replace: [/^src/, "dist"]})
       ]
 

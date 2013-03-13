@@ -3,6 +3,7 @@ Fs = require("fs")
 Path = require("path")
 log = require("../common/logger").getLogger("run")
 Str = require("underscore.string")
+Server = require("../serve/server")
 
 # Loads the project file module.
 #
@@ -55,10 +56,15 @@ _run = (options, executeTasks, cb) ->
 # Runs task
 #
 exports.run = (options, cb) ->
-  {tasks} = options.program
+  startTime = Date.now()
+
+  program = options.program
+  {tasks} = program
+  pjfile = null
 
   executeTasks = (args, cb) ->
     {runner, projfile, projfilePath} = args
+    pjfile = projfile
 
     # Set current working directory to location of projfilePath
     process.chdir Path.dirname(projfilePath)
@@ -66,7 +72,27 @@ exports.run = (options, cb) ->
     # Run the tasks
     runner.executeTasks tasks, cb
 
-  _run options, executeTasks, cb
+  _run options, executeTasks, (err) ->
+    return cb(err) if err
+
+    serve = program.serve
+    serverConfig = pjfile.server
+    if serve
+      dirname = serve
+      if dirname.length > 0
+        serveOptions = {dirname}
+      else if serverConfig
+        serveOptions = serverConfig
+      else
+        serveOptions = dirname: "."
+
+      Server.run serveOptions
+    else
+      endTime = Date.now()
+      elapsed = endTime - startTime
+
+      log.info("OK - #{elapsed/1000} seconds") unless program.watch
+      cb()
 
 
 # Get task descriptions from project file.
