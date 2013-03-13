@@ -22,7 +22,7 @@ class Task
     @log = log
     @assets = null
     @name = name
-    @description = config._desc || config._description || ""
+    @description = config._desc || config._description || "Runs #{name} task"
     @dependencies = config._pre || config._deps || config._dependencies || []
     @filters = @options.filters
 
@@ -117,7 +117,7 @@ class Task
     # watcher.on 'unlink', (path) -> log.debug "`#{path}` removed"
     # watcher.on 'error', (path) -> log.debug "`#{path}` errored"
     #
-    @log.info "Watching #{@name}:#{@program.environment}", paths
+    @log.info "Watching #{@name}.#{@program.environment} ...]", paths
 
 
   _executeFunctionTask: (fn, cb) ->
@@ -200,10 +200,10 @@ class Task
 
     {pipeline, ran} = pipeObj
     if not @watching and ran
-      @log.debug("skipping #{@name}:#{environment}, already ran")
+      @log.debug("skipping #{@name}.#{environment}, already ran")
       return cb()
 
-    @log.info "#{@name}:#{environment}"
+    @log.info "Running #{@name}.#{environment} ..."
     if typeof pipeline == "function"
       @_executeFunctionTask pipeline, cb
     else

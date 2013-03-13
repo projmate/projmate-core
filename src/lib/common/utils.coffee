@@ -1,6 +1,7 @@
 Fs = require("fs")
 Path = require("path")
 Buffer = require('buffer').Buffer
+$ = require("projmate-shell")
 
 # Get the encoding of a buffer (http://stackoverflow.com/questions/10225399/check-if-a-file-is-binary-or-ascii-with-node-js)
 getEncoding = (buffer) ->
@@ -154,5 +155,13 @@ Utils =
     referenceStat.mtime.getTime() > targetStat.mtime.getTime()
 
 
+  escapeRegExp: (str) ->
+    str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
+
+  relativeToHome: (path) ->
+    path.replace RegExp(Utils.escapeRegExp($.homeDir()), "i"), "~"
+
+  relativeToCwd: (path) ->
+    path.replace RegExp(Utils.escapeRegExp(process.cwd()), "i"), "."
 
 module.exports = Utils

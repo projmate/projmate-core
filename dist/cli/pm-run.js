@@ -50,7 +50,7 @@ run = function() {
   try {
     Program.tasks = Program.args;
     projfilePath = findProjfile();
-    log.info("" + Program.environment + ": " + projfilePath);
+    log.info("env: " + Program.environment + " file: " + (Utils.relativeToCwd(projfilePath)));
     return Run.run({
       program: Program,
       projfilePath: projfilePath

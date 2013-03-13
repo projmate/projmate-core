@@ -6,7 +6,6 @@ Path = require("path")
 Run = require("../lib/run")
 Str = require("underscore.string")
 Utils = require("../lib/common/utils")
-
 log = Logger.getLogger("pm-run")
 
 
@@ -30,13 +29,17 @@ findProjfile = ->
   return null
 
 
+
+
 # Runs this script
 #
 run = ->
   try
     Program.tasks = Program.args
     projfilePath = findProjfile()
-    log.info "#{Program.environment}: #{projfilePath}"
+
+    log.info "env: #{Program.environment} file: #{Utils.relativeToCwd(projfilePath)}"
+
     Run.run {program: Program, projfilePath: projfilePath}, (err) ->
       if err
         log.error err

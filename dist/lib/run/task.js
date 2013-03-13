@@ -33,7 +33,7 @@ Task = (function() {
     this.log = log;
     this.assets = null;
     this.name = name;
-    this.description = config._desc || config._description || "";
+    this.description = config._desc || config._description || ("Runs " + name + " task");
     this.dependencies = config._pre || config._deps || config._dependencies || [];
     this.filters = this.options.filters;
     this.pipelines = {};
@@ -126,7 +126,7 @@ Task = (function() {
     watcher.on("change", _.debounce((function(path) {
       return checkExecute("changed", path);
     }), 300));
-    return this.log.info("Watching " + this.name + ":" + this.program.environment, paths);
+    return this.log.info("Watching " + this.name + "." + this.program.environment + " ...]", paths);
   };
 
   Task.prototype._executeFunctionTask = function(fn, cb) {
@@ -223,10 +223,10 @@ Task = (function() {
     }
     pipeline = pipeObj.pipeline, ran = pipeObj.ran;
     if (!this.watching && ran) {
-      this.log.debug("skipping " + this.name + ":" + environment + ", already ran");
+      this.log.debug("skipping " + this.name + "." + environment + ", already ran");
       return cb();
     }
-    this.log.info("" + this.name + ":" + environment);
+    this.log.info("Running " + this.name + "." + environment + " ...");
     if (typeof pipeline === "function") {
       this._executeFunctionTask(pipeline, cb);
     } else {

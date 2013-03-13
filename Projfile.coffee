@@ -11,8 +11,7 @@ exports.project = (pm) ->
   toDist = filename: { replace: [/^src/, "dist"] }
 
   pm.registerTasks
-    source:
-      _desc: "Compiles source files"
+    build:
       _files:
         include: [
           "src/**/*"
