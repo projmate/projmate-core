@@ -22,15 +22,6 @@ connect = require("connect");
 
 log = require("../common/logger").getLogger("server");
 
-process.on("uncaughtException", function(err) {
-  var message;
-  message = err;
-  if (err.stack) {
-    message = err.stack;
-  }
-  return log.error("Uncaught exception", message);
-});
-
 readLocalProjfile = function(dirname) {
   var file, files, modu, projfilePath, _i, _len;
   files = ['Projfile.js', 'Projfile.coffee'];

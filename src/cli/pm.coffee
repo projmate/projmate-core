@@ -2,6 +2,11 @@ Fs = require("fs")
 Path = require("path")
 {glob} = require("multi-glob")
 
+process.on "uncaughtException", (err) ->
+  message = err
+  message = err.stack if (err.stack)
+  console.error "Uncaught exception", message
+
 pkg = require("../../package.json")
 program = require("commander")
 
@@ -12,3 +17,6 @@ program
   .command("run", "Runs one or more tasks in Projfile")
   .command("serve", "Serves pages from directory HTTP/HTTPS")
   .parse(process.argv)
+
+
+

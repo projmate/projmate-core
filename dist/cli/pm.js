@@ -12,6 +12,15 @@ Path = require("path");
 
 glob = require("multi-glob").glob;
 
+process.on("uncaughtException", function(err) {
+  var message;
+  message = err;
+  if (err.stack) {
+    message = err.stack;
+  }
+  return console.error("Uncaught exception", message);
+});
+
 pkg = require("../../package.json");
 
 program = require("commander");

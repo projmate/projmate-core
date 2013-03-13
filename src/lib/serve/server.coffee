@@ -7,13 +7,6 @@ _ = require("lodash")
 connect = require("connect")
 log = require("../common/logger").getLogger("server")
 
-
-process.on "uncaughtException", (err) ->
-  message = err
-  message = err.stack if (err.stack)
-  log.error "Uncaught exception", message
-
-
 # Read server settings from local Projfile.
 #
 # @param {String} dirname The dirname.
