@@ -36,25 +36,30 @@ _run = (options, executeTasks, cb) ->
 
   {program, projfilePath} = options
 
-  runner = new Runner(program: program)
   projfile = loadProjfile(projfilePath)
   return cb("#{projfilePath} missing `project` function") unless projfile.project
 
+  runner = new Runner(program: program, server: projfile.server)
+
   # Execute the projfile
+  execArgs = {runner, projfile, projfilePath}
   if projfile.project.length == 1
     projfile.project runner
-    executeTasks runner, projfilePath, cb
+    executeTasks execArgs, cb
   else
     projfile.project runner, (err) ->
       return cb(err) if err
-      executeTasks runner, projfilePath, cb
+      executeTasks execArgs, cb
 
 
 # Runs task
+#
 exports.run = (options, cb) ->
   {tasks} = options.program
 
-  executeTasks = (runner, projfilePath, cb) ->
+  executeTasks = (args, cb) ->
+    {runner, projfile, projfilePath} = args
+
     # Set current working directory to location of projfilePath
     process.chdir Path.dirname(projfilePath)
 
@@ -67,7 +72,8 @@ exports.run = (options, cb) ->
 # Get task descriptions from project file.
 #
 exports.taskDescriptions = (options, cb) ->
-  executeTasks = (runner, projfilePath, cb) ->
+  executeTasks = (args, cb) ->
+    {runner, projfile, projfilePath} = args
     desc = []
 
     # calc longest name
@@ -82,5 +88,4 @@ exports.taskDescriptions = (options, cb) ->
     cb null, desc.sort().join("\n")
 
   _run options, executeTasks, cb
-
 

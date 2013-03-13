@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, FilterCollection, Logger, Path, Runner, Sex, Task, Util, log, _,
+var Async, FilterCollection, Logger, Path, Runner, Server, Shell, Task, Util, log, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
 
@@ -16,13 +16,15 @@ Logger = require("../common/logger");
 
 Path = require("path");
 
-Sex = require("projmate-shell");
+Shell = require("projmate-shell");
 
 Task = require("./task");
 
 Util = require("util");
 
 _ = require("lodash");
+
+Server = require("../serve/server");
 
 log = Logger.getLogger("runner");
 
@@ -35,6 +37,7 @@ Runner = (function() {
     PROJMATE.encoding = "utf8";
     this.tasks = {};
     this.program = this.options.program;
+    this.server = this.options.server;
   }
 
   Runner.prototype.filters = function() {
@@ -55,7 +58,7 @@ Runner = (function() {
 
   Runner.prototype.shell = function(shellOptions) {
     this.shellOptions = shellOptions != null ? shellOptions : {};
-    return Sex;
+    return Shell;
   };
 
   Runner.prototype.registerTasks = function(tasksDef) {
@@ -95,17 +98,31 @@ Runner = (function() {
         return task.execute(cb);
       }
     }, function(err) {
+      var dirname, serve, serveOptions, serverConfig;
       if (err) {
         log.error(err);
         log.error("FAIL");
       } else {
-        if (!that.program.watch) {
-          log.info("OK");
-        }
-        if (that.program.serve) {
-          Server.serve({
-            dirname: that.program.serve
-          });
+        serve = that.program.serve;
+        serverConfig = that.server;
+        if (serve) {
+          dirname = serve;
+          if (dirname.length > 0) {
+            serveOptions = {
+              dirname: dirname
+            };
+          } else if (serverConfig) {
+            serveOptions = serverConfig;
+          } else {
+            serveOptions = {
+              dirname: "."
+            };
+          }
+          Server.run(serveOptions);
+        } else {
+          if (!that.program.watch) {
+            log.info("OK");
+          }
         }
       }
       return cb(err);

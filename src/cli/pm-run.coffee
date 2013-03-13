@@ -45,7 +45,9 @@ run = ->
   catch e
     log.error e
 
+
 # Gets task descriptions from project file
+#
 taskDescriptions = (cb) ->
   try
     projfilePath = findProjfile()
@@ -68,7 +70,7 @@ Program
   .option("-e, --environment <env>", "Set build environment", "development")
   .option("-f, --projfile <file>", "Set project file", "")
   .option("-w, --watch", "Watch and rerun tasks as needed")
-  .option("-s, --serve <dir>", "Runs HTTP/HTTPS server")
+  .option("-s, --serve [dir]", "Runs HTTP/HTTPS server")
   .usage("TASKS [options]")
   .parse(process.argv)
 

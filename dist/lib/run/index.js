@@ -35,7 +35,7 @@ loadProjfile = function(projfilePath) {
 };
 
 _run = function(options, executeTasks, cb) {
-  var program, projfile, projfilePath, runner;
+  var execArgs, program, projfile, projfilePath, runner;
   if (!options.program) {
     return cb("Options.program is required");
   }
@@ -43,22 +43,28 @@ _run = function(options, executeTasks, cb) {
     return cb("Options.projfilePath is required");
   }
   program = options.program, projfilePath = options.projfilePath;
-  runner = new Runner({
-    program: program
-  });
   projfile = loadProjfile(projfilePath);
   if (!projfile.project) {
     return cb("" + projfilePath + " missing `project` function");
   }
+  runner = new Runner({
+    program: program,
+    server: projfile.server
+  });
+  execArgs = {
+    runner: runner,
+    projfile: projfile,
+    projfilePath: projfilePath
+  };
   if (projfile.project.length === 1) {
     projfile.project(runner);
-    return executeTasks(runner, projfilePath, cb);
+    return executeTasks(execArgs, cb);
   } else {
     return projfile.project(runner, function(err) {
       if (err) {
         return cb(err);
       }
-      return executeTasks(runner, projfilePath, cb);
+      return executeTasks(execArgs, cb);
     });
   }
 };
@@ -66,7 +72,9 @@ _run = function(options, executeTasks, cb) {
 exports.run = function(options, cb) {
   var executeTasks, tasks;
   tasks = options.program.tasks;
-  executeTasks = function(runner, projfilePath, cb) {
+  executeTasks = function(args, cb) {
+    var projfile, projfilePath, runner;
+    runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
     process.chdir(Path.dirname(projfilePath));
     return runner.executeTasks(tasks, cb);
   };
@@ -75,8 +83,9 @@ exports.run = function(options, cb) {
 
 exports.taskDescriptions = function(options, cb) {
   var executeTasks;
-  executeTasks = function(runner, projfilePath, cb) {
-    var L, desc, name, task, taskDesc, _ref;
+  executeTasks = function(args, cb) {
+    var L, desc, name, projfile, projfilePath, runner, task, taskDesc, _ref;
+    runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
     desc = [];
     L = 0;
     for (name in runner.tasks) {

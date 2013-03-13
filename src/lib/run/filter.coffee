@@ -3,6 +3,7 @@ Util = require("util")
 _ = require("lodash")
 S = require("string")
 
+
 ##
 # A filter participates with one or more filters, creating a pipeline, through which
 # a buffer is transformed by each filter.

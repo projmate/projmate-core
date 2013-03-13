@@ -1,22 +1,35 @@
 Pkg = require("../../package.json")
-Program = require("commander")
+program = require("commander")
 Server = require("../lib/serve/server")
+Fs = require("fs")
+
+findProjfile = ->
+  files = ['Projfile.js', 'Projfile.coffee']
+  for file in files
+    if Fs.existsSync(file)
+      return file
+  null
 
 
-# Runs the server
+# Runs the server.
 #
 main = ->
   try
-    Program.dirname = Program.args[0] || "."
-    Server.run Program
+    program.dirname = program.args[0] || "."
+    Server.run program
   catch ex
     console.error ex.toString()
 
-Program
+
+# Configure command line options.
+#
+program
   .version(Pkg.version)
   .usage("[dirname] [options]")
-  .option("-p, --http-port <port>", "HTTP port", 1080)
-  .option("-P, --https-port <ssl port>", "HTTPS port", 1443)
+  .option("-p, --http-port <port>", "HTTP port")
+  .option("-P, --https-port <ssl port>", "HTTPS port")
   .parse(process.argv)
 
+
 main()
+
