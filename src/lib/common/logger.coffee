@@ -13,7 +13,7 @@ logmagic.setSinkOptions "console", timestamp: ->
     else if n > 9
       '0' + n
     else
-      '00'
+      '00' + n
 
   pad2(d.getHours())        + ':' +
   pad2(d.getMinutes())      + ':' +

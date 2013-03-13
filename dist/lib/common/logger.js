@@ -27,7 +27,7 @@ logmagic.setSinkOptions("console", {
       } else if (n > 9) {
         return '0' + n;
       } else {
-        return '00';
+        return '00' + n;
       }
     };
     return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()) + '.' + pad3(d.getMilliseconds());

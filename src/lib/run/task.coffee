@@ -117,7 +117,7 @@ class Task
     # watcher.on 'unlink', (path) -> log.debug "`#{path}` removed"
     # watcher.on 'error', (path) -> log.debug "`#{path}` errored"
     #
-    @log.info "Watching #{@name}.#{@program.environment} ...]", paths
+    @log.info "Watching #{@name}.#{@program.environment}", paths
 
 
   _executeFunctionTask: (fn, cb) ->
@@ -203,7 +203,7 @@ class Task
       @log.debug("skipping #{@name}.#{environment}, already ran")
       return cb()
 
-    @log.info "==> #{@name}.#{environment} ..."
+    @log.info "==> #{@name}.#{environment}"
     if typeof pipeline == "function"
       @_executeFunctionTask pipeline, cb
     else
