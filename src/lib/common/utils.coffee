@@ -143,6 +143,16 @@ Utils =
     else
       throw new Error("path: " + start + " is not a directory")
 
+  # Determines if target is older than source.
+  #
+  # @param target {String} Target path.
+  # @param source {String} Reference path.
+  outdated: (target, reference) ->
+    return true if !Fs.existsSync(target)
+    referenceStat = Fs.statSync(reference)
+    targetStat = Fs.statSync(target)
+    referenceStat.mtime.getTime() > targetStat.mtime.getTime()
+
 
 
 module.exports = Utils

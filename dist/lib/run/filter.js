@@ -20,7 +20,7 @@ Filter = (function() {
     this.name = name;
     this.config = config != null ? config : {};
     this.processOptions = processOptions != null ? processOptions : {};
-    this.log = Logger.getLogger("Filter." + this.name);
+    this.log = Logger.getLogger("F." + this.name);
     _.extend(this, this.config);
     if (!this.extnames) {
       throw new Error("`extnames` is required for filter " + this.name);

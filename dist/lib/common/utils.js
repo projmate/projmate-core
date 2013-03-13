@@ -125,6 +125,15 @@ Utils = {
     } else {
       throw new Error("path: " + start + " is not a directory");
     }
+  },
+  outdated: function(target, reference) {
+    var referenceStat, targetStat;
+    if (!Fs.existsSync(target)) {
+      return true;
+    }
+    referenceStat = Fs.statSync(reference);
+    targetStat = Fs.statSync(target);
+    return referenceStat.mtime.getTime() > targetStat.mtime.getTime();
   }
 };
 

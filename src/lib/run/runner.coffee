@@ -51,7 +51,7 @@ class Runner
         name: name
         config: definition
         filters: @filters()
-        log: Logger.getLogger("tasks.#{name}")
+        log: Logger.getLogger("T.#{name}")
         program: @program
       @tasks[name] = task
     null

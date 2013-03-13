@@ -69,7 +69,7 @@ Runner = (function() {
         name: name,
         config: definition,
         filters: this.filters(),
-        log: Logger.getLogger("tasks." + name),
+        log: Logger.getLogger("T." + name),
         program: this.program
       });
       this.tasks[name] = task;
