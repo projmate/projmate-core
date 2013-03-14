@@ -50,15 +50,13 @@ run = function() {
   try {
     Program.tasks = Program.args;
     projfilePath = findProjfile();
-    log.info("" + Program.environment + ": " + projfilePath);
+    log.info("env: " + Program.environment + " file: " + (Utils.relativeToCwd(projfilePath)));
     return Run.run({
       program: Program,
       projfilePath: projfilePath
     }, function(err) {
       if (err) {
         return log.error(err);
-      } else {
-        return log.log("OK");
       }
     });
   } catch (_error) {
@@ -93,7 +91,7 @@ Program.on("--help", function() {
   });
 });
 
-Program.version(Pkg.version).option("-e, --environment <env>", "Set build environment", "development").option("-f, --projfile <file>", "Set project file", "").option("-w, --watch", "Watch and rerun tasks as needed").option("-s, --serve <dir>", "Runs HTTP/HTTPS server").usage("TASKS [options]").parse(process.argv);
+Program.version(Pkg.version).option("-e, --environment <env>", "Set build environment", "development").option("-f, --projfile <file>", "Set project file", "").option("-w, --watch", "Watch and rerun tasks as needed").option("-s, --serve [dir]", "Runs HTTP/HTTPS server").usage("TASKS [options]").parse(process.argv);
 
 if (process.argv.length < 3) {
   Program.outputHelp();

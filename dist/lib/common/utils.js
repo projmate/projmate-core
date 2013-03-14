@@ -4,13 +4,15 @@
  * See the file COPYING for copying permission.
  */
 
-var Buffer, Fs, Path, Utils, getEncoding;
+var $, Buffer, Fs, Path, Utils, getEncoding;
 
 Fs = require("fs");
 
 Path = require("path");
 
 Buffer = require('buffer').Buffer;
+
+$ = require("projmate-shell");
 
 getEncoding = function(buffer) {
   var charCode, contentStartBinary, contentStartUTF8, encoding, i, _i, _ref;
@@ -125,6 +127,24 @@ Utils = {
     } else {
       throw new Error("path: " + start + " is not a directory");
     }
+  },
+  outdated: function(target, reference) {
+    var referenceStat, targetStat;
+    if (!Fs.existsSync(target)) {
+      return true;
+    }
+    referenceStat = Fs.statSync(reference);
+    targetStat = Fs.statSync(target);
+    return referenceStat.mtime.getTime() > targetStat.mtime.getTime();
+  },
+  escapeRegExp: function(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+  },
+  relativeToHome: function(path) {
+    return path.replace(RegExp(Utils.escapeRegExp($.homeDir()), "i"), "~");
+  },
+  relativeToCwd: function(path) {
+    return path.replace(RegExp(Utils.escapeRegExp(process.cwd()), "i"), ".");
   }
 };
 

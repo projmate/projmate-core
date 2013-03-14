@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Path, Runner, Str, loadProjfile, log, _run;
+var Fs, Path, Runner, Server, Str, loadProjfile, log, _run;
 
 Runner = require("./runner");
 
@@ -15,6 +15,8 @@ Path = require("path");
 log = require("../common/logger").getLogger("run");
 
 Str = require("underscore.string");
+
+Server = require("../serve/server");
 
 loadProjfile = function(projfilePath) {
   var ex, extname;
@@ -35,7 +37,7 @@ loadProjfile = function(projfilePath) {
 };
 
 _run = function(options, executeTasks, cb) {
-  var program, projfile, projfilePath, runner;
+  var execArgs, program, projfile, projfilePath, runner;
   if (!options.program) {
     return cb("Options.program is required");
   }
@@ -43,40 +45,82 @@ _run = function(options, executeTasks, cb) {
     return cb("Options.projfilePath is required");
   }
   program = options.program, projfilePath = options.projfilePath;
-  runner = new Runner({
-    program: program
-  });
   projfile = loadProjfile(projfilePath);
   if (!projfile.project) {
     return cb("" + projfilePath + " missing `project` function");
   }
+  runner = new Runner({
+    program: program,
+    server: projfile.server
+  });
+  execArgs = {
+    runner: runner,
+    projfile: projfile,
+    projfilePath: projfilePath
+  };
   if (projfile.project.length === 1) {
     projfile.project(runner);
-    return executeTasks(runner, projfilePath, cb);
+    return executeTasks(execArgs, cb);
   } else {
     return projfile.project(runner, function(err) {
       if (err) {
         return cb(err);
       }
-      return executeTasks(runner, projfilePath, cb);
+      return executeTasks(execArgs, cb);
     });
   }
 };
 
 exports.run = function(options, cb) {
-  var executeTasks, tasks;
-  tasks = options.program.tasks;
-  executeTasks = function(runner, projfilePath, cb) {
+  var executeTasks, pjfile, program, startTime, tasks;
+  startTime = Date.now();
+  program = options.program;
+  tasks = program.tasks;
+  pjfile = null;
+  executeTasks = function(args, cb) {
+    var projfile, projfilePath, runner;
+    runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
+    pjfile = projfile;
     process.chdir(Path.dirname(projfilePath));
     return runner.executeTasks(tasks, cb);
   };
-  return _run(options, executeTasks, cb);
+  return _run(options, executeTasks, function(err) {
+    var dirname, elapsed, endTime, serve, serveOptions, serverConfig;
+    if (err) {
+      return cb(err);
+    }
+    serve = program.serve;
+    serverConfig = pjfile.server;
+    if (serve) {
+      dirname = serve;
+      if (dirname.length > 0) {
+        serveOptions = {
+          dirname: dirname
+        };
+      } else if (serverConfig) {
+        serveOptions = serverConfig;
+      } else {
+        serveOptions = {
+          dirname: "."
+        };
+      }
+      return Server.run(serveOptions);
+    } else {
+      endTime = Date.now();
+      elapsed = endTime - startTime;
+      if (!program.watch) {
+        log.info("OK - " + (elapsed / 1000) + " seconds");
+      }
+      return cb();
+    }
+  });
 };
 
 exports.taskDescriptions = function(options, cb) {
   var executeTasks;
-  executeTasks = function(runner, projfilePath, cb) {
-    var L, desc, name, task, taskDesc, _ref;
+  executeTasks = function(args, cb) {
+    var L, desc, name, projfile, projfilePath, runner, task, taskDesc, _ref;
+    runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
     desc = [];
     L = 0;
     for (name in runner.tasks) {

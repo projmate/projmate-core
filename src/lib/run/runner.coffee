@@ -2,7 +2,7 @@ Async = require("async")
 FilterCollection = require("./filterCollection")
 Logger = require("../common/logger")
 Path = require("path")
-Sex = require("projmate-shell")
+Shell = require("projmate-shell")
 Task = require("./task")
 Util = require("util")
 _ = require("lodash")
@@ -18,6 +18,7 @@ class Runner
     PROJMATE.encoding = "utf8"
     @tasks = {}
     @program = @options.program
+    @server = @options.server
 
   # Gets the wrapped filters, array of Filter.partialProcess
   #
@@ -36,7 +37,7 @@ class Runner
 
   # Gets the shell object which contains cross-platform shell helpers.
   #
-  shell: (@shellOptions = {}) -> Sex
+  shell: (@shellOptions = {}) -> Shell
 
 
   # Registers one or more tasks.
@@ -49,7 +50,7 @@ class Runner
         name: name
         config: definition
         filters: @filters()
-        log: Logger.getLogger("tasks.#{name}")
+        log: Logger.getLogger("T.#{name}")
         program: @program
       @tasks[name] = task
     null
@@ -81,11 +82,6 @@ class Runner
       if err
         log.error err
         log.error "FAIL"
-      else
-        log.info("OK") unless that.program.watch
-        if that.program.serve
-          Server.serve dirname: that.program.serve
-
       cb err
     null
 

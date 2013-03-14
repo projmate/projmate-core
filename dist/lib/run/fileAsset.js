@@ -23,21 +23,36 @@ Function.prototype.property = function(prop, desc) {
 FileAsset = (function() {
 
   function FileAsset(options) {
-    var cwd, filename, parent, text;
-    cwd = options.cwd, filename = options.filename, parent = options.parent, text = options.text;
+    var cwd, filename, parent, stat, text;
+    cwd = options.cwd, filename = options.filename, parent = options.parent, text = options.text, stat = options.stat;
     if (options.parent == null) {
       throw new Error("parent property is required");
     }
     filename = Utils.unixPath(filename);
-    this.filename = filename;
+    this._filename = filename;
     this.originalFilename = filename;
     this._extname = Path.extname(filename);
     this.dirname = Path.dirname(filename);
     this.basename = Path.basename(filename);
     this.cwd = cwd;
+    this.stat = stat;
     this._text = text;
     this.parent = parent;
   }
+
+  FileAsset.property("filename", {
+    get: function() {
+      return this._filename;
+    },
+    set: function(fname) {
+      var filename;
+      filename = Utils.unixPath(fname);
+      this._filename = filename;
+      this._extname = Path.extname(filename);
+      this.dirname = Path.dirname(filename);
+      return this.basename = Path.basename(filename);
+    }
+  });
 
   FileAsset.property("text", {
     get: function() {
@@ -88,6 +103,18 @@ FileAsset = (function() {
         return cb();
       });
     });
+  };
+
+  FileAsset.prototype.newerThan = function(reference) {
+    var referenceStat;
+    if (!this.stat) {
+      return true;
+    }
+    if (!Fs.existsSync(reference)) {
+      return true;
+    }
+    referenceStat = Fs.statSync(reference);
+    return this.stat.mtime.getTime() > referenceStat.mtime.getTime();
   };
 
   return FileAsset;

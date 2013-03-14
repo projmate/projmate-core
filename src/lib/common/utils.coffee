@@ -1,6 +1,7 @@
 Fs = require("fs")
 Path = require("path")
 Buffer = require('buffer').Buffer
+$ = require("projmate-shell")
 
 # Get the encoding of a buffer (http://stackoverflow.com/questions/10225399/check-if-a-file-is-binary-or-ascii-with-node-js)
 getEncoding = (buffer) ->
@@ -142,5 +143,25 @@ Utils =
         callback start, coll.dirs, coll.names
     else
       throw new Error("path: " + start + " is not a directory")
+
+  # Determines if target is older than source.
+  #
+  # @param target {String} Target path.
+  # @param source {String} Reference path.
+  outdated: (target, reference) ->
+    return true if !Fs.existsSync(target)
+    referenceStat = Fs.statSync(reference)
+    targetStat = Fs.statSync(target)
+    referenceStat.mtime.getTime() > targetStat.mtime.getTime()
+
+
+  escapeRegExp: (str) ->
+    str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
+
+  relativeToHome: (path) ->
+    path.replace RegExp(Utils.escapeRegExp($.homeDir()), "i"), "~"
+
+  relativeToCwd: (path) ->
+    path.replace RegExp(Utils.escapeRegExp(process.cwd()), "i"), "."
 
 module.exports = Utils

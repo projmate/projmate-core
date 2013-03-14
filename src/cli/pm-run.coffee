@@ -6,7 +6,6 @@ Path = require("path")
 Run = require("../lib/run")
 Str = require("underscore.string")
 Utils = require("../lib/common/utils")
-
 log = Logger.getLogger("pm-run")
 
 
@@ -30,22 +29,26 @@ findProjfile = ->
   return null
 
 
+
+
 # Runs this script
 #
 run = ->
   try
     Program.tasks = Program.args
     projfilePath = findProjfile()
-    log.info "#{Program.environment}: #{projfilePath}"
+
+    log.info "env: #{Program.environment} file: #{Utils.relativeToCwd(projfilePath)}"
+
     Run.run {program: Program, projfilePath: projfilePath}, (err) ->
       if err
         log.error err
-      else
-        log.log "OK"
   catch e
     log.error e
 
+
 # Gets task descriptions from project file
+#
 taskDescriptions = (cb) ->
   try
     projfilePath = findProjfile()
@@ -68,7 +71,7 @@ Program
   .option("-e, --environment <env>", "Set build environment", "development")
   .option("-f, --projfile <file>", "Set project file", "")
   .option("-w, --watch", "Watch and rerun tasks as needed")
-  .option("-s, --serve <dir>", "Runs HTTP/HTTPS server")
+  .option("-s, --serve [dir]", "Runs HTTP/HTTPS server")
   .usage("TASKS [options]")
   .parse(process.argv)
 

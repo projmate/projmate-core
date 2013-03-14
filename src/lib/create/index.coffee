@@ -23,7 +23,7 @@ realUri = (url) ->
 
   # projmate/projmate-skeleton-express
   if slashes == 1
-    "git@github.com/#{url}.git"
+    "git://github.com/#{url}.git"
   else
     url
 

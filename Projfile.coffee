@@ -1,23 +1,17 @@
 exports.server =
-  directory: 'dist'
-  http: 80
-  https: 443
-  domain: 'dev.projmate.com'
+  dirname: 'dist'
+  httpPort: 8000 #80
+  httpsPort: 8443
 
 exports.project = (pm) ->
   f = pm.filters()
   $ = pm.shell()
 
-  # Changes the filename of an asset.
-  #   "src/foo/index.js" =>  "dest/foo/index.js"
-  setDestination =
-    filename:
-      chompLeft: "src"
-      ensureLeft: "dist"
+  #  "src/**/*" => "dist/**/*"
+  toDist = filename: { replace: [/^src/, "dist"] }
 
   pm.registerTasks
-    source:
-      _desc: "Compiles source files"
+    build:
       _files:
         include: [
           "src/**/*"
@@ -25,8 +19,8 @@ exports.project = (pm) ->
 
       development: [
         f.coffee(bare: true)
-        # TODO add append/prepend to string.js.
         f.addHeader(filename: "doc/copyright.js")
-        f.writeFiles($asset: setDestination)
+        #f.writeFiles($asset: toDist)
+        f.writeFiles(_filename: {replace: [/^src/, "dist"]})
       ]
 

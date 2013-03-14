@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Http, Https, Path, S, connect, log;
+var Fs, Http, Https, Path, S, connect, log, readLocalProjfile, _;
 
 Fs = require("fs");
 
@@ -16,26 +16,44 @@ Path = require("path");
 
 S = require("string");
 
+_ = require("lodash");
+
 connect = require("connect");
 
 log = require("../common/logger").getLogger("server");
 
-process.on("uncaughtException", function(err) {
-  var message;
-  message = err;
-  if (err.stack(message = err.stack)) {
-    message = err.stack;
+readLocalProjfile = function(dirname) {
+  var file, files, modu, projfilePath, _i, _len;
+  files = ['Projfile.js', 'Projfile.coffee'];
+  for (_i = 0, _len = files.length; _i < _len; _i++) {
+    file = files[_i];
+    projfilePath = Path.join(dirname, file);
+    if (Fs.existsSync(projfilePath)) {
+      if (file.match(/coffee$/)) {
+        require('coffee-script');
+      }
+      modu = require(projfilePath);
+      console.log("modul", modu);
+      if (modu.server) {
+        return modu.server;
+      }
+    }
   }
-  return log.error("Uncaught exception", message);
-});
+  return {};
+};
 
 exports.run = function(options) {
-  var dirname, dname, httpDomain, httpPort, httpsConfig, httpsDomain, httpsPort, server;
+  var dirname, dname, httpDomain, httpPort, httpsConfig, httpsDomain, httpsPort, projfile, server;
   dirname = options.dirname;
   if (!dirname) {
     throw new Error("options.dirname is required");
   }
   dirname = Path.resolve(dirname);
+  projfile = readLocalProjfile(dirname);
+  options = _.defaults(options, projfile);
+  if (projfile.dirname) {
+    dirname = projfile.dirname;
+  }
   httpPort = options.httpPort || 1080;
   httpsPort = options.httpsPort || 1443;
   server = connect();

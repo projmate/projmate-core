@@ -20,7 +20,7 @@ Filter = (function() {
     this.name = name;
     this.config = config != null ? config : {};
     this.processOptions = processOptions != null ? processOptions : {};
-    this.log = Logger.getLogger("Filter." + this.name);
+    this.log = Logger.getLogger("F." + this.name);
     _.extend(this, this.config);
     if (!this.extnames) {
       throw new Error("`extnames` is required for filter " + this.name);
@@ -39,8 +39,18 @@ Filter = (function() {
   };
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
-    var $asset, args, asset, assets, chain, fn, isAsset, modifiers, prop, _results;
+    var $asset, args, asset, assets, chain, fn, isAsset, modifiers, prop, reserved, _i, _len, _ref, _results;
     $asset = this.processOptions.$asset;
+    _ref = ["_filename"];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      reserved = _ref[_i];
+      if (this.processOptions[reserved]) {
+        if ($asset == null) {
+          $asset = {};
+        }
+        $asset[reserved.slice(1)] = this.processOptions[reserved];
+      }
+    }
     if ($asset) {
       isAsset = assetOrTask.originalFilename != null;
       assets = isAsset ? [assetOrTask] : assertOrTask.assets;
@@ -48,10 +58,10 @@ Filter = (function() {
       for (prop in $asset) {
         modifiers = $asset[prop];
         _results.push((function() {
-          var _i, _len, _results1;
+          var _j, _len1, _results1;
           _results1 = [];
-          for (_i = 0, _len = assets.length; _i < _len; _i++) {
-            asset = assets[_i];
+          for (_j = 0, _len1 = assets.length; _j < _len1; _j++) {
+            asset = assets[_j];
             chain = S(asset[prop]);
             for (fn in modifiers) {
               args = modifiers[fn];

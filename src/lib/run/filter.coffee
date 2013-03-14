@@ -3,6 +3,7 @@ Util = require("util")
 _ = require("lodash")
 S = require("string")
 
+
 ##
 # A filter participates with one or more filters, creating a pipeline, through which
 # a buffer is transformed by each filter.
@@ -13,7 +14,7 @@ class Filter
   # Creates an instance of this Filter.
   #
   constructor: (@name, @config={}, @processOptions={}) ->
-    @log = Logger.getLogger("Filter."+@name)
+    @log = Logger.getLogger("F."+@name)
     _.extend @, @config
 
     if !@extnames
@@ -36,17 +37,25 @@ class Filter
   canProcess: (asset) ->
     return @extnames.indexOf("*") >= 0 or @extnames.indexOf(asset.extname) >= 0
 
-  # Filter properties may declaritively modify asset properties.
+  # Filter options may declaritively modify asset properties.
   #
-  # As an example,
+  # @example
   #
-  #   f.writeFiles($asset: {filename: { chompLeft: 'src', prepend: 'build' }}})
+  #   f.writeFiles($asset: {filename: {replace: [/^src/, "build"]}}})
+  #   f.writeFiles(_filename: {replace: [/^src/, "build"]})
   #
-  # Means, convert the filename from `src` to the `build` directory.
+  # Both convert the filename from `src` to the `build` directory.
   #
-  # In code: S(asset.filename).chompLeft('src').prepend('build').
   checkAssetModifiers: (assetOrTask) ->
+
     $asset = @processOptions.$asset
+
+    # Normalize short form `_filename` -> `$asset: filename`
+    for reserved in ["_filename"]
+      if @processOptions[reserved]
+        $asset ?= {}
+        $asset[reserved.slice(1)] = @processOptions[reserved]
+
     if $asset
       isAsset = assetOrTask.originalFilename?
       assets = if isAsset then [assetOrTask] else assertOrTask.assets
@@ -56,7 +65,10 @@ class Filter
           chain = S(asset[prop])
           for fn, args of modifiers
             args = [args] if typeof args == 'string'
+            #console.log "#{fn} args", args
             chain = chain[fn].apply(chain, args)
+          #console.log "asset[#{prop}]", asset[prop]
+          #console.log "chain.s", chain.s
           asset[prop] = chain.s
 
   ##

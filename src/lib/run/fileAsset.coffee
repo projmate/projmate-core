@@ -10,17 +10,27 @@ Function::property = (prop, desc) ->
 
 class FileAsset
   constructor: (options) ->
-    {cwd, filename, parent, text} = options
+    {cwd, filename, parent, text, stat} = options
     throw new Error("parent property is required") unless options.parent?
     filename = Utils.unixPath(filename)
-    @filename = filename
+    @_filename = filename
     @originalFilename = filename
     @_extname = Path.extname(filename)
     @dirname = Path.dirname(filename)
     @basename = Path.basename(filename)
     @cwd = cwd
+    @stat = stat
     @_text = text
     @parent = parent
+
+  @property "filename",
+    get: -> @_filename
+    set: (fname) ->
+      filename = Utils.unixPath(fname)
+      @_filename = filename
+      @_extname = Path.extname(filename)
+      @dirname = Path.dirname(filename)
+      @basename = Path.basename(filename)
 
   @property "text",
     get: -> @_text
@@ -58,6 +68,12 @@ text: #{@text}
         log.info "Wrote #{filename}"
         cb()
 
+  # Determines if this asset is newer than `reference`
+  newerThan: (reference) ->
+    return true if !@stat
+    return true if !Fs.existsSync(reference)
+    referenceStat = Fs.statSync(reference)
+    @stat.mtime.getTime() > referenceStat.mtime.getTime()
 
 module.exports = FileAsset
 
