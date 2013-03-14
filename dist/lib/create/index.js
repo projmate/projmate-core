@@ -34,7 +34,7 @@ realUri = function(url) {
   var slashes;
   slashes = (url.match(/\//g) || []).length;
   if (slashes === 1) {
-    return "git@github.com/" + url + ".git";
+    return "git://github.com/" + url + ".git";
   } else {
     return url;
   }
