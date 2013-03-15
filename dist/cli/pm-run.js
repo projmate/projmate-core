@@ -56,7 +56,9 @@ run = function() {
       projfilePath: projfilePath
     }, function(err) {
       if (err) {
-        return log.error(err);
+        if (err !== "PM_SILENT") {
+          return log.error(err);
+        }
       }
     });
   } catch (_error) {

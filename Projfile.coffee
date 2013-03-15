@@ -8,19 +8,20 @@ exports.project = (pm) ->
   $ = pm.shell()
 
   #  "src/**/*" => "dist/**/*"
-  toDist = filename: { replace: [/^src/, "dist"] }
+  distDir = _filename: { replace: [/^src/, "dist"] }
 
   pm.registerTasks
     build:
-      _files:
-        include: [
-          "src/**/*"
-        ]
+      pre: "clean"
+      files: "src/**/*"
 
       development: [
         f.coffee(bare: true)
         f.addHeader(filename: "doc/copyright.js")
-        #f.writeFiles($asset: toDist)
-        f.writeFiles(_filename: {replace: [/^src/, "dist"]})
+        f.writeFile(distDir)
       ]
+
+    clean:
+      development: ->
+        $.rm_rf "dist"
 

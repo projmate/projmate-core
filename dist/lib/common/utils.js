@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var $, Buffer, Fs, Path, Utils, getEncoding;
+var $, Buffer, Fs, Path, Utils, getEncoding, globEx;
 
 Fs = require("fs");
 
@@ -13,6 +13,8 @@ Path = require("path");
 Buffer = require('buffer').Buffer;
 
 $ = require("projmate-shell");
+
+globEx = require("./globEx");
 
 getEncoding = function(buffer) {
   var charCode, contentStartBinary, contentStartUTF8, encoding, i, _i, _ref;
@@ -30,6 +32,7 @@ getEncoding = function(buffer) {
 };
 
 Utils = {
+  glob: globEx,
   between: function(s, startToken, endToken) {
     var endPos, start, startPos;
     startPos = s.indexOf(startToken);

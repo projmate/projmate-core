@@ -35,7 +35,11 @@ class Filter
   # a filter unless it can handle the asset's text.
   #
   canProcess: (asset) ->
-    return @extnames.indexOf("*") >= 0 or @extnames.indexOf(asset.extname) >= 0
+    return true if @extnames.indexOf("*") >= 0
+
+    # must hanlde cases like ".coffee.md"
+    filename = asset.filename
+    _.any @extnames, (extname) -> S(filename).endsWith(extname)
 
   # Filter options may declaritively modify asset properties.
   #
@@ -65,10 +69,7 @@ class Filter
           chain = S(asset[prop])
           for fn, args of modifiers
             args = [args] if typeof args == 'string'
-            #console.log "#{fn} args", args
             chain = chain[fn].apply(chain, args)
-          #console.log "asset[#{prop}]", asset[prop]
-          #console.log "chain.s", chain.s
           asset[prop] = chain.s
 
   ##
@@ -78,21 +79,27 @@ class Filter
     that = @
     log = @log
     inspect = @processOptions.$inspect
+    isAsset = assetOrTask.originalFilename?
 
     if inspect
       log.debug "Asset BEFORE", "\n"+assetOrTask.toString()
 
     @checkAssetModifiers assetOrTask
 
-    # some filters modify processOptions which affects the next invocation, clone to start fresh
+    # Filters may modify processOptions which affects the next filter.
+    options = _.clone(@processOptions)
+
+    # Filters like `extractMeta` read metadata and assign to __merge for metadata
+    # to be merged into options.
+    if isAsset and assetOrTask.__merge
+      _.extend options, assetOrTask.__merge
+
     @process assetOrTask, _.clone(@processOptions), (err, result) ->
-
       # Show filename for troubleshooting
-      if err and assetOrTask.filename
-        log.error "Processing #{assetOrTask.filename} ..."
+      if err
+        if assetOrTask.filename
+          log.error "Processing #{assetOrTask.filename} ..."
         return cb(err)
-
-      isAsset = assetOrTask.originalFilename?
 
       # Update the asset to reflect the new state, in preparation
       # for the next wrappedFilter.

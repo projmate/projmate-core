@@ -79,16 +79,28 @@ Runner = (function() {
     var that;
     that = this;
     Async.eachSeries(taskNames, function(name, cb) {
-      var task;
+      var task, _i, _len, _ref;
       task = that.tasks[name];
       if (!task) {
         return cb("Invalid task: " + name);
       }
       if (task.dependencies.length > 0) {
+        _ref = task.dependencies;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          name = _ref[_i];
+          if (!that.tasks[name]) {
+            task.log.error("Invalid dependency: " + name);
+            return cb("PM_SILENT");
+          }
+        }
+        task.log.info("BEGIN dependencies");
         return that.executeTasks(task.dependencies, function(err) {
           if (err) {
             return cb(err);
           } else {
+            if (task.dependencies) {
+              task.log.info("END dependencies");
+            }
             return task.execute(cb);
           }
         });
@@ -97,7 +109,9 @@ Runner = (function() {
       }
     }, function(err) {
       if (err) {
-        log.error(err);
+        if (err !== "PM_SILENT") {
+          log.error(err);
+        }
         log.error("FAIL");
       }
       return cb(err);

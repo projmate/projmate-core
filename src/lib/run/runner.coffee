@@ -71,16 +71,26 @@ class Runner
         return cb("Invalid task: #{name}")
 
       if task.dependencies.length > 0
+
+        # for usability only
+        for name in task.dependencies
+          if !that.tasks[name]
+            task.log.error "Invalid dependency: #{name}"
+            return cb("PM_SILENT")
+
+        task.log.info "BEGIN dependencies"
+
         that.executeTasks task.dependencies, (err) ->
           if err
             cb err
           else
+            task.log.info("END dependencies") if task.dependencies
             task.execute cb
       else
         task.execute cb
     , (err) ->
       if err
-        log.error err
+        log.error err if err != "PM_SILENT"
         log.error "FAIL"
       cb err
     null

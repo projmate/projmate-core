@@ -4,13 +4,11 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Path, glob, pkg, program;
+var Fs, Path, pkg, program;
 
 Fs = require("fs");
 
 Path = require("path");
-
-glob = require("multi-glob").glob;
 
 process.on("uncaughtException", function(err) {
   var message;

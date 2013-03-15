@@ -1,6 +1,5 @@
 Fs = require("fs")
 Path = require("path")
-{glob} = require("multi-glob")
 
 process.on "uncaughtException", (err) ->
   message = err

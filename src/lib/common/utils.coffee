@@ -2,6 +2,7 @@ Fs = require("fs")
 Path = require("path")
 Buffer = require('buffer').Buffer
 $ = require("projmate-shell")
+globEx = require("./globEx")
 
 # Get the encoding of a buffer (http://stackoverflow.com/questions/10225399/check-if-a-file-is-binary-or-ascii-with-node-js)
 getEncoding = (buffer) ->
@@ -23,6 +24,8 @@ getEncoding = (buffer) ->
     return encoding
 
 Utils =
+
+  glob: globEx
 
   # Finds string between strtToken and endToken
   #

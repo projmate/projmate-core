@@ -35,7 +35,14 @@ Filter = (function() {
   };
 
   Filter.prototype.canProcess = function(asset) {
-    return this.extnames.indexOf("*") >= 0 || this.extnames.indexOf(asset.extname) >= 0;
+    var filename;
+    if (this.extnames.indexOf("*") >= 0) {
+      return true;
+    }
+    filename = asset.filename;
+    return _.any(this.extnames, function(extname) {
+      return S(filename).endsWith(extname);
+    });
   };
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
@@ -80,21 +87,26 @@ Filter = (function() {
   };
 
   Filter.prototype._process = function(assetOrTask, cb) {
-    var inspect, log, that;
+    var inspect, isAsset, log, options, that;
     that = this;
     log = this.log;
     inspect = this.processOptions.$inspect;
+    isAsset = assetOrTask.originalFilename != null;
     if (inspect) {
       log.debug("Asset BEFORE", "\n" + assetOrTask.toString());
     }
     this.checkAssetModifiers(assetOrTask);
+    options = _.clone(this.processOptions);
+    if (isAsset && assetOrTask.__merge) {
+      _.extend(options, assetOrTask.__merge);
+    }
     return this.process(assetOrTask, _.clone(this.processOptions), function(err, result) {
-      var isAsset;
-      if (err && assetOrTask.filename) {
-        log.error("Processing " + assetOrTask.filename + " ...");
+      if (err) {
+        if (assetOrTask.filename) {
+          log.error("Processing " + assetOrTask.filename + " ...");
+        }
         return cb(err);
       }
-      isAsset = assetOrTask.originalFilename != null;
       if (isAsset && typeof result !== "undefined") {
         if (result.text) {
           assetOrTask.text = result.text;
