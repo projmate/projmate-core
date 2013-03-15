@@ -91,6 +91,7 @@ class Task
     for name in config.environments
       # The pipeline can either be an array of filters, OR a function.
       pipeline = config[name]
+      continue unless pipeline
 
       if Array.isArray(pipeline)
         # Each pipeline starts by loading files or just the filenames.
@@ -111,6 +112,8 @@ class Task
             throw new Error("Invalid filter at #{@name}:#{name}[#{i}]")
 
       @pipelines[name] = { pipeline, ran: false }
+
+    # TODO find pipeline via hierarchy
 
 
   # Watch files in `files.watch` or `files.include` and execute this
