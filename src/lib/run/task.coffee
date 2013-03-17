@@ -62,13 +62,21 @@ class Task
       if !Array.isArray(config.files.exclude)
         config.files.exclude =  []
 
+      removePatterns = []
       if Array.isArray(config.files.include)
         for pattern in config.files.include
           if pattern.indexOf("!") == 0
-            config.files.exclude.push pattern.slice(1)
+            excludePattern = pattern.slice(1)
+            removePatterns.push excludePattern
+
+            if str.endsWith(excludePattern, '/')
+              config.files.exclude.push excludePattern
+              config.files.exclude.push excludePattern + "/**/*"
+            else
+              config.files.exclude.push excludePattern
 
       # remove exclusions
-      config.files.include = _.filter(config.files.include, (pattern) -> config.files.exclude.indexOf(pattern.slice(1)) < 0)
+      config.files.include = _.reject(config.files.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
 
 
     config.description = config.desc || config.description || "Runs #{@name} task"

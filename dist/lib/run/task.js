@@ -44,7 +44,7 @@ Task = (function() {
   }
 
   Task.prototype.normalizeConfig = function(config) {
-    var files, pattern, _i, _len, _ref;
+    var excludePattern, files, pattern, removePatterns, _i, _len, _ref;
     if (config.files) {
       if (typeof config.files === "string") {
         files = config.files;
@@ -66,17 +66,25 @@ Task = (function() {
       if (!Array.isArray(config.files.exclude)) {
         config.files.exclude = [];
       }
+      removePatterns = [];
       if (Array.isArray(config.files.include)) {
         _ref = config.files.include;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           pattern = _ref[_i];
           if (pattern.indexOf("!") === 0) {
-            config.files.exclude.push(pattern.slice(1));
+            excludePattern = pattern.slice(1);
+            removePatterns.push(excludePattern);
+            if (str.endsWith(excludePattern, '/')) {
+              config.files.exclude.push(excludePattern);
+              config.files.exclude.push(excludePattern + "/**/*");
+            } else {
+              config.files.exclude.push(excludePattern);
+            }
           }
         }
       }
-      config.files.include = _.filter(config.files.include, function(pattern) {
-        return config.files.exclude.indexOf(pattern.slice(1)) < 0;
+      config.files.include = _.reject(config.files.include, function(pattern) {
+        return removePatterns.indexOf(pattern) >= 0;
       });
     }
     config.description = config.desc || config.description || ("Runs " + this.name + " task");

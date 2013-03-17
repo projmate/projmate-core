@@ -23,7 +23,13 @@ function resolveGlobs(patterns, excludePatterns, options) {
         } else {
           excludePatterns.forEach(function(excludePattern) {
             matches = _.reject(matches, function(filename) {
-              return minimatch(filename, excludePattern, {matchBase: true});
+              if (_.isString(excludePattern)) {
+                return minimatch(filename, excludePattern, {matchBase: true});
+              } else if (excludePattern instanceof 'RegExp') {
+                return excludePattern.test(filename);
+              } else {
+                return false;
+              }
             });
           });
           done(err, matches);
