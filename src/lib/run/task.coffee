@@ -136,8 +136,6 @@ class Task
 
     {files} = @config
 
-    dir = str.strLeft()
-
     # dir/**/*.ext => match[1] = dirname, match[2] = extname
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/
 

@@ -75,5 +75,6 @@ text: #{@text}
     referenceStat = Fs.statSync(reference)
     @stat.mtime.getTime() > referenceStat.mtime.getTime()
 
+
 module.exports = FileAsset
 

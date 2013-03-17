@@ -95,7 +95,7 @@ Utils =
   # @param {String} filename
   #
   isFileBinary: (filename) ->
-    fd = Fs.openSync filename, "r"
+    fd = Fs.openSync(filename, "r")
     buffer = new Buffer(24)
 
     Fs.readSync fd, buffer, 0, 24, 0

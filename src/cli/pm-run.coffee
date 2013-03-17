@@ -4,7 +4,6 @@ Fs = require("fs")
 Logger = require("../lib/common/logger")
 Path = require("path")
 Run = require("../lib/run")
-Str = require("underscore.string")
 Utils = require("../lib/common/utils")
 log = Logger.getLogger("pm-run")
 

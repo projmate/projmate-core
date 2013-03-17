@@ -77,6 +77,9 @@ Runner = (function() {
 
   Runner.prototype.executeTasks = function(taskNames, cb) {
     var that;
+    if (!this.project) {
+      return cb("loadProject() must be called first.");
+    }
     that = this;
     Async.eachSeries(taskNames, function(name, cb) {
       var task, _i, _len, _ref;
@@ -117,6 +120,16 @@ Runner = (function() {
       return cb(err);
     });
     return null;
+  };
+
+  Runner.prototype.loadProject = function(project, cb) {
+    this.project = project;
+    if (this.project.length === 1) {
+      project(this);
+      return cb();
+    } else {
+      return this.project(this, cb);
+    }
   };
 
   return Runner;

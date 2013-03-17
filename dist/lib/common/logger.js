@@ -8,8 +8,6 @@ var logmagic;
 
 logmagic = require("mgutz-logmagic");
 
-logmagic.route(logmagic.ROOT, "DEBUG", "console");
-
 logmagic.setSinkOptions("console", {
   timestamp: function() {
     var d, pad2, pad3;
@@ -34,6 +32,18 @@ logmagic.setSinkOptions("console", {
   }
 });
 
+logmagic.registerSink("nullLogger", function() {});
+
 exports.getLogger = function(name) {
   return logmagic.local(name);
 };
+
+exports.silence = function(silent) {
+  if (silent) {
+    return logmagic.route(logmagic.ROOT, "ERROR", "nullLogger");
+  } else {
+    return logmagic.route(logmagic.ROOT, "DEBUG", "console");
+  }
+};
+
+exports.silence(false);

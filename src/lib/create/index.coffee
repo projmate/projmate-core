@@ -10,7 +10,6 @@ Utils = require("../common/utils")
 read = require("read")
 
 log = require("../common/logger").getLogger("pm-create")
-walkdir = require("walkdir")
 
 
 # Gets the real URI for a project

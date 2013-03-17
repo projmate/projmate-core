@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var $, Async, Fs, Path, Pkg, S, Sandbox, Temp, Utils, clone, cloneProject, getMeta, log, read, readSandboxedInputs, realUri, sandbox, template, updateMeta, walkdir;
+var $, Async, Fs, Path, Pkg, S, Sandbox, Temp, Utils, clone, cloneProject, getMeta, log, read, readSandboxedInputs, realUri, sandbox, template, updateMeta;
 
 $ = require("projmate-shell");
 
@@ -27,8 +27,6 @@ Utils = require("../common/utils");
 read = require("read");
 
 log = require("../common/logger").getLogger("pm-create");
-
-walkdir = require("walkdir");
 
 realUri = function(url) {
   var slashes;

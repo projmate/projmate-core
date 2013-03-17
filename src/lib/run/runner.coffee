@@ -64,6 +64,7 @@ class Runner
   # @param {Array} taskNames
   #
   executeTasks: (taskNames, cb) =>
+    return cb("loadProject() must be called first.") unless @project
     that = @
     Async.eachSeries taskNames, (name, cb) ->
       task = that.tasks[name]
@@ -95,5 +96,17 @@ class Runner
       cb err
     null
 
+
+  # Loads the project
+  #
+  # @param {Object} project The Projfile exported project.
+  # @param {Function} cb
+  #
+  loadProject: (@project, cb)  ->
+    if @project.length == 1
+      project @
+      cb()
+    else
+      @project @, cb
 
 module.exports = Runner

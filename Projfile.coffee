@@ -25,3 +25,7 @@ exports.project = (pm) ->
       development: ->
         $.rm_rf "dist"
 
+    tests:
+      development: (cb) ->
+        $.run "mocha -R spec --compilers coffee:coffee-script --globals PROJMATE src/test", cb
+

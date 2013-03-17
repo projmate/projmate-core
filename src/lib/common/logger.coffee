@@ -1,5 +1,4 @@
 logmagic = require("mgutz-logmagic")
-logmagic.route logmagic.ROOT, "DEBUG", "console"
 
 logmagic.setSinkOptions "console", timestamp: ->
   d = new Date
@@ -20,5 +19,16 @@ logmagic.setSinkOptions "console", timestamp: ->
   pad2(d.getSeconds())      + '.' +
   pad3(d.getMilliseconds())
 
+
+logmagic.registerSink "nullLogger", ->
+
 exports.getLogger = (name) -> logmagic.local(name)
+exports.silence = (silent) ->
+  if silent
+    logmagic.route logmagic.ROOT, "ERROR", "nullLogger"
+  else
+    logmagic.route logmagic.ROOT, "DEBUG", "console"
+
+exports.silence false
+
 
