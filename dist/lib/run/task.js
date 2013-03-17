@@ -189,9 +189,11 @@ Task = (function() {
   };
 
   Task.prototype._executeFunctionTask = function(fn, cb) {
-    var ex, that, watch;
+    var environment, ex, that, watch;
     that = this;
     watch = this.program.watch;
+    environment = this.program.environment;
+    fn.environment = environment;
     if (fn.length === 1) {
       return fn(function(err) {
         if (err) {
@@ -217,10 +219,11 @@ Task = (function() {
   };
 
   Task.prototype._executePipeline = function(pipeline, cb) {
-    var log, that, watch;
+    var environment, log, that, watch;
     that = this;
     watch = this.program.watch;
     log = this.log;
+    environment = this.program.environment;
     return Async.eachSeries(pipeline, function(wrappedFilter, cb) {
       var filter;
       if (!wrappedFilter) {
@@ -230,6 +233,7 @@ Task = (function() {
         wrappedFilter = wrappedFilter();
       }
       filter = wrappedFilter;
+      filter.environment = environment;
       if (filter instanceof TaskProcessor) {
         return filter._process(that, function(err) {
           if (err) {
@@ -288,11 +292,11 @@ Task = (function() {
       environment = "development";
     }
     pipeObj = this.pipelines[environment];
-    if (!pipeObj || !pipeObj.pipeline) {
+    if (!pipeObj) {
       if (this.dependencies.length > 0) {
         return cb();
       } else {
-        this.log.info("Pipeline not found: " + environment);
+        this.log.info("Pipeline not found: " + this.name + "." + environment);
         return cb();
       }
     }
@@ -304,8 +308,10 @@ Task = (function() {
     this.log.info("==> " + this.name + "." + environment);
     if (typeof pipeline === "function") {
       this._executeFunctionTask(pipeline, cb);
-    } else {
+    } else if (Array.isArray(pipeline)) {
       this._executePipeline(pipeline, cb);
+    } else {
+      console.debug;
     }
     return pipeObj.ran = true;
   };

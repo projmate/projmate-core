@@ -4,13 +4,11 @@ _ = require("lodash")
 S = require("string")
 
 
-##
 # A filter participates with one or more filters, creating a pipeline, through which
 # a buffer is transformed by each filter.
 #
 class Filter
 
-  ##
   # Creates an instance of this Filter.
   #
   constructor: (@name, @config={}, @processOptions={}) ->
@@ -22,14 +20,12 @@ class Filter
     @extnames = [@extnames] unless Array.isArray(@extnames)
 
 
-  ##
   # Every concrete filter must implement this method.
   #
   process: (asset, options, cb) ->
     throw new Error("`process` must be implemented by filter.")
 
 
-  ##
   # Indicates whether this filter should process the asset. Universal filters
   # should set `extname: "*"`. This is an optimization to minimize invoking
   # a filter unless it can handle the asset's text.
@@ -72,7 +68,26 @@ class Filter
             chain = chain[fn].apply(chain, args)
           asset[prop] = chain.s
 
-  ##
+
+  # Set defaults in `options` based on the run environment.
+  #
+  # Filters may preset filter options based on the run environment.
+  # As an example, the less compiler should show line numbers
+  # in development. See projmate-filters/src/lib/less.coffee
+  setRunDefaults: (options) ->
+    return unless @environment and @defaults
+    env = @environment
+    defaults = @defaults
+
+    if env == "development" and defaults.development?
+      _.defaults options, defaults.development
+    else if env == "test" and defaults.test?
+      _.defaults options, defaults.test
+    else if env == "production" and defaults.production?
+      _.defaults options, defaults.production
+    options
+
+
   # Wrapped filter's process to pass processOptions
   #
   _process: (assetOrTask, cb) ->
@@ -88,13 +103,14 @@ class Filter
 
     # Filters may modify processOptions which affects the next filter.
     options = _.clone(@processOptions)
+    @setRunDefaults options
 
     # Filters like `extractMeta` read metadata and assign to __merge for metadata
     # to be merged into options.
     if isAsset and assetOrTask.__merge
       _.extend options, assetOrTask.__merge
 
-    @process assetOrTask, _.clone(@processOptions), (err, result) ->
+    @process assetOrTask, options, (err, result) ->
       # Show filename for troubleshooting
       if err
         if assetOrTask.filename

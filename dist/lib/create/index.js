@@ -78,13 +78,10 @@ clone = function(url, dirname, options, cb) {
     }
   };
   if (options.subProject) {
-    console.log("options.subProject", options.subProject);
     return Temp.mkdir('pm-create', function(err, tempDir) {
       var newUrl;
       cloneProject(url, tempDir);
       newUrl = "file://" + Path.join(tempDir, options.subProject);
-      console.log("newUrl", newUrl);
-      console.log("dirname", dirname);
       return clone(newUrl, dirname, cb);
     });
   } else {

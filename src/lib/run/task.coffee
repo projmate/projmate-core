@@ -182,6 +182,9 @@ class Task
   _executeFunctionTask: (fn, cb) ->
     that = @
     watch = @program.watch
+    # functions may take different action based on the run environment
+    environment = @program.environment
+    fn.environment = environment
 
     if fn.length == 1
       fn (err) ->
@@ -201,6 +204,7 @@ class Task
     that = @
     watch = @program.watch
     log = @log
+    environment = @program.environment
 
     Async.eachSeries pipeline, (wrappedFilter, cb) ->
       if !wrappedFilter
@@ -212,6 +216,7 @@ class Task
         wrappedFilter = wrappedFilter()
 
       filter = wrappedFilter
+      filter.environment = environment
 
       if filter instanceof TaskProcessor
         filter._process that, (err) ->
@@ -258,12 +263,12 @@ class Task
     environment = "development" if !@pipelines[environment]
     pipeObj = @pipelines[environment]
 
-    if !pipeObj or !pipeObj.pipeline
+    if !pipeObj
       # Some tasks aggregate dependencies only
       if @dependencies.length > 0
         return cb()
       else
-        @log.info "Pipeline not found: #{environment}"
+        @log.info "Pipeline not found: #{@name}.#{environment}"
         return cb()
 
     {pipeline, ran} = pipeObj
@@ -274,8 +279,10 @@ class Task
     @log.info "==> #{@name}.#{environment}"
     if typeof pipeline == "function"
       @_executeFunctionTask pipeline, cb
-    else
+    else if Array.isArray(pipeline)
       @_executePipeline pipeline, cb
+    else
+      console.debug
 
     pipeObj.ran = true
 

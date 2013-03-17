@@ -86,6 +86,23 @@ Filter = (function() {
     }
   };
 
+  Filter.prototype.setRunDefaults = function(options) {
+    var defaults, env;
+    if (!(this.environment && this.defaults)) {
+      return;
+    }
+    env = this.environment;
+    defaults = this.defaults;
+    if (env === "development" && (defaults.development != null)) {
+      _.defaults(options, defaults.development);
+    } else if (env === "test" && (defaults.test != null)) {
+      _.defaults(options, defaults.test);
+    } else if (env === "production" && (defaults.production != null)) {
+      _.defaults(options, defaults.production);
+    }
+    return options;
+  };
+
   Filter.prototype._process = function(assetOrTask, cb) {
     var inspect, isAsset, log, options, that;
     that = this;
@@ -97,10 +114,11 @@ Filter = (function() {
     }
     this.checkAssetModifiers(assetOrTask);
     options = _.clone(this.processOptions);
+    this.setRunDefaults(options);
     if (isAsset && assetOrTask.__merge) {
       _.extend(options, assetOrTask.__merge);
     }
-    return this.process(assetOrTask, _.clone(this.processOptions), function(err, result) {
+    return this.process(assetOrTask, options, function(err, result) {
       if (err) {
         if (assetOrTask.filename) {
           log.error("Processing " + assetOrTask.filename + " ...");
