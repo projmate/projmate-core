@@ -98,6 +98,9 @@ Task = (function() {
     for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
       name = _ref1[_i];
       pipeline = config[name];
+      if (!pipeline) {
+        continue;
+      }
       if (Array.isArray(pipeline)) {
         if (load) {
           if (!(pipeline[0] instanceof this.filters.loadFiles)) {

@@ -93,13 +93,13 @@ Runner = (function() {
             return cb("PM_SILENT");
           }
         }
-        task.log.info("BEGIN dependencies");
+        task.log.info("BEGIN T." + task.name + " deps");
         return that.executeTasks(task.dependencies, function(err) {
           if (err) {
             return cb(err);
           } else {
             if (task.dependencies) {
-              task.log.info("END dependencies");
+              task.log.info("END T." + task.name + " deps");
             }
             return task.execute(cb);
           }
