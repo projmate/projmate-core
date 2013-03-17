@@ -23,6 +23,7 @@ program.on "--help", ->
       pm create projmate/skeleton-jade my-project
   """
 
+# Setup the arguments parser.
 program
   .version(pkg.version)
   .description("Create a project from git repo skeleton")

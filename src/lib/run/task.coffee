@@ -7,6 +7,8 @@ Util = require("util")
 minimatch = require("minimatch")
 str = require("underscore.string")
 
+blackhole = ->
+
 class Task
 
   # Creates an instance of this object.
@@ -245,7 +247,7 @@ class Task
     environment = "development" if !@pipelines[environment]
     pipeObj = @pipelines[environment]
 
-    if !pipeObj
+    if !pipeObj or !pipeObj.pipeline
       # Some tasks aggregate dependencies only
       if @dependencies.length > 0
         return cb()

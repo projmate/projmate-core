@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, Chokidar, Filter, Task, TaskProcessor, Util, minimatch, str, _;
+var Async, Chokidar, Filter, Task, TaskProcessor, Util, blackhole, minimatch, str, _;
 
 _ = require("lodash");
 
@@ -21,6 +21,8 @@ Util = require("util");
 minimatch = require("minimatch");
 
 str = require("underscore.string");
+
+blackhole = function() {};
 
 Task = (function() {
 
@@ -275,7 +277,7 @@ Task = (function() {
       environment = "development";
     }
     pipeObj = this.pipelines[environment];
-    if (!pipeObj) {
+    if (!pipeObj || !pipeObj.pipeline) {
       if (this.dependencies.length > 0) {
         return cb();
       } else {
