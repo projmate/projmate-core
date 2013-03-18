@@ -5,7 +5,7 @@
   "license": "AGPL",
   "version": "0.0.8",
   "dependencies": {
-    "projmate-filters": "~0.0.7",
+    "projmate-filters": "~0.0.8",
     "projmate-shell": "~0.0.6",
     "async": "~0.2.0",
     "chokidar": "~0.5.3",

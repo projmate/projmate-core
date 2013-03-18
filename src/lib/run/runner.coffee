@@ -79,13 +79,13 @@ class Runner
             task.log.error "Invalid dependency: #{name}"
             return cb("PM_SILENT")
 
-        task.log.info "BEGIN T.#{task.name} deps"
+        task.log.debug "BEGIN T.#{task.name} deps"
 
         that.executeTasks task.dependencies, (err) ->
           if err
             cb err
           else
-            task.log.info("END T.#{task.name} deps") if task.dependencies
+            task.log.debug("END T.#{task.name} deps") if task.dependencies
             task.execute cb
       else
         task.execute cb
