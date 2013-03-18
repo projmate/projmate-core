@@ -35,7 +35,29 @@ Filter = (function() {
   };
 
   Filter.prototype.canProcess = function(asset) {
-    var filename;
+    var comparison, filename, prop, truthy, value, _ref;
+    if (this.processOptions.$if) {
+      truthy = true;
+      _ref = this.processOptions.$if;
+      for (prop in _ref) {
+        comparison = _ref[prop];
+        value = asset[prop];
+        if (_.isString(comparison)) {
+          truthy && (truthy = asset[prop] === comparison);
+        } else if (val instanceof RegExp) {
+          truthy && (truthy = comparison.test(value));
+        } else if (typeof val === "boolean") {
+          truthy && (truthy = val);
+        } else {
+          this.log.warn("Unrecognized $if asset property: '" + prop + "'");
+          truthy = false;
+        }
+        if (!truthy) {
+          return false;
+        }
+      }
+      return truthy;
+    }
     if (this.extnames.indexOf("*") >= 0) {
       return true;
     }

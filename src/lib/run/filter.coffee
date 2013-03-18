@@ -31,6 +31,27 @@ class Filter
   # a filter unless it can handle the asset's text.
   #
   canProcess: (asset) ->
+
+    # Simple if expression on the filter
+    #
+    # f.addHeader(text: "...", $if: {extname: ".txt"})
+    if @processOptions.$if
+      truthy = true
+      for prop, comparison of @processOptions.$if
+        value = asset[prop]
+        if _.isString(comparison)
+          truthy &&= asset[prop] == comparison
+        else if val instanceof RegExp
+          truthy &&= comparison.test(value)
+        else if typeof val == "boolean"
+          truthy &&= val
+        else
+          @log.warn "Unrecognized $if asset property: '#{prop}'"
+          truthy = false
+        return false unless truthy
+      return truthy
+
+
     return true if @extnames.indexOf("*") >= 0
 
     # must hanlde cases like ".coffee.md"
