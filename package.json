@@ -10,7 +10,7 @@
     "async": "~0.2.0",
     "chokidar": "~0.5.3",
     "coffee-script": "~1.6.1",
-    "commander": "git://github.com/mgutz/commander.js",
+    "commander": "git://github.com/mgutz/commander.js.git",
     "lodash": "~1.0.1",
     "minimatch": "~0.2.11",
     "mkdirp": "~0.3.3",
