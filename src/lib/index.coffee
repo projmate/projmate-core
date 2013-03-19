@@ -5,6 +5,7 @@ TaskProcessor = require("./run/taskProcessor")
 Projmate =
   FileAsset: require("./run/fileAsset")
   Filter: Filter
+  String: require("string")
   TaskProcessor: TaskProcessor
   Utils: require("./common/utils")
   extendsFilter: (derived) ->

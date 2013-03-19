@@ -7,6 +7,8 @@ Util = require("util")
 minimatch = require("minimatch")
 str = require("underscore.string")
 
+blackhole = ->
+
 class Task
 
   # Creates an instance of this object.
@@ -14,37 +16,92 @@ class Task
   #
   constructor: (@options) ->
     {log, name, config} = @options
-
+    @name = name
+    @normalizeConfig config
     @program = @options.program
 
     # init attributes
     @config = config
     @log = log
     @assets = null
-    @name = name
-    @description = config._desc || config._description || "Runs #{name} task"
-    @dependencies = config._pre || config._deps || config._dependencies || []
+    @description = config.description
+    @dependencies = config.dependencies
     @filters = @options.filters
-
     @pipelines = {}
-
     @_initPipelines config
+
+
+  # Allows short cuts in files
+  normalizeConfig: (config) ->
+
+    # Several short cuts to create a file set
+    if config.files
+      # task:
+      #   files: "foo/**/*.ext
+      if typeof config.files == "string"
+        files = config.files
+        config.files =
+          include: [files]
+
+      # task:
+      #   files: ["foo/**/*.ext]
+      if Array.isArray(config.files)
+        config.files =
+          include: config.files
+
+      # task:
+      #   files:
+      #     include: "foo/**/*.ext
+      if typeof config.files.include == "string"
+        config.files.include =  [config.files.include]
+
+      # check for exclusions
+      if typeof config.files.exclude == "string"
+        config.files.exclude = [config.files.exclude]
+
+      if !Array.isArray(config.files.exclude)
+        config.files.exclude =  []
+
+      removePatterns = []
+      if Array.isArray(config.files.include)
+        for pattern in config.files.include
+          if pattern.indexOf("!") == 0
+            excludePattern = pattern.slice(1)
+            removePatterns.push excludePattern
+
+            if str.endsWith(excludePattern, '/')
+              config.files.exclude.push excludePattern
+              config.files.exclude.push excludePattern + "/**/*"
+            else
+              config.files.exclude.push excludePattern
+
+      # remove exclusions
+      config.files.include = _.reject(config.files.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
+
+
+    config.description = config.desc || config.description || "Runs #{@name} task"
+    config.dependencies = config.pre || config.deps || config.dependencies || []
+    config.dependencies = [config.dependencies] if typeof config.dependencies == "string"
+
+    # highest to lowest priority
+    unless config.environments
+      config.environments = ["production", "test", "development"]
+    config
 
 
   # Normalizes pipeline as a series of filters, prepending `loadFiles` to
   # the pipeline (if needed) to kick things off.
   #
   _initPipelines: (config) ->
-    notUnderscored = _(config).keys().reject((name) -> name.indexOf('_') == 0).value()
-
     # Load by default, some tasks disable loading when the task action
     # does not maninpulate the file. Mocha for example, only needs
     # the filenames not the content.
-    load = if config._files?.load? then config._files.load else true
+    load = if config.files?.load? then config.files.load else true
 
-    for name in notUnderscored
+    for name in config.environments
       # The pipeline can either be an array of filters, OR a function.
       pipeline = config[name]
+      continue unless pipeline
 
       if Array.isArray(pipeline)
         # Each pipeline starts by loading files or just the filenames.
@@ -66,8 +123,10 @@ class Task
 
       @pipelines[name] = { pipeline, ran: false }
 
+    # TODO find pipeline via hierarchy
 
-  # Watch files in `_files.watch` or `_files.include` and execute this
+
+  # Watch files in `files.watch` or `files.include` and execute this
   # tasks whenever any matching files changes.
   #
   _watch: (cb) ->
@@ -75,9 +134,7 @@ class Task
 
     @watching = true
 
-    {_files} = @config
-
-    dir = str.strLeft()
+    {files} = @config
 
     # dir/**/*.ext => match[1] = dirname, match[2] = extname
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/
@@ -85,11 +142,11 @@ class Task
     # dir/*.ext => match[1] = dirname, match[2] = extname
     dirRe = /(.*)\/\*(\..*)$/
 
-    # Watch patterns can be inferred from `_files.include` but in
+    # Watch patterns can be inferred from `files.include` but in
     # some cases, a single file includes many other files.
     # In this situation, the dependent files should be monitored
-    # and declared via `_files.watch` to trigger building the task properly.
-    patterns = if _files.watch then _files.watch else _files.include
+    # and declared via `files.watch` to trigger building the task properly.
+    patterns = if files.watch then files.watch else files.include
 
     paths = []
     for pattern in patterns
@@ -123,6 +180,9 @@ class Task
   _executeFunctionTask: (fn, cb) ->
     that = @
     watch = @program.watch
+    # functions may take different action based on the run environment
+    environment = @program.environment
+    fn.environment = environment
 
     if fn.length == 1
       fn (err) ->
@@ -142,6 +202,7 @@ class Task
     that = @
     watch = @program.watch
     log = @log
+    environment = @program.environment
 
     Async.eachSeries pipeline, (wrappedFilter, cb) ->
       if !wrappedFilter
@@ -153,17 +214,26 @@ class Task
         wrappedFilter = wrappedFilter()
 
       filter = wrappedFilter
-
+      filter.environment = environment
 
       if filter instanceof TaskProcessor
         filter._process that, (err) ->
           filter.log.error(err) if err
-          cb err
+          return cb err
       else if filter instanceof Filter
         Async.eachSeries that.assets, (asset, cb) ->
 
-          if filter.canProcess(asset)
+          # TODO mysterious issue with undefined asset, print out rest
+          # and it might give clue
+          if _(that.assets).detect((asset) -> !asset)
+            for asset, i in assets
+              if asset
+                console.log "asset[#{i}].filename=#{asset.filename}"
+              else
+                console.log "asset[#{i}] is undefined"
+          # ENDTODO
 
+          if filter.canProcess(asset)
             filter._process asset, (err, result) ->
               if err
                 asset.err = err
@@ -178,7 +248,8 @@ class Task
         cb("Unrecognized filter:", filter)
     , (err) -> # pipeline series
       if watch then that._watch()
-      cb()
+      console.error(err) if err
+      cb(err)
 
 
   # Executes this task's environment pipeline.
@@ -195,7 +266,7 @@ class Task
       if @dependencies.length > 0
         return cb()
       else
-        @log.info "Pipeline not found: #{environment}"
+        @log.info "Pipeline not found: #{@name}.#{environment}"
         return cb()
 
     {pipeline, ran} = pipeObj
@@ -206,8 +277,10 @@ class Task
     @log.info "==> #{@name}.#{environment}"
     if typeof pipeline == "function"
       @_executeFunctionTask pipeline, cb
-    else
+    else if Array.isArray(pipeline)
       @_executePipeline pipeline, cb
+    else
+      console.debug
 
     pipeObj.ran = true
 

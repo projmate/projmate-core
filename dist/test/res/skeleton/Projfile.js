@@ -17,11 +17,11 @@ exports.project = function(pm) {
   $ = pm.shell();
   return pm.regiserTasks({
     appjs: {
-      _desc: "Builds {{pm__project}}'s browser-side CommonJS module app",
+      desc: "Builds {{pm__project}}'s browser-side CommonJS module app",
       development: function() {}
     },
     clean: {
-      _desc: "Cleans this project",
+      desc: "Cleans this project",
       development: function() {
         return $.rm_rf("build");
       }

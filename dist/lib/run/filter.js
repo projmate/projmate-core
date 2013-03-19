@@ -35,7 +35,36 @@ Filter = (function() {
   };
 
   Filter.prototype.canProcess = function(asset) {
-    return this.extnames.indexOf("*") >= 0 || this.extnames.indexOf(asset.extname) >= 0;
+    var comparison, filename, prop, truthy, value, _ref;
+    if (this.processOptions.$if) {
+      truthy = true;
+      _ref = this.processOptions.$if;
+      for (prop in _ref) {
+        comparison = _ref[prop];
+        value = asset[prop];
+        if (_.isString(comparison)) {
+          truthy && (truthy = asset[prop] === comparison);
+        } else if (val instanceof RegExp) {
+          truthy && (truthy = comparison.test(value));
+        } else if (typeof val === "boolean") {
+          truthy && (truthy = val);
+        } else {
+          this.log.warn("Unrecognized $if asset property: '" + prop + "'");
+          truthy = false;
+        }
+        if (!truthy) {
+          return false;
+        }
+      }
+      return truthy;
+    }
+    if (this.extnames.indexOf("*") >= 0) {
+      return true;
+    }
+    filename = asset.filename;
+    return _.any(this.extnames, function(extname) {
+      return S(filename).endsWith(extname);
+    });
   };
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
@@ -79,22 +108,45 @@ Filter = (function() {
     }
   };
 
+  Filter.prototype.setRunDefaults = function(options) {
+    var defaults, env;
+    if (!(this.environment && this.defaults)) {
+      return;
+    }
+    env = this.environment;
+    defaults = this.defaults;
+    if (env === "development" && (defaults.development != null)) {
+      _.defaults(options, defaults.development);
+    } else if (env === "test" && (defaults.test != null)) {
+      _.defaults(options, defaults.test);
+    } else if (env === "production" && (defaults.production != null)) {
+      _.defaults(options, defaults.production);
+    }
+    return options;
+  };
+
   Filter.prototype._process = function(assetOrTask, cb) {
-    var inspect, log, that;
+    var inspect, isAsset, log, options, that;
     that = this;
     log = this.log;
     inspect = this.processOptions.$inspect;
+    isAsset = assetOrTask.originalFilename != null;
     if (inspect) {
       log.debug("Asset BEFORE", "\n" + assetOrTask.toString());
     }
     this.checkAssetModifiers(assetOrTask);
-    return this.process(assetOrTask, _.clone(this.processOptions), function(err, result) {
-      var isAsset;
-      if (err && assetOrTask.filename) {
-        log.error("Processing " + assetOrTask.filename + " ...");
+    options = _.clone(this.processOptions);
+    this.setRunDefaults(options);
+    if (isAsset && assetOrTask.__merge) {
+      _.extend(options, assetOrTask.__merge);
+    }
+    return this.process(assetOrTask, options, function(err, result) {
+      if (err) {
+        if (assetOrTask.filename) {
+          log.error("Processing " + assetOrTask.filename + " ...");
+        }
         return cb(err);
       }
-      isAsset = assetOrTask.originalFilename != null;
       if (isAsset && typeof result !== "undefined") {
         if (result.text) {
           assetOrTask.text = result.text;

@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Logger, Path, Pkg, Program, Run, Str, Utils, findProjfile, log, run, taskDescriptions;
+var Fs, Logger, Path, Pkg, Program, Run, Utils, findProjfile, log, run, taskDescriptions;
 
 Program = require("commander");
 
@@ -17,8 +17,6 @@ Logger = require("../lib/common/logger");
 Path = require("path");
 
 Run = require("../lib/run");
-
-Str = require("underscore.string");
 
 Utils = require("../lib/common/utils");
 
@@ -56,7 +54,9 @@ run = function() {
       projfilePath: projfilePath
     }, function(err) {
       if (err) {
-        return log.error(err);
+        if (err !== "PM_SILENT") {
+          return log.error(err);
+        }
       }
     });
   } catch (_error) {

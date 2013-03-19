@@ -4,7 +4,6 @@ Fs = require("fs")
 Logger = require("../lib/common/logger")
 Path = require("path")
 Run = require("../lib/run")
-Str = require("underscore.string")
 Utils = require("../lib/common/utils")
 log = Logger.getLogger("pm-run")
 
@@ -42,7 +41,7 @@ run = ->
 
     Run.run {program: Program, projfilePath: projfilePath}, (err) ->
       if err
-        log.error err
+        log.error(err) if err != "PM_SILENT"
   catch e
     log.error e
 

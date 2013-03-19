@@ -77,18 +77,33 @@ Runner = (function() {
 
   Runner.prototype.executeTasks = function(taskNames, cb) {
     var that;
+    if (!this.project) {
+      return cb("loadProject() must be called first.");
+    }
     that = this;
     Async.eachSeries(taskNames, function(name, cb) {
-      var task;
+      var task, _i, _len, _ref;
       task = that.tasks[name];
       if (!task) {
         return cb("Invalid task: " + name);
       }
       if (task.dependencies.length > 0) {
+        _ref = task.dependencies;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          name = _ref[_i];
+          if (!that.tasks[name]) {
+            task.log.error("Invalid dependency: " + name);
+            return cb("PM_SILENT");
+          }
+        }
+        task.log.debug("BEGIN T." + task.name + " deps");
         return that.executeTasks(task.dependencies, function(err) {
           if (err) {
             return cb(err);
           } else {
+            if (task.dependencies) {
+              task.log.debug("END T." + task.name + " deps");
+            }
             return task.execute(cb);
           }
         });
@@ -97,12 +112,24 @@ Runner = (function() {
       }
     }, function(err) {
       if (err) {
-        log.error(err);
+        if (err !== "PM_SILENT") {
+          log.error(err);
+        }
         log.error("FAIL");
       }
       return cb(err);
     });
     return null;
+  };
+
+  Runner.prototype.loadProject = function(project, cb) {
+    this.project = project;
+    if (this.project.length === 1) {
+      project(this);
+      return cb();
+    } else {
+      return this.project(this, cb);
+    }
   };
 
   return Runner;

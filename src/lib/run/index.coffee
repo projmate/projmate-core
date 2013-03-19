@@ -41,16 +41,10 @@ _run = (options, executeTasks, cb) ->
   return cb("#{projfilePath} missing `project` function") unless projfile.project
 
   runner = new Runner(program: program, server: projfile.server)
+  runner.loadProject projfile.project, (err) ->
+    return cb(err) if err
 
-  # Execute the projfile
-  execArgs = {runner, projfile, projfilePath}
-  if projfile.project.length == 1
-    projfile.project runner
-    executeTasks execArgs, cb
-  else
-    projfile.project runner, (err) ->
-      return cb(err) if err
-      executeTasks execArgs, cb
+    executeTasks {runner, projfile, projfilePath}, cb
 
 
 # Runs task

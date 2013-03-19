@@ -13,11 +13,10 @@ minified, compressed and made into a single CommonJS module in the browser.
 *   File sets - higher order than plugins
 *   Build environments - development, test, production
 *   Pipes and filters - how to process files in file sets
-*   Rich, cross-platform shell object - works on Windows too
+*   Rich, cross-platform shell object - works on Windows
 *   Create projects - get started from a git repo skeleton
 *   Serve files through local HTTP/HTTPS with valid certificate
-*   CommonJS in the browser (RequireJS also supported)
-*   Components
+*   CommonJS in the browser
 
 ## pm run
 
@@ -41,72 +40,46 @@ To build pages/stylesheets, watch and serve
 
 Disable loading of files for mocha, etc
 
-    _files: { load: false }
+    files: { load: false }
 
 Example
 
 ```coffee
 #=== Projfile.coffee
-
-# Static server options (--serve)
 exports.server =
-  httpPort: 80
-  httpsPort: 443
-  dirname: "build"
+  dirname: 'dist'
+  httpPort: 8000 #80
+  httpsPort: 8443
 
-# Tasks to run
 exports.project = (pm) ->
   f = pm.filters()
   $ = pm.shell()
 
-  writeToBuild = f.writeFiles(lchomp: "src", destinationDir: "build")
+  #  "src/**/*" => "dist/**/*"
+  distDir = _filename: { replace: [/^src/, "dist"] }
 
   pm.registerTasks
-    appjs:
-      _desc: "Build browser-compatible CommonJS module"
-      _files:
-        include: [
-          "src/js/app_js/**/*.js"
-          "src/js/app_js/**/*.coffee"
-          "src/js/app_js/**/*.litcoffee"
-        ]
-      development: [
-        f.coffee(bare: true)
-        f.commonJsify(name: "app", baseDir: "src/js/app_js")
-        writeToBuild
-      ]
-      production: [
-        f.coffee(bare: true)
-        f.commonJsify(name: "app", baseDir: "src/js/app_js")
-        uglify
-        f.addHeader(text: "/** Your web are belong to us */")
-        f.compress
-        writeToBuild
-      ]
-
-    pages:
-      _desc: "Build pages from templates"
-      _files:
-        include: ["pages/**/*.jade"]
+    build:
+      pre: "clean"
+      files: "src/**/*"
 
       development: [
-        f.template(engine: "jade", $match: /jade$/)
-        f.writeFiles(lchomp: "pages", destinationDir: "build")
+        f.coffee(bare: true)
+        f.addHeader(filename: "doc/copyright.js")
+        f.writeFile(distDir)
       ]
 
     clean:
-      _desc: "Cleans the project of all files that can be regenerated"
       development: ->
-        $.rm "-rf", "build"
+        $.rm_rf "dist"
 
-    all:
-      _desc: "Runs everything"
-      _pre: ["clean", "appjs", "pages"]
+    tests:
+      development: (cb) ->
+        $.run "mocha -R spec --compilers coffee:coffee-script --globals PROJMATE src/test", cb
 ```
 
 Note
 
-*   Reserved task properties are prefixed with `_`, eg `_files`.
 *   Tasks define one or more build environment actions.
 
 
@@ -132,14 +105,11 @@ projects. Having to escape curly braces everywhere would not be fun.
 
 ### Projmate skeletons
 
-    pm create <short-url> <projmate-project-name>
+    pm create <short-url> <new-project-name> [-s sub-project]
 
 Short Url | Description
-------------------------------|--------------------------
-projmate/skeleton-backbone-spa | Backbone example
-projmate/skeleton-filter | Create a filter
-projmate/skeleton-task | Create a task processor
-projmate/skeleton-skeleton | Create your own skeleton
+------------------------------|--------------------------------
+projmate/skeletons            | Repository of several skeletons
 
 Example
 

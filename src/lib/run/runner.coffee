@@ -64,6 +64,7 @@ class Runner
   # @param {Array} taskNames
   #
   executeTasks: (taskNames, cb) =>
+    return cb("loadProject() must be called first.") unless @project
     that = @
     Async.eachSeries taskNames, (name, cb) ->
       task = that.tasks[name]
@@ -71,19 +72,41 @@ class Runner
         return cb("Invalid task: #{name}")
 
       if task.dependencies.length > 0
+
+        # for usability only
+        for name in task.dependencies
+          if !that.tasks[name]
+            task.log.error "Invalid dependency: #{name}"
+            return cb("PM_SILENT")
+
+        task.log.debug "BEGIN T.#{task.name} deps"
+
         that.executeTasks task.dependencies, (err) ->
           if err
             cb err
           else
+            task.log.debug("END T.#{task.name} deps") if task.dependencies
             task.execute cb
       else
         task.execute cb
     , (err) ->
       if err
-        log.error err
+        log.error err if err != "PM_SILENT"
         log.error "FAIL"
       cb err
     null
 
+
+  # Loads the project
+  #
+  # @param {Object} project The Projfile exported project.
+  # @param {Function} cb
+  #
+  loadProject: (@project, cb)  ->
+    if @project.length == 1
+      project @
+      cb()
+    else
+      @project @, cb
 
 module.exports = Runner

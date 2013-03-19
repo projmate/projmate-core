@@ -37,7 +37,7 @@ loadProjfile = function(projfilePath) {
 };
 
 _run = function(options, executeTasks, cb) {
-  var execArgs, program, projfile, projfilePath, runner;
+  var program, projfile, projfilePath, runner;
   if (!options.program) {
     return cb("Options.program is required");
   }
@@ -53,22 +53,16 @@ _run = function(options, executeTasks, cb) {
     program: program,
     server: projfile.server
   });
-  execArgs = {
-    runner: runner,
-    projfile: projfile,
-    projfilePath: projfilePath
-  };
-  if (projfile.project.length === 1) {
-    projfile.project(runner);
-    return executeTasks(execArgs, cb);
-  } else {
-    return projfile.project(runner, function(err) {
-      if (err) {
-        return cb(err);
-      }
-      return executeTasks(execArgs, cb);
-    });
-  }
+  return runner.loadProject(projfile.project, function(err) {
+    if (err) {
+      return cb(err);
+    }
+    return executeTasks({
+      runner: runner,
+      projfile: projfile,
+      projfilePath: projfilePath
+    }, cb);
+  });
 };
 
 exports.run = function(options, cb) {

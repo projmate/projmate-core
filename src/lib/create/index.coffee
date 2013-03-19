@@ -10,7 +10,6 @@ Utils = require("../common/utils")
 read = require("read")
 
 log = require("../common/logger").getLogger("pm-create")
-walkdir = require("walkdir")
 
 
 # Gets the real URI for a project
@@ -70,13 +69,10 @@ clone = (url, dirname, options, cb) ->
 
   # In multi-project repos, fetch EVERYTHING, then start from the subproject
   if options.subProject
-    console.log "options.subProject", options.subProject
     # stage in temporary directory
     return Temp.mkdir 'pm-create', (err, tempDir) ->
       cloneProject url, tempDir
       newUrl = "file://" + Path.join(tempDir, options.subProject)
-      console.log "newUrl", newUrl
-      console.log "dirname", dirname
       clone newUrl, dirname, cb
   else
     fetchIt()
