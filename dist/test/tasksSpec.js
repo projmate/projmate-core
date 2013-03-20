@@ -14,14 +14,14 @@ describe("Tasks", function() {
       var name, project;
       name = "";
       project = function(pm) {
-        return pm.registerTasks({
+        return {
           hello: {
             desc: "hello",
             development: function() {
               return name = "foo";
             }
           }
-        });
+        };
       };
       return runProject(project, {
         tasks: ["hello"]
@@ -35,7 +35,7 @@ describe("Tasks", function() {
       var project, ran;
       ran = "";
       project = function(pm) {
-        return pm.registerTasks({
+        return {
           a: {
             development: function() {
               return ran += "a";
@@ -46,7 +46,7 @@ describe("Tasks", function() {
               return ran += "b";
             }
           }
-        });
+        };
       };
       return runProject(project, {
         tasks: ["a", "b"]
@@ -60,7 +60,7 @@ describe("Tasks", function() {
       var project, total;
       total = 100;
       project = function(pm) {
-        return pm.registerTasks({
+        return {
           add: {
             pre: "reset",
             development: function() {
@@ -72,7 +72,7 @@ describe("Tasks", function() {
               return total = 0;
             }
           }
-        });
+        };
       };
       return runProject(project, {
         tasks: ["add"]
@@ -86,7 +86,7 @@ describe("Tasks", function() {
       var project, ran;
       ran = "";
       project = function(pm) {
-        return pm.registerTasks({
+        return {
           a: {
             pre: ["b", "c"],
             development: function() {
@@ -104,7 +104,7 @@ describe("Tasks", function() {
               return ran += "c";
             }
           }
-        });
+        };
       };
       return runProject(project, {
         tasks: ["a"]
@@ -118,7 +118,7 @@ describe("Tasks", function() {
       var project, ran;
       ran = "";
       project = function(pm) {
-        return pm.registerTasks({
+        return {
           a: {
             pre: ["b", "c"],
             development: function() {
@@ -139,7 +139,7 @@ describe("Tasks", function() {
               return ran += "c";
             }
           }
-        });
+        };
       };
       return runProject(project, {
         tasks: ["a"]
@@ -155,7 +155,7 @@ describe("Tasks", function() {
       var project, ran;
       ran = "";
       project = function(pm) {
-        return pm.registerTasks({
+        return {
           a: {
             pre: ["b", "c"],
             development: function() {
@@ -182,7 +182,7 @@ describe("Tasks", function() {
               return ran += "cD";
             }
           }
-        });
+        };
       };
       return runProject(project, {
         tasks: ["a"],

@@ -10,22 +10,27 @@ exports.project = (pm) ->
   #  "src/**/*" => "dist/**/*"
   distDir = _filename: { replace: [/^src/, "dist"] }
 
-  pm.registerTasks
-    build:
-      pre: "clean"
-      files: "src/**/*"
+  build:
+    pre: "clean"
+    files: "src/**/*"
 
-      development: [
-        f.coffee(bare: true)
-        f.addHeader(filename: "doc/copyright.js")
-        f.writeFile(distDir)
-      ]
+    development: [
+      f.coffee(bare: true)
+      f.addHeader(filename: "doc/copyright.js")
+      f.writeFile(distDir)
+    ]
 
-    clean:
-      development: ->
-        $.rm_rf "dist"
+  clean:
+    development: ->
+      $.rm_rf "dist"
 
-    tests:
-      development: (cb) ->
-        $.run "mocha -R spec --compilers coffee:coffee-script --globals PROJMATE src/test", cb
+  tests:
+    development: (cb) ->
+      $.run "mocha -R spec --compilers coffee:coffee-script --globals PROJMATE src/test", cb
+
+
+  dist:
+    pre: ["build", "tests"]
+
+
 

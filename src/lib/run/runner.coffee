@@ -103,10 +103,15 @@ class Runner
   # @param {Function} cb
   #
   loadProject: (@project, cb)  ->
+    that = @
     if @project.length == 1
-      project @
+      tasks = project(@)
+      @registerTasks tasks
       cb()
     else
-      @project @, cb
+      @project @, (err, tasks) ->
+        return cb(err) if err
+        that.registerTasks tasks
+        cb()
 
 module.exports = Runner

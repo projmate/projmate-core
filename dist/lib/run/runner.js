@@ -123,12 +123,21 @@ Runner = (function() {
   };
 
   Runner.prototype.loadProject = function(project, cb) {
+    var tasks, that;
     this.project = project;
+    that = this;
     if (this.project.length === 1) {
-      project(this);
+      tasks = project(this);
+      this.registerTasks(tasks);
       return cb();
     } else {
-      return this.project(this, cb);
+      return this.project(this, function(err, tasks) {
+        if (err) {
+          return cb(err);
+        }
+        that.registerTasks(tasks);
+        return cb();
+      });
     }
   };
 
