@@ -4,4 +4,11 @@
  * See the file COPYING for copying permission.
  */
 
-module.exports = require("./lib");
+var When;
+
+When = require("when");
+
+module.exports = {
+  defer: When.defer,
+  sequence: require("when/sequence")
+};

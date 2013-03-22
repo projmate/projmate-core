@@ -12,6 +12,7 @@ Path = require("path");
 
 process.on("uncaughtException", function(err) {
   var message;
+
   message = err;
   if (err.stack) {
     message = err.stack;

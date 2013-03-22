@@ -6,6 +6,7 @@ TaskProcessor = require("./taskProcessor")
 Util = require("util")
 minimatch = require("minimatch")
 str = require("underscore.string")
+Assets = require("./assets")
 
 blackhole = ->
 
@@ -29,6 +30,7 @@ class Task
     @filters = @options.filters
     @pipelines = {}
     @_initPipelines config
+    @assets = new Assets
 
 
   # Allows short cuts in files
@@ -221,12 +223,12 @@ class Task
           filter.log.error(err) if err
           return cb err
       else if filter instanceof Filter
-        Async.eachSeries that.assets, (asset, cb) ->
+        Async.eachSeries that.assets.array(), (asset, cb) ->
 
           # TODO mysterious issue with undefined asset, print out rest
           # and it might give clue
-          if _(that.assets).detect((asset) -> !asset)
-            for asset, i in assets
+          if that.assets.detect((asset) -> !asset)
+            for asset, i in that.assets.array()
               if asset
                 console.log "asset[#{i}].filename=#{asset.filename}"
               else

@@ -1,7 +1,7 @@
 exports.server =
   dirname: 'dist'
-  httpPort: 8000 #80
-  httpsPort: 8443
+  httpPort: 1080
+  httpsPort: 1443
 
 exports.project = (pm) ->
   f = pm.filters()
@@ -25,12 +25,15 @@ exports.project = (pm) ->
       $.rm_rf "dist"
 
   tests:
+    desc: "Runs tests from src"
     development: (cb) ->
       $.run "mocha -R spec --compilers coffee:coffee-script --globals PROJMATE src/test", cb
 
+  distTests:
+    desc: "Runs tests from dist"
+    development: (cb) ->
+      $.run "mocha -R spec --globals PROJMATE dist/test", cb
 
   dist:
-    pre: ["build", "tests"]
-
-
+    pre: ["build", "distTests"]
 

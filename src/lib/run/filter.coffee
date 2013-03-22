@@ -79,7 +79,7 @@ class Filter
 
     if $asset
       isAsset = assetOrTask.originalFilename?
-      assets = if isAsset then [assetOrTask] else assertOrTask.assets
+      assets = if isAsset then [assetOrTask] else assertOrTask.assets.array()
 
       for prop, modifiers of $asset
         for asset in assets

@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, Chokidar, Filter, Task, TaskProcessor, Util, blackhole, minimatch, str, _;
+var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, blackhole, minimatch, str, _;
 
 _ = require("lodash");
 
@@ -22,12 +22,14 @@ minimatch = require("minimatch");
 
 str = require("underscore.string");
 
+Assets = require("./assets");
+
 blackhole = function() {};
 
 Task = (function() {
-
   function Task(options) {
     var config, log, name, _ref;
+
     this.options = options;
     _ref = this.options, log = _ref.log, name = _ref.name, config = _ref.config;
     this.name = name;
@@ -41,10 +43,12 @@ Task = (function() {
     this.filters = this.options.filters;
     this.pipelines = {};
     this._initPipelines(config);
+    this.assets = new Assets;
   }
 
   Task.prototype.normalizeConfig = function(config) {
     var excludePattern, files, pattern, removePatterns, _i, _len, _ref;
+
     if (config.files) {
       if (typeof config.files === "string") {
         files = config.files;
@@ -100,6 +104,7 @@ Task = (function() {
 
   Task.prototype._initPipelines = function(config) {
     var filter, i, load, name, pipeline, _i, _j, _len, _len1, _ref, _ref1, _results;
+
     load = ((_ref = config.files) != null ? _ref.load : void 0) != null ? config.files.load : true;
     _ref1 = config.environments;
     _results = [];
@@ -139,6 +144,7 @@ Task = (function() {
 
   Task.prototype._watch = function(cb) {
     var checkExecute, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watcher, _i, _len;
+
     if (this.watching) {
       return;
     }
@@ -164,6 +170,7 @@ Task = (function() {
     log = this.log;
     checkExecute = function(action, path) {
       var _j, _len1;
+
       log.debug("`" + path + "` " + action);
       for (_j = 0, _len1 = patterns.length; _j < _len1; _j++) {
         pattern = patterns[_j];
@@ -189,6 +196,7 @@ Task = (function() {
 
   Task.prototype._executeFunctionTask = function(fn, cb) {
     var environment, ex, that, watch;
+
     that = this;
     watch = this.program.watch;
     environment = this.program.environment;
@@ -219,12 +227,14 @@ Task = (function() {
 
   Task.prototype._executePipeline = function(pipeline, cb) {
     var environment, log, that, watch;
+
     that = this;
     watch = this.program.watch;
     log = this.log;
     environment = this.program.environment;
     return Async.eachSeries(pipeline, function(wrappedFilter, cb) {
       var filter;
+
       if (!wrappedFilter) {
         log.error("PIPELINE", Util.inspect(wrappedFilter));
       }
@@ -241,13 +251,15 @@ Task = (function() {
           return cb(err);
         });
       } else if (filter instanceof Filter) {
-        return Async.eachSeries(that.assets, function(asset, cb) {
-          var i, _i, _len;
-          if (_(that.assets).detect(function(asset) {
+        return Async.eachSeries(that.assets.array(), function(asset, cb) {
+          var i, _i, _len, _ref;
+
+          if (that.assets.detect(function(asset) {
             return !asset;
           })) {
-            for (i = _i = 0, _len = assets.length; _i < _len; i = ++_i) {
-              asset = assets[i];
+            _ref = that.assets.array();
+            for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+              asset = _ref[i];
               if (asset) {
                 console.log("asset[" + i + "].filename=" + asset.filename);
               } else {
@@ -285,6 +297,7 @@ Task = (function() {
 
   Task.prototype.execute = function(cb) {
     var environment, pipeObj, pipeline, ran, that;
+
     that = this;
     environment = this.program.environment;
     if (!this.pipelines[environment]) {

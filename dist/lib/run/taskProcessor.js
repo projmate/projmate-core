@@ -11,7 +11,6 @@ var Filter, TaskProcessor,
 Filter = require("./filter");
 
 TaskProcessor = (function(_super) {
-
   __extends(TaskProcessor, _super);
 
   function TaskProcessor() {

@@ -13,7 +13,7 @@ Utils = require("../lib/common/utils");
 describe("Utils", function() {
   return describe("isBinary", function() {
     it("should determine if a file is binary", function() {
-      return assert.isTrue(Utils.isFileBinary("" + __dirname + "/res/favicon.ico"));
+      return assert.isTrue(Utils.isFileBinary(__dirname + "/../../src/test/res/favicon.ico"));
     });
     return it("should determine if a file is text", function() {
       return assert.isFalse(Utils.isFileBinary(__filename));

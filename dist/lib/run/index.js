@@ -20,6 +20,7 @@ Server = require("../serve/server");
 
 loadProjfile = function(projfilePath) {
   var ex, extname;
+
   if (!Fs.existsSync(projfilePath)) {
     throw new Error("Projfile does not exist: " + projfilePath);
   }
@@ -38,6 +39,7 @@ loadProjfile = function(projfilePath) {
 
 _run = function(options, executeTasks, cb) {
   var program, projfile, projfilePath, runner;
+
   if (!options.program) {
     return cb("Options.program is required");
   }
@@ -67,12 +69,14 @@ _run = function(options, executeTasks, cb) {
 
 exports.run = function(options, cb) {
   var executeTasks, pjfile, program, startTime, tasks;
+
   startTime = Date.now();
   program = options.program;
   tasks = program.tasks;
   pjfile = null;
   executeTasks = function(args, cb) {
     var projfile, projfilePath, runner;
+
     runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
     pjfile = projfile;
     process.chdir(Path.dirname(projfilePath));
@@ -80,6 +84,7 @@ exports.run = function(options, cb) {
   };
   return _run(options, executeTasks, function(err) {
     var dirname, elapsed, endTime, serve, serveOptions, serverConfig;
+
     if (err) {
       return cb(err);
     }
@@ -112,8 +117,10 @@ exports.run = function(options, cb) {
 
 exports.taskDescriptions = function(options, cb) {
   var executeTasks;
+
   executeTasks = function(args, cb) {
     var L, desc, name, projfile, projfilePath, runner, task, taskDesc, _ref;
+
     runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
     desc = [];
     L = 0;

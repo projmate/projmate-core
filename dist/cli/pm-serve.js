@@ -16,6 +16,7 @@ Fs = require("fs");
 
 findProjfile = function() {
   var file, files, _i, _len;
+
   files = ['Projfile.js', 'Projfile.coffee'];
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     file = files[_i];
@@ -28,6 +29,7 @@ findProjfile = function() {
 
 main = function() {
   var ex;
+
   try {
     program.dirname = program.args[0] || ".";
     return Server.run(program);

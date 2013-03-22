@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var FileAsset, Fs, Path, Utils, log, mkdirp;
+var FileAsset, Fs, Path, Promise, Utils, log, mkdirp;
 
 Fs = require("fs");
 
@@ -16,14 +16,16 @@ log = require("../common/logger").getLogger("FileAsset");
 
 Utils = require("../common/utils");
 
+Promise = require("../common/promise");
+
 Function.prototype.property = function(prop, desc) {
   return Object.defineProperty(this.prototype, prop, desc);
 };
 
 FileAsset = (function() {
-
   function FileAsset(options) {
     var cwd, filename, parent, stat, text;
+
     cwd = options.cwd, filename = options.filename, parent = options.parent, text = options.text, stat = options.stat;
     if (options.parent == null) {
       throw new Error("parent property is required");
@@ -38,6 +40,7 @@ FileAsset = (function() {
     this.stat = stat;
     this._text = text;
     this.parent = parent;
+    this.writingPromises = [];
   }
 
   FileAsset.property("filename", {
@@ -46,6 +49,7 @@ FileAsset = (function() {
     },
     set: function(fname) {
       var filename;
+
       filename = Utils.unixPath(fname);
       this._filename = filename;
       this._extname = Path.extname(filename);
@@ -82,31 +86,44 @@ FileAsset = (function() {
     return Fs.readFile(this.filename, PROJMATE.encoding, cb);
   };
 
+  FileAsset.prototype.whenWriting = function(promise) {
+    return this.writingPromises.push(promise);
+  };
+
   FileAsset.prototype.write = function(filename, cb) {
-    var text;
+    var that;
+
     if (filename == null) {
       filename = this.filename;
     }
-    text = this.text;
-    if (text.length === 0) {
-      return cb();
-    }
-    return mkdirp(Path.dirname(filename), function(err) {
-      if (err) {
-        return cb(err);
+    that = this;
+    return Promise.sequence(this.writingPromises).then(function() {
+      var text;
+
+      text = that.text;
+      if (text.length === 0) {
+        return cb();
       }
-      return Fs.writeFile(filename, text, PROJMATE.encoding, function(err) {
+      return mkdirp(Path.dirname(filename), function(err) {
         if (err) {
           return cb(err);
         }
-        log.info("Wrote " + filename);
-        return cb();
+        return Fs.writeFile(filename, text, PROJMATE.encoding, function(err) {
+          if (err) {
+            return cb(err);
+          }
+          log.info("Wrote " + filename);
+          return cb();
+        });
       });
+    }).then(null, function(err) {
+      return cb(err);
     });
   };
 
   FileAsset.prototype.newerThan = function(reference) {
     var referenceStat;
+
     if (!this.stat) {
       return true;
     }

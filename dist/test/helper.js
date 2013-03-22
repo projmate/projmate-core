@@ -20,6 +20,7 @@ module.exports = {
   assert: assert,
   runProject: function(project, program, cb) {
     var runner;
+
     runner = new Runner({
       program: program
     });

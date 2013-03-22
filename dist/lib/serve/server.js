@@ -24,6 +24,7 @@ log = require("../common/logger").getLogger("server");
 
 readLocalProjfile = function(dirname) {
   var file, files, modu, projfilePath, _i, _len;
+
   files = ['Projfile.js', 'Projfile.coffee'];
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     file = files[_i];
@@ -44,6 +45,7 @@ readLocalProjfile = function(dirname) {
 
 exports.run = function(options) {
   var dirname, dname, httpDomain, httpPort, httpsConfig, httpsDomain, httpsPort, projfile, server;
+
   dirname = options.dirname;
   if (!dirname) {
     throw new Error("options.dirname is required");

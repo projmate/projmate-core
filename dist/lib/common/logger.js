@@ -11,6 +11,7 @@ logmagic = require("mgutz-logmagic");
 logmagic.setSinkOptions("console", {
   timestamp: function() {
     var d, pad2, pad3;
+
     d = new Date;
     pad2 = function(n) {
       if (n < 10) {

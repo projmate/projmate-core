@@ -27,7 +27,6 @@ _ = require("lodash");
 log = Logger.getLogger("runner");
 
 Runner = (function() {
-
   function Runner(options) {
     this.options = options;
     this.executeTasks = __bind(this.executeTasks, this);
@@ -40,6 +39,7 @@ Runner = (function() {
 
   Runner.prototype.filters = function() {
     var filterPackage, userFilters, _i, _len;
+
     userFilters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     if (!this.filterCollection) {
       this.filterCollection = new FilterCollection;
@@ -61,6 +61,7 @@ Runner = (function() {
 
   Runner.prototype.registerTasks = function(tasksDef) {
     var definition, name, task;
+
     for (name in tasksDef) {
       definition = tasksDef[name];
       task = new Task({
@@ -77,12 +78,14 @@ Runner = (function() {
 
   Runner.prototype.executeTasks = function(taskNames, cb) {
     var that;
+
     if (!this.project) {
       return cb("loadProject() must be called first.");
     }
     that = this;
     Async.eachSeries(taskNames, function(name, cb) {
       var task, _i, _len, _ref;
+
       task = that.tasks[name];
       if (!task) {
         return cb("Invalid task: " + name);
@@ -124,6 +127,7 @@ Runner = (function() {
 
   Runner.prototype.loadProject = function(project, cb) {
     var tasks, that;
+
     this.project = project;
     that = this;
     if (this.project.length === 1) {

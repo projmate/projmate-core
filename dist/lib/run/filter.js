@@ -15,7 +15,6 @@ _ = require("lodash");
 S = require("string");
 
 Filter = (function() {
-
   function Filter(name, config, processOptions) {
     this.name = name;
     this.config = config != null ? config : {};
@@ -36,6 +35,7 @@ Filter = (function() {
 
   Filter.prototype.canProcess = function(asset) {
     var comparison, filename, prop, truthy, value, _ref;
+
     if (this.processOptions.$if) {
       truthy = true;
       _ref = this.processOptions.$if;
@@ -69,6 +69,7 @@ Filter = (function() {
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
     var $asset, args, asset, assets, chain, fn, isAsset, modifiers, prop, reserved, _i, _len, _ref, _results;
+
     $asset = this.processOptions.$asset;
     _ref = ["_filename"];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -82,12 +83,13 @@ Filter = (function() {
     }
     if ($asset) {
       isAsset = assetOrTask.originalFilename != null;
-      assets = isAsset ? [assetOrTask] : assertOrTask.assets;
+      assets = isAsset ? [assetOrTask] : assertOrTask.assets.array();
       _results = [];
       for (prop in $asset) {
         modifiers = $asset[prop];
         _results.push((function() {
           var _j, _len1, _results1;
+
           _results1 = [];
           for (_j = 0, _len1 = assets.length; _j < _len1; _j++) {
             asset = assets[_j];
@@ -110,6 +112,7 @@ Filter = (function() {
 
   Filter.prototype.setRunDefaults = function(options) {
     var defaults, env;
+
     if (!(this.environment && this.defaults)) {
       return;
     }
@@ -127,6 +130,7 @@ Filter = (function() {
 
   Filter.prototype._process = function(assetOrTask, cb) {
     var inspect, isAsset, log, options, that;
+
     that = this;
     log = this.log;
     inspect = this.processOptions.$inspect;

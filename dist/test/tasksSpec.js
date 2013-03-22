@@ -12,6 +12,7 @@ describe("Tasks", function() {
   describe("Order and Dependecies", function() {
     it("should do simple task", function(done) {
       var name, project;
+
       name = "";
       project = function(pm) {
         return {
@@ -33,6 +34,7 @@ describe("Tasks", function() {
     });
     it("should run multiple tasks", function(done) {
       var project, ran;
+
       ran = "";
       project = function(pm) {
         return {
@@ -58,6 +60,7 @@ describe("Tasks", function() {
     });
     it("should run dependencies", function(done) {
       var project, total;
+
       total = 100;
       project = function(pm) {
         return {
@@ -84,6 +87,7 @@ describe("Tasks", function() {
     });
     it("should run tasks only once", function(done) {
       var project, ran;
+
       ran = "";
       project = function(pm) {
         return {
@@ -116,6 +120,7 @@ describe("Tasks", function() {
     });
     return it("should run async/sync", function(done) {
       var project, ran;
+
       ran = "";
       project = function(pm) {
         return {
@@ -153,6 +158,7 @@ describe("Tasks", function() {
   return describe("Build Environments", function() {
     return it("should default to development", function(done) {
       var project, ran;
+
       ran = "";
       project = function(pm) {
         return {

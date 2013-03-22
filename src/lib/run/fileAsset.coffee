@@ -3,6 +3,7 @@ Path = require("path")
 mkdirp = require("mkdirp")
 log = require("../common/logger").getLogger("FileAsset")
 Utils = require("../common/utils")
+Promise = require("../common/promise")
 
 Function::property = (prop, desc) ->
   Object.defineProperty this.prototype, prop, desc
@@ -22,6 +23,7 @@ class FileAsset
     @stat = stat
     @_text = text
     @parent = parent
+    @writingPromises = []
 
   @property "filename",
     get: -> @_filename
@@ -58,15 +60,26 @@ text: #{@text}
   read: (cb) ->
     Fs.readFile @filename, PROJMATE.encoding, cb
 
+  # Gets a promise which is resolved right before the file is to be
+  # written. The exact path is sometimes needed by filters. For example,
+  # the coffee filter needs to know the final destination to set the
+  # SourceMappingURL.
+  whenWriting: (promise) ->
+    @writingPromises.push promise
+
   write: (filename=@filename, cb) ->
-    text = @text
-    return cb() if text.length == 0
-    mkdirp Path.dirname(filename), (err) ->
-      return cb(err) if err
-      Fs.writeFile filename, text, PROJMATE.encoding, (err) ->
+    that = @
+    Promise.sequence(@writingPromises).then ->
+      text = that.text
+      return cb() if text.length == 0
+      mkdirp Path.dirname(filename), (err) ->
         return cb(err) if err
-        log.info "Wrote #{filename}"
-        cb()
+        Fs.writeFile filename, text, PROJMATE.encoding, (err) ->
+          return cb(err) if err
+          log.info "Wrote #{filename}"
+          cb()
+    .then null, (err) ->
+      cb err
 
   # Determines if this asset is newer than `reference`
   newerThan: (reference) ->

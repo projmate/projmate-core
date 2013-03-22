@@ -24,6 +24,7 @@ log = Logger.getLogger("pm-run");
 
 findProjfile = function() {
   var dir, files, projfile, projfilePath, _i, _len;
+
   files = [Program.projfile, "Projfile.js", "Projfile.coffee"];
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     projfile = files[_i];
@@ -45,6 +46,7 @@ findProjfile = function() {
 
 run = function() {
   var e, projfilePath;
+
   try {
     Program.tasks = Program.args;
     projfilePath = findProjfile();
@@ -67,6 +69,7 @@ run = function() {
 
 taskDescriptions = function(cb) {
   var e, projfilePath;
+
   try {
     projfilePath = findProjfile();
     return Run.taskDescriptions({

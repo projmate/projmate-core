@@ -18,6 +18,7 @@ globEx = require("./globEx");
 
 getEncoding = function(buffer) {
   var charCode, contentStartBinary, contentStartUTF8, encoding, i, _i, _ref;
+
   contentStartBinary = buffer.toString('binary', 0, 24);
   contentStartUTF8 = buffer.toString('utf8', 0, 24);
   encoding = 'utf8';
@@ -35,6 +36,7 @@ Utils = {
   glob: globEx,
   between: function(s, startToken, endToken) {
     var endPos, start, startPos;
+
     startPos = s.indexOf(startToken);
     endPos = s.indexOf(endToken);
     start = startPos + startToken.length;
@@ -70,6 +72,7 @@ Utils = {
   },
   findDirUp: function(basename, dir) {
     var parent;
+
     if (dir == null) {
       dir = process.cwd();
     }
@@ -85,6 +88,7 @@ Utils = {
   },
   isFileBinary: function(filename) {
     var buffer, fd;
+
     fd = Fs.openSync(filename, "r");
     buffer = new Buffer(24);
     Fs.readSync(fd, buffer, 0, 24, 0);
@@ -93,6 +97,7 @@ Utils = {
   },
   walkDirSync: function(start, deepestFirst, callback) {
     var coll, control, filenames, stat;
+
     stat = Fs.statSync(start);
     if (typeof arguments[1] === 'function') {
       callback = arguments[1];
@@ -102,6 +107,7 @@ Utils = {
       filenames = Fs.readdirSync(start);
       coll = filenames.reduce(function(acc, name) {
         var abspath;
+
         abspath = Path.join(start, name);
         if (Fs.statSync(abspath).isDirectory()) {
           acc.dirs.push(name);
@@ -120,6 +126,7 @@ Utils = {
       if (control.stop == null) {
         coll.dirs.forEach(function(d) {
           var abspath;
+
           abspath = Path.join(start, d);
           return Utils.walkDirSync(abspath, deepestFirst, callback);
         });
@@ -133,6 +140,7 @@ Utils = {
   },
   outdated: function(target, reference) {
     var referenceStat, targetStat;
+
     if (!Fs.existsSync(target)) {
       return true;
     }
