@@ -24,13 +24,11 @@ class Task
     # init attributes
     @config = config
     @log = log
-    @assets = null
     @description = config.description
     @dependencies = config.dependencies
     @filters = @options.filters
     @pipelines = {}
     @_initPipelines config
-    @assets = new Assets
 
 
   # Allows short cuts in files
@@ -257,6 +255,7 @@ class Task
   # Executes this task's environment pipeline.
   #
   execute: (cb) ->
+    @assets = new Assets
     that = @
     environment = @program.environment
     # Fall back to development if environment is not found

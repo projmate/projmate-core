@@ -37,13 +37,11 @@ Task = (function() {
     this.program = this.options.program;
     this.config = config;
     this.log = log;
-    this.assets = null;
     this.description = config.description;
     this.dependencies = config.dependencies;
     this.filters = this.options.filters;
     this.pipelines = {};
     this._initPipelines(config);
-    this.assets = new Assets;
   }
 
   Task.prototype.normalizeConfig = function(config) {
@@ -298,6 +296,7 @@ Task = (function() {
   Task.prototype.execute = function(cb) {
     var environment, pipeObj, pipeline, ran, that;
 
+    this.assets = new Assets;
     that = this;
     environment = this.program.environment;
     if (!this.pipelines[environment]) {
