@@ -5,8 +5,8 @@
   "license": "AGPL",
   "version": "0.0.9",
   "dependencies": {
-    "projmate-filters": "~0.0.8",
-    "projmate-shell": "~0.0.6",
+    "projmate-filters": "git://github.com/projmate/projmate-filters.git#develop",
+    "projmate-shell": "git://github.com/projmate/projmate-shell.git#develop",
     "async": "~0.2.0",
     "chokidar": "~0.5.3",
     "coffee-script": "~1.6.1",

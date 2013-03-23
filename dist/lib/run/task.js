@@ -161,6 +161,9 @@ Task = (function() {
     }
     this.watching = true;
     files = this.config.files;
+    if (!files) {
+      return;
+    }
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/;
     dirRe = /(.*)\/\*(\..*)$/;
     patterns = files.watch ? files.watch : files.include;

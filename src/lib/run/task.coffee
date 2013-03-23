@@ -143,8 +143,10 @@ class Task
     return if @watching
 
     @watching = true
-
     {files} = @config
+
+    # Function-based environment actions have optional files.
+    return unless files
 
     # dir/**/*.ext => match[1] = dirname, match[2] = extname
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/
@@ -155,7 +157,7 @@ class Task
     # Watch patterns can be inferred from `files.include` but in
     # some cases, a single file includes many other files.
     # In this situation, the dependent files should be monitored
-    # and declared via `files.watch` to trigger building the task properly.
+    # and declared via `files.watch` to trigger the environment action.
     patterns = if files.watch then files.watch else files.include
 
     paths = []
