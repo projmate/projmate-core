@@ -332,11 +332,11 @@ describe("Tasks", function() {
         }
       };
       return runProject(project, {
-        tasks: ["a", "dopey:d", "sleepy:d"],
+        tasks: ["a", "dopey:d", "sleepy:e"],
         environment: "production"
       }, function(err) {
         assert.ifError(err);
-        assert.equal(ran, "bPcDaDe'Dd'De'Dd'D");
+        assert.equal(ran, "bPcDaDe'Dd'De'D");
         return done();
       });
     });

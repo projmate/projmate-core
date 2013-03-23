@@ -27,7 +27,7 @@ _ = require("lodash");
 log = Logger.getLogger("runner");
 
 logError = function(err) {
-  if (err) {
+  if (err && err !== "PM_SILENT") {
     return log.error(err);
   }
 };
@@ -152,6 +152,10 @@ Runner = (function() {
     }
     that = this;
     this.project = projfile.project;
+    if (!this.project) {
+      log.error("Invalid Projfile, missing or does not export `project` property.");
+      return cb("PM_SILENT");
+    }
     if (this.project.length === 1) {
       tasks = this.project(this);
       this.registerTasks(tasks, ns);

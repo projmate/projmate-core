@@ -9,7 +9,7 @@ _ = require("lodash")
 
 log = Logger.getLogger("runner")
 logError = (err) ->
-  log.error(err) if err
+  log.error(err) if err and err isnt "PM_SILENT"
 
 # Runs the command line app.
 #
@@ -118,6 +118,10 @@ class Runner
 
     that = @
     @project = projfile.project
+    unless @project
+      log.error "Invalid Projfile, missing or does not export `project` property."
+      return cb("PM_SILENT")
+
     if @project.length == 1
       tasks = @project(@)
       @registerTasks tasks, ns

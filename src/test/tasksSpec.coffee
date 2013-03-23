@@ -157,7 +157,6 @@ describe "Tasks", ->
         done()
 
 
-
     it "should use namespace", (done) ->
       ran = ""
 
@@ -189,9 +188,9 @@ describe "Tasks", ->
             pre: "b"     # this should not get called again
             dev: -> ran += "cD"
 
-      runProject project, tasks: ["a", "dopey:d", "sleepy:d"], environment: "production", (err) ->
+      runProject project, tasks: ["a", "dopey:d", "sleepy:e"], environment: "production", (err) ->
         assert.ifError err
-        assert.equal ran, "bPcDaDe'Dd'De'Dd'D"
+        assert.equal ran, "bPcDaDe'Dd'De'D"
         done()
 
 
