@@ -1,3 +1,4 @@
+Path = require("path")
 Program = require("commander")
 Pkg = require("../../package.json")
 Fs = require("fs")
@@ -8,18 +9,16 @@ Utils = require("../lib/common/utils")
 log = Logger.getLogger("pm-run")
 
 
-# Finds project file from current directory, up.
+# Finds project file.
 #
-# @returns {*}
+# @returns Returns the full path to found projec file.
 #
 findProjfile = ->
   files = [Program.projfile, "Projfile.js", "Projfile.coffee"]
-  for projfile in files
-    if projfile
-      dir = Utils.findDirUp(projfile)
-      if dir
-        projfilePath = Path.join(dir, projfile)
-        return projfilePath
+  for file in files
+    continue unless file?.length > 0
+    projfile = Path.resolve(file)
+    return projfile if Fs.existsSync(projfile)
 
   if Program.projfile
     throw new Error("Projfile not found: #{Program.projfile}")

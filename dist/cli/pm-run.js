@@ -6,6 +6,8 @@
 
 var Fs, Logger, Path, Pkg, Program, Run, Utils, findProjfile, log, run, taskDescriptions;
 
+Path = require("path");
+
 Program = require("commander");
 
 Pkg = require("../../package.json");
@@ -23,17 +25,17 @@ Utils = require("../lib/common/utils");
 log = Logger.getLogger("pm-run");
 
 findProjfile = function() {
-  var dir, files, projfile, projfilePath, _i, _len;
+  var file, files, projfile, _i, _len;
 
   files = [Program.projfile, "Projfile.js", "Projfile.coffee"];
   for (_i = 0, _len = files.length; _i < _len; _i++) {
-    projfile = files[_i];
-    if (projfile) {
-      dir = Utils.findDirUp(projfile);
-      if (dir) {
-        projfilePath = Path.join(dir, projfile);
-        return projfilePath;
-      }
+    file = files[_i];
+    if (!((file != null ? file.length : void 0) > 0)) {
+      continue;
+    }
+    projfile = Path.resolve(file);
+    if (Fs.existsSync(projfile)) {
+      return projfile;
     }
   }
   if (Program.projfile) {
