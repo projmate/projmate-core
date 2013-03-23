@@ -18,7 +18,6 @@ readLocalProjfile = (dirname) ->
     if Fs.existsSync(projfilePath)
       require('coffee-script')  if file.match(/coffee$/)
       modu = require(projfilePath)
-      console.log "modul", modu
       return modu.server if modu.server
   {}
 

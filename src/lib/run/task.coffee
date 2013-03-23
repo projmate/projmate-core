@@ -18,7 +18,7 @@ class Task
   constructor: (@options) ->
     {log, name, config} = @options
     @name = name
-    @normalizeConfig config
+    @normalizeConfig config, (@options.ns || "")
     @program = @options.program
 
     # init attributes
@@ -32,7 +32,7 @@ class Task
 
 
   # Allows short cuts in files
-  normalizeConfig: (config) ->
+  normalizeConfig: (config, ns) ->
 
     # Several short cuts to create a file set
     if config.files
@@ -83,7 +83,17 @@ class Task
     config.dependencies = config.pre || config.deps || config.dependencies || []
     config.dependencies = [config.dependencies] if typeof config.dependencies == "string"
 
-    # highest to lowest priority
+    # shorter aliases
+    config.development ?= config.dev
+    config.production ?= config.prod
+
+    # Tasks in a namespace will not be located unless they're all within
+    # the same namespace
+    if ns.length > 0
+      for dep, i in config.dependencies
+        config.dependencies[i] = ns+":"+dep
+
+    # TODO: configurable highest to lowest priority
     unless config.environments
       config.environments = ["production", "test", "development"]
     config

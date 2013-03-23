@@ -55,7 +55,7 @@ _run = function(options, executeTasks, cb) {
     program: program,
     server: projfile.server
   });
-  return runner.loadProject(projfile.project, function(err) {
+  return runner.load(projfile, function(err) {
     if (err) {
       return cb(err);
     }

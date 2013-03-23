@@ -8,6 +8,8 @@ Util = require("util")
 _ = require("lodash")
 
 log = Logger.getLogger("runner")
+logError = (err) ->
+  log.error(err) if err
 
 # Runs the command line app.
 #
@@ -44,15 +46,21 @@ class Runner
   #
   # @param {Object} tasksDef The tasks JSON definition.
   #
-  registerTasks: (tasksDef) ->
+  registerTasks: (tasksDef, ns="") ->
     for name, definition of tasksDef
+      if ns.length > 0
+        nsname = ns+":"+name
+      else
+        nsname = name
+
       task = new Task
-        name: name
+        ns: ns
+        name: nsname
         config: definition
         filters: @filters()
-        log: Logger.getLogger("T.#{name}")
+        log: Logger.getLogger("T.#{nsname}")
         program: @program
-      @tasks[name] = task
+      @tasks[nsname] = task
     null
 
 
@@ -64,7 +72,7 @@ class Runner
   # @param {Array} taskNames
   #
   executeTasks: (taskNames, cb) =>
-    return cb("loadProject() must be called first.") unless @project
+    return cb("load() must be called first.") unless @project
     that = @
     Async.eachSeries taskNames, (name, cb) ->
       task = that.tasks[name]
@@ -97,21 +105,27 @@ class Runner
     null
 
 
-  # Loads the project
+  # Loads a project.
   #
   # @param {Object} project The Projfile exported project.
   # @param {Function} cb
   #
-  loadProject: (@project, cb)  ->
+  load: (projfile, ns, cb)  ->
+    if typeof ns == "function"
+      cb = ns
+      ns = ""
+    cb = logError unless cb
+
     that = @
+    @project = projfile.project
     if @project.length == 1
-      tasks = project(@)
-      @registerTasks tasks
+      tasks = @project(@)
+      @registerTasks tasks, ns
       cb()
     else
       @project @, (err, tasks) ->
         return cb(err) if err
-        that.registerTasks tasks
+        that.registerTasks tasks, ns
         cb()
 
 module.exports = Runner

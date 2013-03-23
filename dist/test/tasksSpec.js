@@ -14,15 +14,17 @@ describe("Tasks", function() {
       var name, project;
 
       name = "";
-      project = function(pm) {
-        return {
-          hello: {
-            desc: "hello",
-            development: function() {
-              return name = "foo";
+      project = {
+        project: function(pm) {
+          return {
+            hello: {
+              desc: "hello",
+              development: function() {
+                return name = "foo";
+              }
             }
-          }
-        };
+          };
+        }
       };
       return runProject(project, {
         tasks: ["hello"]
@@ -36,19 +38,21 @@ describe("Tasks", function() {
       var project, ran;
 
       ran = "";
-      project = function(pm) {
-        return {
-          a: {
-            development: function() {
-              return ran += "a";
+      project = {
+        project: function(pm) {
+          return {
+            a: {
+              development: function() {
+                return ran += "a";
+              }
+            },
+            b: {
+              development: function() {
+                return ran += "b";
+              }
             }
-          },
-          b: {
-            development: function() {
-              return ran += "b";
-            }
-          }
-        };
+          };
+        }
       };
       return runProject(project, {
         tasks: ["a", "b"]
@@ -62,20 +66,22 @@ describe("Tasks", function() {
       var project, total;
 
       total = 100;
-      project = function(pm) {
-        return {
-          add: {
-            pre: "reset",
-            development: function() {
-              return total += 10;
+      project = {
+        project: function(pm) {
+          return {
+            add: {
+              pre: "reset",
+              development: function() {
+                return total += 10;
+              }
+            },
+            reset: {
+              development: function() {
+                return total = 0;
+              }
             }
-          },
-          reset: {
-            development: function() {
-              return total = 0;
-            }
-          }
-        };
+          };
+        }
       };
       return runProject(project, {
         tasks: ["add"]
@@ -89,26 +95,28 @@ describe("Tasks", function() {
       var project, ran;
 
       ran = "";
-      project = function(pm) {
-        return {
-          a: {
-            pre: ["b", "c"],
-            development: function() {
-              return ran += "a";
+      project = {
+        project: function(pm) {
+          return {
+            a: {
+              pre: ["b", "c"],
+              development: function() {
+                return ran += "a";
+              }
+            },
+            b: {
+              development: function() {
+                return ran += "b";
+              }
+            },
+            c: {
+              pre: "b",
+              development: function() {
+                return ran += "c";
+              }
             }
-          },
-          b: {
-            development: function() {
-              return ran += "b";
-            }
-          },
-          c: {
-            pre: "b",
-            development: function() {
-              return ran += "c";
-            }
-          }
-        };
+          };
+        }
       };
       return runProject(project, {
         tasks: ["a"]
@@ -122,29 +130,31 @@ describe("Tasks", function() {
       var project, ran;
 
       ran = "";
-      project = function(pm) {
-        return {
-          a: {
-            pre: ["b", "c"],
-            development: function() {
-              return ran += "a";
+      project = {
+        project: function(pm) {
+          return {
+            a: {
+              pre: ["b", "c"],
+              development: function() {
+                return ran += "a";
+              }
+            },
+            b: {
+              development: function(done) {
+                return setTimeout(function() {
+                  ran += "b";
+                  return done();
+                }, 100);
+              }
+            },
+            c: {
+              pre: "b",
+              development: function() {
+                return ran += "c";
+              }
             }
-          },
-          b: {
-            development: function(done) {
-              return setTimeout(function() {
-                ran += "b";
-                return done();
-              }, 100);
-            }
-          },
-          c: {
-            pre: "b",
-            development: function() {
-              return ran += "c";
-            }
-          }
-        };
+          };
+        }
       };
       return runProject(project, {
         tasks: ["a"]
@@ -155,40 +165,42 @@ describe("Tasks", function() {
       });
     });
   });
-  return describe("Build Environments", function() {
+  describe("Build Environments", function() {
     return it("should default to development", function(done) {
       var project, ran;
 
       ran = "";
-      project = function(pm) {
-        return {
-          a: {
-            pre: ["b", "c"],
-            development: function() {
-              return ran += "aD";
+      project = {
+        project: function(pm) {
+          return {
+            a: {
+              pre: ["b", "c"],
+              development: function() {
+                return ran += "aD";
+              },
+              test: function() {
+                return ran += "aT";
+              }
             },
-            test: function() {
-              return ran += "aT";
-            }
-          },
-          b: {
-            development: function(done) {
-              return setTimeout(function() {
-                ran += "bD";
-                return done();
-              }, 100);
+            b: {
+              development: function(done) {
+                return setTimeout(function() {
+                  ran += "bD";
+                  return done();
+                }, 100);
+              },
+              production: function() {
+                return ran += "bP";
+              }
             },
-            production: function() {
-              return ran += "bP";
+            c: {
+              pre: "b",
+              development: function() {
+                return ran += "cD";
+              }
             }
-          },
-          c: {
-            pre: "b",
-            development: function() {
-              return ran += "cD";
-            }
-          }
-        };
+          };
+        }
       };
       return runProject(project, {
         tasks: ["a"],
@@ -196,6 +208,135 @@ describe("Tasks", function() {
       }, function(err) {
         assert.ifError(err);
         assert.equal(ran, "bPcDaD");
+        return done();
+      });
+    });
+  });
+  return describe("Namespaced tasks", function() {
+    it("should use default or empty namespace by default", function(done) {
+      var other, project, ran;
+
+      ran = "";
+      other = {
+        project: function(pm) {
+          return {
+            d: {
+              pre: ["e"],
+              dev: function() {
+                return ran += "d'D";
+              }
+            },
+            e: {
+              dev: function() {
+                return ran += "e'D";
+              }
+            }
+          };
+        }
+      };
+      project = {
+        project: function(pm) {
+          pm.load(other);
+          return {
+            a: {
+              pre: ["b", "c"],
+              dev: function() {
+                return ran += "aD";
+              },
+              test: function() {
+                return ran += "aT";
+              }
+            },
+            b: {
+              development: function(done) {
+                return setTimeout(function() {
+                  ran += "bD";
+                  return done();
+                }, 100);
+              },
+              prod: function() {
+                return ran += "bP";
+              }
+            },
+            c: {
+              pre: "b",
+              dev: function() {
+                return ran += "cD";
+              }
+            }
+          };
+        }
+      };
+      return runProject(project, {
+        tasks: ["a", "d"],
+        environment: "production"
+      }, function(err) {
+        assert.ifError(err);
+        assert.equal(ran, "bPcDaDe'Dd'D");
+        return done();
+      });
+    });
+    return it("should use namespace", function(done) {
+      var other, project, ran;
+
+      ran = "";
+      other = {
+        project: function(pm) {
+          return {
+            d: {
+              pre: ["e"],
+              dev: function() {
+                return ran += "d'D";
+              }
+            },
+            e: {
+              dev: function() {
+                return ran += "e'D";
+              }
+            }
+          };
+        }
+      };
+      project = {
+        project: function(pm) {
+          pm.load(other, "dopey");
+          pm.load(other, "sleepy");
+          return {
+            a: {
+              pre: ["b", "c"],
+              dev: function() {
+                return ran += "aD";
+              },
+              test: function() {
+                return ran += "aT";
+              }
+            },
+            b: {
+              development: function(done) {
+                return setTimeout(function() {
+                  ran += "bD";
+                  return done();
+                }, 100);
+              },
+              prod: function() {
+                return ran += "bP";
+              }
+            },
+            c: {
+              pre: "b",
+              dev: function() {
+                return ran += "cD";
+              }
+            }
+          };
+        }
+      };
+      return runProject(project, {
+        tasks: ["a", "dopey:d", "sleepy:d"],
+        environment: "production"
+      }, function(err) {
+        assert.ifError(err);
+        assert.equal(ran, "bPcDaDe'Dd'De'Dd'D");
         return done();
       });
     });

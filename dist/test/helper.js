@@ -24,7 +24,7 @@ module.exports = {
     runner = new Runner({
       program: program
     });
-    return runner.loadProject(project, function(err) {
+    return runner.load(project, function(err) {
       if (err) {
         console.error(err);
         process.exit(1);

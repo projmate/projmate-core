@@ -34,7 +34,6 @@ readLocalProjfile = function(dirname) {
         require('coffee-script');
       }
       modu = require(projfilePath);
-      console.log("modul", modu);
       if (modu.server) {
         return modu.server;
       }

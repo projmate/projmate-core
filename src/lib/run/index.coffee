@@ -41,7 +41,7 @@ _run = (options, executeTasks, cb) ->
   return cb("#{projfilePath} missing `project` function") unless projfile.project
 
   runner = new Runner(program: program, server: projfile.server)
-  runner.loadProject projfile.project, (err) ->
+  runner.load projfile, (err) ->
     return cb(err) if err
 
     executeTasks {runner, projfile, projfilePath}, cb

@@ -11,7 +11,7 @@ module.exports =
 
   runProject: (project, program, cb) ->
     runner = new Runner(program: program)
-    runner.loadProject project, (err) ->
+    runner.load project, (err) ->
       if err
         console.error err
         process.exit 1

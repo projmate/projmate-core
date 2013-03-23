@@ -33,7 +33,7 @@ Task = (function() {
     this.options = options;
     _ref = this.options, log = _ref.log, name = _ref.name, config = _ref.config;
     this.name = name;
-    this.normalizeConfig(config);
+    this.normalizeConfig(config, this.options.ns || "");
     this.program = this.options.program;
     this.config = config;
     this.log = log;
@@ -44,8 +44,8 @@ Task = (function() {
     this._initPipelines(config);
   }
 
-  Task.prototype.normalizeConfig = function(config) {
-    var excludePattern, files, pattern, removePatterns, _i, _len, _ref;
+  Task.prototype.normalizeConfig = function(config, ns) {
+    var dep, excludePattern, files, i, pattern, removePatterns, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
 
     if (config.files) {
       if (typeof config.files === "string") {
@@ -93,6 +93,19 @@ Task = (function() {
     config.dependencies = config.pre || config.deps || config.dependencies || [];
     if (typeof config.dependencies === "string") {
       config.dependencies = [config.dependencies];
+    }
+    if ((_ref1 = config.development) == null) {
+      config.development = config.dev;
+    }
+    if ((_ref2 = config.production) == null) {
+      config.production = config.prod;
+    }
+    if (ns.length > 0) {
+      _ref3 = config.dependencies;
+      for (i = _j = 0, _len1 = _ref3.length; _j < _len1; i = ++_j) {
+        dep = _ref3[i];
+        config.dependencies[i] = ns + ":" + dep;
+      }
     }
     if (!config.environments) {
       config.environments = ["production", "test", "development"];

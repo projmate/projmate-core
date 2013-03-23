@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, FilterCollection, Logger, Path, Runner, Shell, Task, Util, log, _,
+var Async, FilterCollection, Logger, Path, Runner, Shell, Task, Util, log, logError, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
 
@@ -25,6 +25,12 @@ Util = require("util");
 _ = require("lodash");
 
 log = Logger.getLogger("runner");
+
+logError = function(err) {
+  if (err) {
+    return log.error(err);
+  }
+};
 
 Runner = (function() {
   function Runner(options) {
@@ -59,19 +65,28 @@ Runner = (function() {
     return Shell;
   };
 
-  Runner.prototype.registerTasks = function(tasksDef) {
-    var definition, name, task;
+  Runner.prototype.registerTasks = function(tasksDef, ns) {
+    var definition, name, nsname, task;
 
+    if (ns == null) {
+      ns = "";
+    }
     for (name in tasksDef) {
       definition = tasksDef[name];
+      if (ns.length > 0) {
+        nsname = ns + ":" + name;
+      } else {
+        nsname = name;
+      }
       task = new Task({
-        name: name,
+        ns: ns,
+        name: nsname,
         config: definition,
         filters: this.filters(),
-        log: Logger.getLogger("T." + name),
+        log: Logger.getLogger("T." + nsname),
         program: this.program
       });
-      this.tasks[name] = task;
+      this.tasks[nsname] = task;
     }
     return null;
   };
@@ -80,7 +95,7 @@ Runner = (function() {
     var that;
 
     if (!this.project) {
-      return cb("loadProject() must be called first.");
+      return cb("load() must be called first.");
     }
     that = this;
     Async.eachSeries(taskNames, function(name, cb) {
@@ -125,21 +140,28 @@ Runner = (function() {
     return null;
   };
 
-  Runner.prototype.loadProject = function(project, cb) {
+  Runner.prototype.load = function(projfile, ns, cb) {
     var tasks, that;
 
-    this.project = project;
+    if (typeof ns === "function") {
+      cb = ns;
+      ns = "";
+    }
+    if (!cb) {
+      cb = logError;
+    }
     that = this;
+    this.project = projfile.project;
     if (this.project.length === 1) {
-      tasks = project(this);
-      this.registerTasks(tasks);
+      tasks = this.project(this);
+      this.registerTasks(tasks, ns);
       return cb();
     } else {
       return this.project(this, function(err, tasks) {
         if (err) {
           return cb(err);
         }
-        that.registerTasks(tasks);
+        that.registerTasks(tasks, ns);
         return cb();
       });
     }
