@@ -106,17 +106,21 @@ class Task
   # the pipeline (if needed) to kick things off.
   #
   _initPipelines: (config) ->
-    # Load by default, some tasks disable loading when the task action
-    # does not maninpulate the file. Mocha for example, only needs
-    # the filenames not the content.
-    load = if config.files?.load? then config.files.load else true
-
     for name in config.environments
       # The pipeline can either be an array of filters, OR a function.
       pipeline = config[name]
       continue unless pipeline
 
       if Array.isArray(pipeline)
+
+        # check if filters disable reading of file contents and storing them into asset.text
+        for filter in pipeline
+          if !filter
+            throw new Error("Undefined filter for #{@name}:#{name}")
+
+          load = !filter.__pragma?.disableLoadFiles
+          break if load # get out if ANY need files loading
+
         # Each pipeline starts by loading files or just the filenames.
         # Since this is so common, prepend it if it is not declared in
         # pipeline.

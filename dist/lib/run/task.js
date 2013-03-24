@@ -117,18 +117,27 @@ Task = (function() {
   };
 
   Task.prototype._initPipelines = function(config) {
-    var filter, i, load, name, pipeline, _i, _j, _len, _len1, _ref, _ref1, _results;
+    var filter, i, load, name, pipeline, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _results;
 
-    load = ((_ref = config.files) != null ? _ref.load : void 0) != null ? config.files.load : true;
-    _ref1 = config.environments;
+    _ref = config.environments;
     _results = [];
-    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-      name = _ref1[_i];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      name = _ref[_i];
       pipeline = config[name];
       if (!pipeline) {
         continue;
       }
       if (Array.isArray(pipeline)) {
+        for (_j = 0, _len1 = pipeline.length; _j < _len1; _j++) {
+          filter = pipeline[_j];
+          if (!filter) {
+            throw new Error("Undefined filter for " + this.name + ":" + name);
+          }
+          load = !((_ref1 = filter.__pragma) != null ? _ref1.disableLoadFiles : void 0);
+          if (load) {
+            break;
+          }
+        }
         if (load) {
           if (!(pipeline[0] instanceof this.filters.loadFiles)) {
             pipeline.unshift(this.filters.loadFiles);
@@ -138,7 +147,7 @@ Task = (function() {
             pipeline.unshift(this.filters.loadFilenames);
           }
         }
-        for (i = _j = 0, _len1 = pipeline.length; _j < _len1; i = ++_j) {
+        for (i = _k = 0, _len2 = pipeline.length; _k < _len2; i = ++_k) {
           filter = pipeline[i];
           if (typeof filter === 'undefined') {
             throw new Error("Undefined filter at " + this.name + ":" + name + "[" + i + "]");

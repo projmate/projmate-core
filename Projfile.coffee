@@ -26,13 +26,13 @@ exports.project = (pm) ->
 
   tests:
     desc: "Runs tests from src"
-    development: (cb) ->
-      $.run "mocha -R spec --compilers coffee:coffee-script --globals PROJMATE src/test", cb
+    files: "src/test/**/*{Test,Spec}.{coffee,js}"
+    dev: [f.mocha]
 
   distTests:
     desc: "Runs tests from dist"
-    development: (cb) ->
-      $.run "mocha -R spec --globals PROJMATE dist/test", cb
+    files: "dist/test/**/*{Test,Spec}.{coffee,js}"
+    dev: [f.mocha]
 
   dist:
     pre: ["build", "distTests"]
