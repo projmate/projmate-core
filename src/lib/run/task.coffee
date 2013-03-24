@@ -59,6 +59,9 @@ class Task
       if typeof config.files.exclude == "string"
         config.files.exclude = [config.files.exclude]
 
+      if typeof config.files.watch == "string"
+        config.files.watch = [config.files.watch]
+
       if !Array.isArray(config.files.exclude)
         config.files.exclude =  []
 

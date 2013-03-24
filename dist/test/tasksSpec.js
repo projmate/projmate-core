@@ -342,3 +342,8 @@ describe("Tasks", function() {
     });
   });
 });
+
+
+/*
+//@ sourceMappingURL=src/test/tasksSpec.map
+*/

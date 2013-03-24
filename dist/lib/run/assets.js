@@ -103,3 +103,8 @@ methods.forEach(function(method) {
 });
 
 module.exports = Assets;
+
+
+/*
+//@ sourceMappingURL=src/lib/run/assets.map
+*/

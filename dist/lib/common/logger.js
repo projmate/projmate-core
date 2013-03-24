@@ -48,3 +48,8 @@ exports.silence = function(silent) {
 };
 
 exports.silence(false);
+
+
+/*
+//@ sourceMappingURL=src/lib/common/logger.map
+*/

@@ -87,3 +87,8 @@ exports.run = function(options) {
   dname = "$PWD" + dname;
   return log.info("Serving " + dname + " on\n  http://" + httpDomain + "\n  https://" + httpsDomain);
 };
+
+
+/*
+//@ sourceMappingURL=src/lib/serve/server.map
+*/
