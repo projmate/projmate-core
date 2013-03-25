@@ -125,7 +125,7 @@ exports.attach = function(config) {
   app = config.app;
   srv = new Server(config);
   app.get('/livereload.js', function(req, res) {
-    return res.sendfile("" + __dirname + "/livereload.js");
+    return res.sendfile("" + __dirname + "/js/livereload.js");
   });
   app.post('/reload', function(req, res) {
     var _this = this;

@@ -86,7 +86,7 @@ exports.attach = (config) ->
 
   #app.use express.static "#{__dirname}/../ext"
   app.get '/livereload.js', (req, res) ->
-    res.sendfile "#{__dirname}/livereload.js"
+    res.sendfile "#{__dirname}/js/livereload.js"
   app.post '/reload', (req, res) ->
     setTimeout =>
       do server.reloadAll
