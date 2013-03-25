@@ -106,5 +106,5 @@ module.exports = Assets;
 
 
 /*
-//@ sourceMappingURL=src/lib/run/assets.map
+//@ sourceMappingURL=assets.map
 */

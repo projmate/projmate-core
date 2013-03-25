@@ -23,5 +23,5 @@ describe("Utils", function() {
 
 
 /*
-//@ sourceMappingURL=src/test/utilsSpec.map
+//@ sourceMappingURL=utilsSpec.map
 */

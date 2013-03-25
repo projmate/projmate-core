@@ -106,5 +106,5 @@ if (process.argv.length < 3) {
 
 
 /*
-//@ sourceMappingURL=src/cli/pm-run.map
+//@ sourceMappingURL=pm-run.map
 */

@@ -34,5 +34,5 @@ if (program.args < 3) {
 
 
 /*
-//@ sourceMappingURL=src/cli/pm-create.map
+//@ sourceMappingURL=pm-create.map
 */

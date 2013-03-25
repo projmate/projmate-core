@@ -345,5 +345,5 @@ describe("Tasks", function() {
 
 
 /*
-//@ sourceMappingURL=src/test/tasksSpec.map
+//@ sourceMappingURL=tasksSpec.map
 */

@@ -145,5 +145,5 @@ exports.taskDescriptions = function(options, cb) {
 
 
 /*
-//@ sourceMappingURL=src/lib/run/index.map
+//@ sourceMappingURL=index.map
 */

@@ -12,5 +12,6 @@ Projmate =
     CoffeeFill.extends(derived, Filter)
   extendsTaskProcessor: (derived) ->
     CoffeeFill.extends(derived, TaskProcessor)
+  eventBus: require("./common/eventBus");
 
 module.exports = Projmate

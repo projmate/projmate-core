@@ -51,5 +51,5 @@ exports.silence(false);
 
 
 /*
-//@ sourceMappingURL=src/lib/common/logger.map
+//@ sourceMappingURL=logger.map
 */

@@ -15,5 +15,5 @@ module.exports = {
 
 
 /*
-//@ sourceMappingURL=src/lib/common/promise.map
+//@ sourceMappingURL=promise.map
 */

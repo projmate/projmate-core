@@ -30,5 +30,5 @@ program.version(pkg.version).extbang({
 
 
 /*
-//@ sourceMappingURL=src/cli/pm.map
+//@ sourceMappingURL=pm.map
 */

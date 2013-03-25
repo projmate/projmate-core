@@ -247,5 +247,5 @@ exports.run = function(options) {
 
 
 /*
-//@ sourceMappingURL=src/lib/create/index.map
+//@ sourceMappingURL=index.map
 */

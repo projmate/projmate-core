@@ -4,6 +4,7 @@ mkdirp = require("mkdirp")
 log = require("../common/logger").getLogger("FileAsset")
 Utils = require("../common/utils")
 Promise = require("../common/promise")
+eventBus = require("../common/eventBus")
 
 Function::property = (prop, desc) ->
   Object.defineProperty this.prototype, prop, desc
@@ -77,6 +78,8 @@ text: #{@text}
         Fs.writeFile filename, text, PROJMATE.encoding, (err) ->
           return cb(err) if err
           log.info "Wrote #{filename}"
+          # livereload
+          eventBus.emit "asset:written", that
           cb()
     .then null, (err) ->
       cb err

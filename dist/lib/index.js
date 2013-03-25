@@ -23,12 +23,13 @@ Projmate = {
   },
   extendsTaskProcessor: function(derived) {
     return CoffeeFill["extends"](derived, TaskProcessor);
-  }
+  },
+  eventBus: require("./common/eventBus")
 };
 
 module.exports = Projmate;
 
 
 /*
-//@ sourceMappingURL=src/lib/index.map
+//@ sourceMappingURL=index.map
 */

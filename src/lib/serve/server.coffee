@@ -4,8 +4,9 @@ Https = require("https")
 Path = require("path")
 S = require("string")
 _ = require("lodash")
-connect = require("connect")
+express = require("express")
 log = require("../common/logger").getLogger("server")
+liveReload = require("./liveReload")
 
 # Read server settings from local Projfile.
 #
@@ -39,18 +40,23 @@ exports.run = (options) ->
   httpPort = options.httpPort || 1080
   httpsPort = options.httpsPort || 1443
 
-  server = connect()
-  server.use connect.favicon()
-  server.use connect.logger(immediate: true, format: "dev")
-  server.use connect.static(dirname)
-  server.use connect.directory(dirname)
-  server.use connect.errorHandler()
+  app = express()
+  app.use express.favicon()
+  app.use express.logger(immediate: true, format: "dev")
+  app.use express.static(dirname)
+  app.use express.directory(dirname)
+  app.use express.errorHandler()
 
-  Http.createServer(server).listen(httpPort)
+  server = Http.createServer(app)
+  liveReload.attach {server, app}
+  server.listen(httpPort)
+
+
   httpsConfig =
     key: Fs.readFileSync(__dirname+"/local.key")
     cert: Fs.readFileSync(__dirname+"/local.crt")
-  Https.createServer(httpsConfig, server).listen(httpsPort)
+  server = Https.createServer(httpsConfig, app)
+  server.listen(httpsPort)
 
   httpDomain = "local.projmate.com"
   if httpPort != 80

@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var FileAsset, Fs, Path, Promise, Utils, log, mkdirp;
+var FileAsset, Fs, Path, Promise, Utils, eventBus, log, mkdirp;
 
 Fs = require("fs");
 
@@ -17,6 +17,8 @@ log = require("../common/logger").getLogger("FileAsset");
 Utils = require("../common/utils");
 
 Promise = require("../common/promise");
+
+eventBus = require("../common/eventBus");
 
 Function.prototype.property = function(prop, desc) {
   return Object.defineProperty(this.prototype, prop, desc);
@@ -113,6 +115,7 @@ FileAsset = (function() {
             return cb(err);
           }
           log.info("Wrote " + filename);
+          eventBus.emit("asset:written", that);
           return cb();
         });
       });
@@ -142,5 +145,5 @@ module.exports = FileAsset;
 
 
 /*
-//@ sourceMappingURL=src/lib/run/fileAsset.map
+//@ sourceMappingURL=fileAsset.map
 */

@@ -8,5 +8,5 @@ module.exports = require("./lib");
 
 
 /*
-//@ sourceMappingURL=src/index.map
+//@ sourceMappingURL=index.map
 */

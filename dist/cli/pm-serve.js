@@ -45,5 +45,5 @@ main();
 
 
 /*
-//@ sourceMappingURL=src/cli/pm-serve.map
+//@ sourceMappingURL=pm-serve.map
 */

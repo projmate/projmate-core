@@ -29,5 +29,5 @@ module.exports = TaskProcessor;
 
 
 /*
-//@ sourceMappingURL=src/lib/run/taskProcessor.map
+//@ sourceMappingURL=taskProcessor.map
 */

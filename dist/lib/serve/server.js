@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Http, Https, Path, S, connect, log, readLocalProjfile, _;
+var Fs, Http, Https, Path, S, express, liveReload, log, readLocalProjfile, _;
 
 Fs = require("fs");
 
@@ -18,9 +18,11 @@ S = require("string");
 
 _ = require("lodash");
 
-connect = require("connect");
+express = require("express");
 
 log = require("../common/logger").getLogger("server");
+
+liveReload = require("./liveReload");
 
 readLocalProjfile = function(dirname) {
   var file, files, modu, projfilePath, _i, _len;
@@ -43,7 +45,7 @@ readLocalProjfile = function(dirname) {
 };
 
 exports.run = function(options) {
-  var dirname, dname, httpDomain, httpPort, httpsConfig, httpsDomain, httpsPort, projfile, server;
+  var app, dirname, dname, httpDomain, httpPort, httpsConfig, httpsDomain, httpsPort, projfile, server;
 
   dirname = options.dirname;
   if (!dirname) {
@@ -57,21 +59,27 @@ exports.run = function(options) {
   }
   httpPort = options.httpPort || 1080;
   httpsPort = options.httpsPort || 1443;
-  server = connect();
-  server.use(connect.favicon());
-  server.use(connect.logger({
+  app = express();
+  app.use(express.favicon());
+  app.use(express.logger({
     immediate: true,
     format: "dev"
   }));
-  server.use(connect["static"](dirname));
-  server.use(connect.directory(dirname));
-  server.use(connect.errorHandler());
-  Http.createServer(server).listen(httpPort);
+  app.use(express["static"](dirname));
+  app.use(express.directory(dirname));
+  app.use(express.errorHandler());
+  server = Http.createServer(app);
+  liveReload.attach({
+    server: server,
+    app: app
+  });
+  server.listen(httpPort);
   httpsConfig = {
     key: Fs.readFileSync(__dirname + "/local.key"),
     cert: Fs.readFileSync(__dirname + "/local.crt")
   };
-  Https.createServer(httpsConfig, server).listen(httpsPort);
+  server = Https.createServer(httpsConfig, app);
+  server.listen(httpsPort);
   httpDomain = "local.projmate.com";
   if (httpPort !== 80) {
     httpDomain += ":" + httpPort;
@@ -90,5 +98,5 @@ exports.run = function(options) {
 
 
 /*
-//@ sourceMappingURL=src/lib/serve/server.map
+//@ sourceMappingURL=server.map
 */

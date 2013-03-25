@@ -69,8 +69,8 @@ class Task
       if Array.isArray(config.files.include)
         for pattern in config.files.include
           if pattern.indexOf("!") == 0
+            removePatterns.push pattern
             excludePattern = pattern.slice(1)
-            removePatterns.push excludePattern
 
             if str.endsWith(excludePattern, '/')
               config.files.exclude.push excludePattern
@@ -181,6 +181,8 @@ class Task
     checkExecute = (action, path) ->
       log.debug "`#{path}` #{action}"
       for pattern in patterns
+        console.log "mmpath", path
+        console.log "mmpattern", pattern
         if minimatch(path, pattern)
           return that.execute (err) ->
             if err
