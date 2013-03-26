@@ -181,8 +181,6 @@ class Task
     checkExecute = (action, path) ->
       log.debug "`#{path}` #{action}"
       for pattern in patterns
-        console.log "mmpath", path
-        console.log "mmpattern", pattern
         if minimatch(path, pattern)
           return that.execute (err) ->
             if err

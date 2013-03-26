@@ -200,8 +200,6 @@ Task = (function() {
       log.debug("`" + path + "` " + action);
       for (_j = 0, _len1 = patterns.length; _j < _len1; _j++) {
         pattern = patterns[_j];
-        console.log("mmpath", path);
-        console.log("mmpattern", pattern);
         if (minimatch(path, pattern)) {
           return that.execute(function(err) {
             if (err) {

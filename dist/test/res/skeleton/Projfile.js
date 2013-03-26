@@ -4,7 +4,6 @@
  * See the file COPYING for copying permission.
  */
 
-
 exports.server = {
   httpPort: 1080,
   httpsPort: 1443,
@@ -13,6 +12,7 @@ exports.server = {
 
 exports.project = function(pm) {
   var $, f;
+
   f = pm.filters();
   $ = pm.shell();
   return pm.regiserTasks({
@@ -28,3 +28,8 @@ exports.project = function(pm) {
     }
   });
 };
+
+
+/*
+//@ sourceMappingURL=Projfile.map
+*/
