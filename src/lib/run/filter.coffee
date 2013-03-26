@@ -96,16 +96,22 @@ class Filter
   # As an example, the less compiler should show line numbers
   # in development. See projmate-filters/src/lib/less.coffee
   setRunDefaults: (options) ->
-    return unless @environment and @defaults
+    return unless @environment
     env = @environment
     defaults = @defaults
 
-    if env == "development" and defaults.development?
-      _.defaults options, defaults.development
-    else if env == "test" and defaults.test?
-      _.defaults options, defaults.test
-    else if env == "production" and defaults.production?
-      _.defaults options, defaults.production
+    if env == "development"
+      options.DEVELOPMENT = true
+      if defaults?.development?
+        _.defaults options, defaults.development
+    else if env == "test"
+      options.TEST = true
+      if  defaults?.test?
+        _.defaults options, defaults.test
+    else if env == "production"
+      options.PRODUCTION = true
+      if defaults?.production?
+        _.defaults options, defaults.production
     options
 
 

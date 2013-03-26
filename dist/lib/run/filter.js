@@ -113,17 +113,26 @@ Filter = (function() {
   Filter.prototype.setRunDefaults = function(options) {
     var defaults, env;
 
-    if (!(this.environment && this.defaults)) {
+    if (!this.environment) {
       return;
     }
     env = this.environment;
     defaults = this.defaults;
-    if (env === "development" && (defaults.development != null)) {
-      _.defaults(options, defaults.development);
-    } else if (env === "test" && (defaults.test != null)) {
-      _.defaults(options, defaults.test);
-    } else if (env === "production" && (defaults.production != null)) {
-      _.defaults(options, defaults.production);
+    if (env === "development") {
+      options.DEVELOPMENT = true;
+      if ((defaults != null ? defaults.development : void 0) != null) {
+        _.defaults(options, defaults.development);
+      }
+    } else if (env === "test") {
+      options.TEST = true;
+      if ((defaults != null ? defaults.test : void 0) != null) {
+        _.defaults(options, defaults.test);
+      }
+    } else if (env === "production") {
+      options.PRODUCTION = true;
+      if ((defaults != null ? defaults.production : void 0) != null) {
+        _.defaults(options, defaults.production);
+      }
     }
     return options;
   };

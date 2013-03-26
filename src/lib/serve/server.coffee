@@ -43,6 +43,7 @@ exports.run = (options) ->
   app = express()
   app.use express.favicon()
   app.use express.logger(immediate: true, format: "dev")
+  app.use express.compress()
   app.use express.static(dirname)
   app.use express.directory(dirname)
   app.use express.errorHandler()

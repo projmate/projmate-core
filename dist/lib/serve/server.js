@@ -65,6 +65,7 @@ exports.run = function(options) {
     immediate: true,
     format: "dev"
   }));
+  app.use(express.compress());
   app.use(express["static"](dirname));
   app.use(express.directory(dirname));
   app.use(express.errorHandler());
