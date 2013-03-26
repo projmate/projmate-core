@@ -61,6 +61,8 @@ run = function() {
         if (err !== "PM_SILENT") {
           return log.error(err);
         }
+      } else {
+        return process.reallyExit();
       }
     });
   } catch (_error) {

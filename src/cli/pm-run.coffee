@@ -41,6 +41,8 @@ run = ->
     Run.run {program: Program, projfilePath: projfilePath}, (err) ->
       if err
         log.error(err) if err != "PM_SILENT"
+      else
+        process.reallyExit()
   catch e
     log.error e
 
