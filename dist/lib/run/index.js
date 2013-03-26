@@ -104,12 +104,10 @@ exports.run = function(options, cb) {
         };
       }
       return Server.run(serveOptions);
-    } else {
+    } else if (!program.watch) {
       endTime = Date.now();
       elapsed = endTime - startTime;
-      if (!program.watch) {
-        log.info("OK - " + (elapsed / 1000) + " seconds");
-      }
+      log.info("OK - " + (elapsed / 1000) + " seconds");
       return cb();
     }
   });

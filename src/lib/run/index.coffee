@@ -81,11 +81,10 @@ exports.run = (options, cb) ->
         serveOptions = dirname: "."
 
       Server.run serveOptions
-    else
+    else if !program.watch
       endTime = Date.now()
       elapsed = endTime - startTime
-
-      log.info("OK - #{elapsed/1000} seconds") unless program.watch
+      log.info("OK - #{elapsed/1000} seconds")
       cb()
 
 
