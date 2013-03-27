@@ -60,21 +60,16 @@ Server = (function() {
   Server.prototype.onConnection = function(socket) {
     var _this = this;
 
-    log.debug("Browser connected.");
     socket.send(JSON.stringify({
       command: 'hello',
       protocols: ['http://livereload.com/protocols/official-7'],
       serverName: 'node-livereload'
     }));
-    socket.on('message', function(message) {
-      return log.debug("Browser URL: " + message);
-    });
+    socket.on('message', function(message) {});
     return this.sockets.push(socket);
   };
 
-  Server.prototype.onClose = function(socket) {
-    return log.debug("Browser disconnected.");
-  };
+  Server.prototype.onClose = function(socket) {};
 
   Server.prototype.reloadFile = function(filepath) {
     var config, data, socket, _i, _len, _ref, _results;

@@ -36,7 +36,7 @@ class Server
 
 
   onConnection: (socket) =>
-    log.debug "Browser connected."
+    #log.debug "Browser connected."
 
     socket.send JSON.stringify
       command: 'hello',
@@ -46,13 +46,13 @@ class Server
       serverName: 'node-livereload'
 
     socket.on 'message', (message) =>
-      log.debug "Browser URL: #{message}"
+      #log.debug "Browser URL: #{message}"
 
     @sockets.push socket
 
 
   onClose: (socket) =>
-    log.debug "Browser disconnected."
+    #log.debug "Browser disconnected."
 
 
   reloadFile: (filepath) ->

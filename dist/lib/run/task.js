@@ -33,7 +33,7 @@ Task = (function() {
     this.options = options;
     _ref = this.options, log = _ref.log, name = _ref.name, config = _ref.config;
     this.name = name;
-    this.normalizeConfig(config, this.options.ns || "");
+    config = this.normalizeConfig(config, this.options.ns);
     this.program = this.options.program;
     this.config = config;
     this.log = log;
@@ -47,6 +47,24 @@ Task = (function() {
   Task.prototype.normalizeConfig = function(config, ns) {
     var dep, excludePattern, files, i, pattern, removePatterns, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
 
+    if (ns == null) {
+      ns = "";
+    }
+    if (Array.isArray(config)) {
+      config = {
+        pre: config
+      };
+    }
+    if (typeof config === "function") {
+      config = {
+        development: config
+      };
+    }
+    if (typeof config === "string") {
+      config = {
+        pre: [config]
+      };
+    }
     if (config.files) {
       if (typeof config.files === "string") {
         files = config.files;

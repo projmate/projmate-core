@@ -5,10 +5,10 @@ $ = require("projmate-shell")
 globEx = require("./globEx")
 
 # Get the encoding of a buffer (http://stackoverflow.com/questions/10225399/check-if-a-file-is-binary-or-ascii-with-node-js)
-getEncoding = (buffer) ->
+getEncoding = (buffer, count) ->
     # Prepare
-    contentStartBinary = buffer.toString('binary',0,24)
-    contentStartUTF8 = buffer.toString('utf8',0,24)
+    contentStartBinary = buffer.toString('binary', 0, count)
+    contentStartUTF8 = buffer.toString('utf8', 0, count)
     encoding = 'utf8'
 
     # Detect encoding
@@ -98,9 +98,9 @@ Utils =
     fd = Fs.openSync(filename, "r")
     buffer = new Buffer(24)
 
-    Fs.readSync fd, buffer, 0, 24, 0
+    count = Fs.readSync(fd, buffer, 0, 24, 0)
     Fs.closeSync fd
-    getEncoding(buffer) == "binary"
+    getEncoding(buffer, count - 1) == "binary"
 
 
   # Walks down a tree.

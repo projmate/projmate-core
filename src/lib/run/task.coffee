@@ -18,7 +18,7 @@ class Task
   constructor: (@options) ->
     {log, name, config} = @options
     @name = name
-    @normalizeConfig config, (@options.ns || "")
+    config = @normalizeConfig(config, @options.ns)
     @program = @options.program
 
     # init attributes
@@ -32,7 +32,19 @@ class Task
 
 
   # Allows short cuts in files
-  normalizeConfig: (config, ns) ->
+  normalizeConfig: (config, ns="") ->
+
+    # A task can just be dependencies
+    if Array.isArray(config)
+      config = pre: config
+
+    if typeof config is "function"
+      config =
+        development: config
+
+    if typeof config is "string"
+      config = pre: [config]
+
 
     # Several short cuts to create a file set
     if config.files
