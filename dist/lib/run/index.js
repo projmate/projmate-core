@@ -104,7 +104,9 @@ exports.run = function(options, cb) {
         };
       }
       return Server.run(serveOptions);
-    } else if (!program.watch) {
+    } else if (program.watch) {
+      return log.info("Watching ...");
+    } else {
       endTime = Date.now();
       elapsed = endTime - startTime;
       log.info("OK - " + (elapsed / 1000) + " seconds");

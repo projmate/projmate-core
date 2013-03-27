@@ -192,7 +192,6 @@ class Task
     watcher.on "change", _.debounce ((path) -> checkExecute("changed", path)), 300
     # watcher.on 'unlink', (path) -> log.debug "`#{path}` removed"
     # watcher.on 'error', (path) -> log.debug "`#{path}` errored"
-    #
     @log.info "Watching #{@name}.#{@program.environment}", paths
 
 
