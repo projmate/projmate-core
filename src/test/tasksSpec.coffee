@@ -120,6 +120,8 @@ describe "Tasks", ->
         assert.equal ran, "bPcDaD"
         done()
 
+
+
   describe "Namespaced tasks", ->
     it "should use default or empty namespace by default", (done) ->
       ran = ""
@@ -192,6 +194,29 @@ describe "Tasks", ->
         assert.ifError err
         assert.equal ran, "bPcDaDe'Dd'De'D"
         done()
+
+
+    describe "Sugar", ->
+      it "can be all dependencies", (done) ->
+        ran = ""
+        project =
+          project: (pm) ->
+            all: ["b", "c"]
+            b:
+              dev: (done) ->
+                setTimeout ->
+                  ran += "bD"
+                  done()
+                , 1
+              prod: -> ran += "bP"
+            c:
+              pre: "b"     # this should not get called again
+              dev: -> ran += "cD"
+
+        runProject project, tasks: ["all"], environment: "production", (err) ->
+          assert.ifError err
+          assert.equal ran, "bPcD"
+          done()
 
 
 

@@ -276,7 +276,7 @@ describe("Tasks", function() {
         return done();
       });
     });
-    return it("should use namespace", function(done) {
+    it("should use namespace", function(done) {
       var other, project, ran;
 
       ran = "";
@@ -338,6 +338,45 @@ describe("Tasks", function() {
         assert.ifError(err);
         assert.equal(ran, "bPcDaDe'Dd'De'D");
         return done();
+      });
+    });
+    return describe("Sugar", function() {
+      return it("can be all dependencies", function(done) {
+        var project, ran;
+
+        ran = "";
+        project = {
+          project: function(pm) {
+            return {
+              all: ["b", "c"],
+              b: {
+                dev: function(done) {
+                  return setTimeout(function() {
+                    ran += "bD";
+                    return done();
+                  }, 1);
+                },
+                prod: function() {
+                  return ran += "bP";
+                }
+              },
+              c: {
+                pre: "b",
+                dev: function() {
+                  return ran += "cD";
+                }
+              }
+            };
+          }
+        };
+        return runProject(project, {
+          tasks: ["all"],
+          environment: "production"
+        }, function(err) {
+          assert.ifError(err);
+          assert.equal(ran, "bPcD");
+          return done();
+        });
       });
     });
   });

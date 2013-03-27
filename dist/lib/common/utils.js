@@ -16,11 +16,11 @@ $ = require("projmate-shell");
 
 globEx = require("./globEx");
 
-getEncoding = function(buffer) {
+getEncoding = function(buffer, count) {
   var charCode, contentStartBinary, contentStartUTF8, encoding, i, _i, _ref;
 
-  contentStartBinary = buffer.toString('binary', 0, 24);
-  contentStartUTF8 = buffer.toString('utf8', 0, 24);
+  contentStartBinary = buffer.toString('binary', 0, count);
+  contentStartUTF8 = buffer.toString('utf8', 0, count);
   encoding = 'utf8';
   for (i = _i = 0, _ref = contentStartUTF8.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
     charCode = contentStartUTF8.charCodeAt(i);
@@ -87,13 +87,13 @@ Utils = {
     }
   },
   isFileBinary: function(filename) {
-    var buffer, fd;
+    var buffer, count, fd;
 
     fd = Fs.openSync(filename, "r");
     buffer = new Buffer(24);
-    Fs.readSync(fd, buffer, 0, 24, 0);
+    count = Fs.readSync(fd, buffer, 0, 24, 0);
     Fs.closeSync(fd);
-    return getEncoding(buffer) === "binary";
+    return getEncoding(buffer, count - 1) === "binary";
   },
   walkDirSync: function(start, deepestFirst, callback) {
     var coll, control, filenames, stat;

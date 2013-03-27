@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, FilterCollection, Logger, Path, Runner, Shell, Task, Util, log, logError, _,
+var Async, FilterCollection, Logger, Path, Runner, Shell, Task, Util, When, log, logError, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
 
@@ -24,6 +24,8 @@ Util = require("util");
 
 _ = require("lodash");
 
+When = require("when");
+
 log = Logger.getLogger("runner");
 
 logError = function(err) {
@@ -41,16 +43,22 @@ Runner = (function() {
     this.tasks = {};
     this.program = this.options.program;
     this.server = this.options.server;
+    this._initFilters();
+    this.defer = When.defer;
+    this.f = this.filterCollection.filters;
+    this.t = this.tasks;
+    this.$ = Shell;
   }
+
+  Runner.prototype._initFilters = function() {
+    this.filterCollection = new FilterCollection;
+    return this.filterCollection.loadPackage("projmate-filters");
+  };
 
   Runner.prototype.filters = function() {
     var filterPackage, userFilters, _i, _len;
 
     userFilters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    if (!this.filterCollection) {
-      this.filterCollection = new FilterCollection;
-      this.filterCollection.loadPackage("projmate-filters");
-    }
     if (userFilters.length > 0) {
       for (_i = 0, _len = userFilters.length; _i < _len; _i++) {
         filterPackage = userFilters[_i];

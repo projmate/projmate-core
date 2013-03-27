@@ -6,6 +6,7 @@ Shell = require("projmate-shell")
 Task = require("./task")
 Util = require("util")
 _ = require("lodash")
+When = require("when")
 
 log = Logger.getLogger("runner")
 logError = (err) ->
@@ -21,19 +22,26 @@ class Runner
     @tasks = {}
     @program = @options.program
     @server = @options.server
+    @_initFilters()
+
+    #
+    @defer = When.defer
+    @f = @filterCollection.filters
+    @t = @tasks
+    @$ = Shell
+
+  _initFilters: ->
+    # Start with official filters
+    @filterCollection = new FilterCollection
+    @filterCollection.loadPackage "projmate-filters"
+
 
   # Gets the wrapped filters, array of Filter.partialProcess
   #
   filters: (userFilters...) ->
-    # Start with official filters
-    unless @filterCollection
-      @filterCollection = new FilterCollection
-      @filterCollection.loadPackage "projmate-filters"
-
     if userFilters.length > 0
       for filterPackage in userFilters
         @filterCollection.loadPackage filterPackage
-
     @filterCollection.filters
 
 
