@@ -59,15 +59,15 @@ run = function() {
     }, function(err) {
       if (err) {
         if (err !== "PM_SILENT") {
-          return log.error(err);
+          log.error(err);
         }
-      } else {
-        return process.reallyExit();
       }
+      return process.reallyExit();
     });
   } catch (_error) {
     e = _error;
-    return log.error(e);
+    log.error(e);
+    return process.reallyExit(1);
   }
 };
 
