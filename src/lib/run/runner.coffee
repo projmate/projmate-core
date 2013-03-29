@@ -99,6 +99,7 @@ class Runner
 
         that.executeTasks task.dependencies, (err) ->
           if err
+            console.error err
             cb err
           else
             task.log.debug("END T.#{task.name} deps") if task.dependencies
@@ -107,8 +108,8 @@ class Runner
         task.execute cb
     , (err) ->
       if err
-        log.error err if err != "PM_SILENT"
-        log.error "FAIL"
+        log.error(err) if err != "PM_SILENT"
+        cb "PM_SILENT"
       cb err
     null
 

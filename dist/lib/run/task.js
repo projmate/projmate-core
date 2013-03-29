@@ -239,14 +239,16 @@ Task = (function() {
   };
 
   Task.prototype._executeFunctionTask = function(fn, cb) {
-    var environment, ex, that, watch;
+    var environment, ex, that, timeout, timeoutId, watch;
 
     that = this;
     watch = this.program.watch;
     environment = this.program.environment;
     fn.environment = environment;
     if (fn.length === 1) {
-      return fn(function(err) {
+      timeoutId = null;
+      fn(function(err) {
+        clearTimeout(timeoutId);
         if (err) {
           return cb(err);
         }
@@ -255,6 +257,10 @@ Task = (function() {
         }
         return cb();
       });
+      timeout = fn.timeout || 2000;
+      return timeoutId = setTimeout(function() {
+        return cb('Function exceed ' + timeout + 'ms. Check callback was called or `this.timeout(ms)` increases it');
+      }, timeout);
     } else {
       try {
         fn();
@@ -315,8 +321,8 @@ Task = (function() {
             return filter._process(asset, function(err, result) {
               if (err) {
                 asset.err = err;
-                filter.log.error("Error", err);
-                return cb(err);
+                filter.log.error(err);
+                return cb("PM_SILENT");
               } else {
                 return cb();
               }
@@ -332,8 +338,8 @@ Task = (function() {
       if (watch) {
         that._watch();
       }
-      if (err) {
-        console.error(err);
+      if (err && err !== "PM_SILENT") {
+        log.error(err);
       }
       return cb(err);
     });

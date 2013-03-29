@@ -125,6 +125,7 @@ Runner = (function() {
         task.log.debug("BEGIN T." + task.name + " deps");
         return that.executeTasks(task.dependencies, function(err) {
           if (err) {
+            console.error(err);
             return cb(err);
           } else {
             if (task.dependencies) {
@@ -141,7 +142,7 @@ Runner = (function() {
         if (err !== "PM_SILENT") {
           log.error(err);
         }
-        log.error("FAIL");
+        cb("PM_SILENT");
       }
       return cb(err);
     });

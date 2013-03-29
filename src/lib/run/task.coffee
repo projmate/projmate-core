@@ -216,10 +216,19 @@ class Task
     fn.environment = environment
 
     if fn.length == 1
+      timeoutId = null
+
       fn (err) ->
+        clearTimeout timeoutId
         return cb(err) if err
         if watch then that._watch()
         cb()
+
+      timeout = fn.timeout || 2000
+      timeoutId = setTimeout ->
+        return cb('Function exceed ' + timeout + 'ms. Check callback was called or `this.timeout(ms)` increases it')
+      , timeout
+
     else
       try
         fn()
@@ -268,8 +277,8 @@ class Task
             filter._process asset, (err, result) ->
               if err
                 asset.err = err
-                filter.log.error "Error", err
-                cb err
+                filter.log.error err
+                cb "PM_SILENT"
               else
                 cb()
           else
@@ -279,8 +288,8 @@ class Task
         cb("Unrecognized filter:", filter)
     , (err) -> # pipeline series
       if watch then that._watch()
-      console.error(err) if err
-      cb(err)
+      log.error(err) if err and err isnt "PM_SILENT"
+      cb err
 
 
   # Executes this task's environment pipeline.

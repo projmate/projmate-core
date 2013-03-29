@@ -6,6 +6,8 @@ task "build", "Builds the project.", ->
     $.cp "-f", "src/lib/common/*.js", "dist/lib/common"
     # copy certs
     $.cp "-f", "src/lib/serve/local*", "dist/lib/serve"
+    $.cp_rf "src/lib/serve/js", "dist/lib/serve"
+
 
 task "test", ->
   $.run "mocha --compilers coffee:coffee-script src/test"
