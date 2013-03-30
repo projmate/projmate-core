@@ -41,7 +41,7 @@ _run = (options, executeTasks, cb) ->
   return cb("#{projfilePath} missing `project` function") unless projfile.project
 
   runner = new Runner(program: program, server: projfile.server)
-  runner.load projfile, (err) ->
+  runner.load projfile, {ns: '', cwd: process.cwd()}, (err) ->
     return cb(err) if err
 
     executeTasks {runner, projfile, projfilePath}, cb
@@ -97,9 +97,9 @@ exports.taskDescriptions = (options, cb) ->
 
     # calc longest name
     L = 0
-    for name of runner.tasks
+    for name of runner._tasks
       L = name.length if name.length > L
-    for name, task of runner.tasks
+    for name, task of runner._tasks
       continue if name.indexOf("_") == 0  # underscore tasks are private by convention
       taskDesc = task.description
       desc.push Str.sprintf("    %-#{L}s  #{taskDesc}", name)

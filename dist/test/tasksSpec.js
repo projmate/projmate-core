@@ -276,6 +276,43 @@ describe("Tasks", function() {
         return done();
       });
     });
+    it('should use namespace even if only loading', function(done) {
+      var other, project, ran;
+
+      ran = "";
+      other = {
+        project: function(pm) {
+          return {
+            d: {
+              pre: ["e"],
+              dev: function() {
+                return ran += "d'D";
+              }
+            },
+            e: {
+              dev: function() {
+                return ran += "e'D";
+              }
+            }
+          };
+        }
+      };
+      project = {
+        project: function(pm) {
+          return pm.load(other, {
+            ns: "dopey"
+          });
+        }
+      };
+      return runProject(project, {
+        tasks: ["dopey:d"],
+        environment: "production"
+      }, function(err) {
+        assert.ifError(err);
+        assert.equal(ran, "e'Dd'D");
+        return done();
+      });
+    });
     it("should use namespace", function(done) {
       var other, project, ran;
 
@@ -299,8 +336,12 @@ describe("Tasks", function() {
       };
       project = {
         project: function(pm) {
-          pm.load(other, "dopey");
-          pm.load(other, "sleepy");
+          pm.load(other, {
+            ns: "dopey"
+          });
+          pm.load(other, {
+            ns: "sleepy"
+          });
           return {
             a: {
               pre: ["b", "c"],
@@ -381,8 +422,3 @@ describe("Tasks", function() {
     });
   });
 });
-
-
-/*
-//@ sourceMappingURL=tasksSpec.map
-*/

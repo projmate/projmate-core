@@ -66,8 +66,3 @@ FilterCollection = (function() {
 })();
 
 module.exports = FilterCollection;
-
-
-/*
-//@ sourceMappingURL=filterCollection.map
-*/

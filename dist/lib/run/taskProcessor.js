@@ -26,8 +26,3 @@ TaskProcessor = (function(_super) {
 })(Filter);
 
 module.exports = TaskProcessor;
-
-
-/*
-//@ sourceMappingURL=taskProcessor.map
-*/

@@ -138,15 +138,17 @@ Filter = (function() {
   };
 
   Filter.prototype._process = function(assetOrTask, cb) {
-    var inspect, isAsset, log, options, that;
+    var inspect, isAsset, log, options, silence, that;
 
     that = this;
     log = this.log;
     inspect = this.processOptions.$inspect;
+    silence = this.processOptions.$silence;
     isAsset = assetOrTask.originalFilename != null;
     if (inspect) {
       log.debug("Asset BEFORE", "\n" + assetOrTask.toString());
     }
+    Logger.silence(silence);
     this.checkAssetModifiers(assetOrTask);
     options = _.clone(this.processOptions);
     this.setRunDefaults(options);
@@ -157,6 +159,9 @@ Filter = (function() {
       if (err) {
         if (assetOrTask.filename) {
           log.error("Processing " + assetOrTask.filename + " ...");
+        }
+        if (silence) {
+          Logger.silence(false);
         }
         return cb(err);
       }
@@ -177,6 +182,9 @@ Filter = (function() {
       if (inspect) {
         log.debug("Asset AFTER", "\n" + assetOrTask.toString());
       }
+      if (silence) {
+        Logger.silence(false);
+      }
       return cb(null, result);
     });
   };
@@ -186,8 +194,3 @@ Filter = (function() {
 })();
 
 module.exports = Filter;
-
-
-/*
-//@ sourceMappingURL=filter.map
-*/

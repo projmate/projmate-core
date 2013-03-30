@@ -1,16 +1,17 @@
-Async = require("async")
-FilterCollection = require("./filterCollection")
-Logger = require("../common/logger")
-Path = require("path")
-Shell = require("projmate-shell")
-Task = require("./task")
-Util = require("util")
-_ = require("lodash")
-When = require("when")
+Async = require('async')
+FilterCollection = require('./filterCollection')
+Logger = require('../common/logger')
+Fs = require('fs')
+Path = require('path')
+Shell = require('projmate-shell')
+Task = require('./task')
+Util = require('util')
+_ = require('lodash')
+When = require('when')
 
-log = Logger.getLogger("runner")
+log = Logger.getLogger('runner')
 logError = (err) ->
-  log.error(err) if err and err isnt "PM_SILENT"
+  log.error(err) if err and err isnt 'PM_SILENT'
 
 # Runs the command line app.
 #
@@ -18,8 +19,8 @@ class Runner
 
   constructor: (@options) ->
     global.PROJMATE = {}
-    PROJMATE.encoding = "utf8"
-    @tasks = {}
+    PROJMATE.encoding = 'utf8'
+    @_tasks = {}
     @program = @options.program
     @server = @options.server
     @_initFilters()
@@ -27,13 +28,13 @@ class Runner
     #
     @defer = When.defer
     @f = @filterCollection.filters
-    @t = @tasks
+    @t = @_tasks
     @$ = Shell
 
   _initFilters: ->
     # Start with official filters
     @filterCollection = new FilterCollection
-    @filterCollection.loadPackage "projmate-filters"
+    @filterCollection.loadPackage 'projmate-filters'
 
 
   # Gets the wrapped filters, array of Filter.partialProcess
@@ -54,22 +55,28 @@ class Runner
   #
   # @param {Object} tasksDef The tasks JSON definition.
   #
-  registerTasks: (tasksDef, ns="") ->
+  registerTasks: (tasksDef, options={}) ->
+    ns = options.ns || ''
+    cwd = options.cwd
+
+    throw new Error('Options.cwd is required') unless cwd and Fs.existsSync(cwd)
+
     for name, definition of tasksDef
       if ns.length > 0
-        nsname = ns+":"+name
+        nsname = ns+':'+name
       else
         nsname = name
 
       task = new Task
+        cwd: Path.resolve(cwd)
         ns: ns
         name: nsname
         config: definition
         filters: @filters()
         log: Logger.getLogger("T.#{nsname}")
         program: @program
-      @tasks[nsname] = task
-    null
+      @_tasks[nsname] = task
+    @
 
 
   # Executes the environment pipeline including their dependecies
@@ -80,10 +87,10 @@ class Runner
   # @param {Array} taskNames
   #
   executeTasks: (taskNames, cb) =>
-    return cb("load() must be called first.") unless @project
+    return cb('load() must be called first.') unless @project
     that = @
     Async.eachSeries taskNames, (name, cb) ->
-      task = that.tasks[name]
+      task = that._tasks[name]
       if !task
         return cb("Invalid task: #{name}")
 
@@ -91,25 +98,25 @@ class Runner
 
         # for usability only
         for name in task.dependencies
-          if !that.tasks[name]
+          if !that._tasks[name]
             task.log.error "Invalid dependency: #{name}"
-            return cb("PM_SILENT")
+            return cb('PM_SILENT')
 
-        task.log.debug "BEGIN T.#{task.name} deps"
+        task.log.debug "BEGIN T.#{task.name} deps[#{task.dependencies. join(', ')}]"
 
         that.executeTasks task.dependencies, (err) ->
           if err
             console.error err
             cb err
           else
-            task.log.debug("END T.#{task.name} deps") if task.dependencies
+            task.log.debug("END T.#{task.name} deps")
             task.execute cb
       else
         task.execute cb
     , (err) ->
       if err
-        log.error(err) if err != "PM_SILENT"
-        cb "PM_SILENT"
+        log.error(err) if err != 'PM_SILENT'
+        cb 'PM_SILENT'
       cb err
     null
 
@@ -119,26 +126,27 @@ class Runner
   # @param {Object} project The Projfile exported project.
   # @param {Function} cb
   #
-  load: (projfile, ns, cb)  ->
-    if typeof ns == "function"
-      cb = ns
-      ns = ""
+  load: (projfile, options={}, cb)  ->
+    options.cwd ?= process.cwd()
+    options.ns ?= ''
+    if typeof options == 'function'
+      cb = options
     cb = logError unless cb
 
-    that = @
+    self = @
     @project = projfile.project
     unless @project
-      log.error "Invalid Projfile, missing or does not export `project` property."
-      return cb("PM_SILENT")
+      log.error 'Invalid Projfile, missing or does not export `project` property.'
+      return cb('PM_SILENT')
 
     if @project.length == 1
       tasks = @project(@)
-      @registerTasks tasks, ns
+      @registerTasks tasks, options
       cb()
     else
       @project @, (err, tasks) ->
         return cb(err) if err
-        that.registerTasks tasks, ns
+        self.registerTasks tasks, options
         cb()
 
 module.exports = Runner

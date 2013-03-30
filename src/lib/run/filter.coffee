@@ -121,10 +121,13 @@ class Filter
     that = @
     log = @log
     inspect = @processOptions.$inspect
+    silence = @processOptions.$silence
     isAsset = assetOrTask.originalFilename?
 
     if inspect
       log.debug "Asset BEFORE", "\n"+assetOrTask.toString()
+    Logger.silence silence
+
 
     @checkAssetModifiers assetOrTask
 
@@ -138,10 +141,12 @@ class Filter
       _.extend options, assetOrTask.__merge
 
     @process assetOrTask, options, (err, result) ->
+
       # Show filename for troubleshooting
       if err
         if assetOrTask.filename
           log.error "Processing #{assetOrTask.filename} ..."
+        Logger.silence(false) if silence
         return cb(err)
 
       # Update the asset to reflect the new state, in preparation
@@ -163,6 +168,7 @@ class Filter
       if inspect
         log.debug "Asset AFTER", "\n"+assetOrTask.toString()
 
+      Logger.silence(false) if silence
 
       cb null, result
 

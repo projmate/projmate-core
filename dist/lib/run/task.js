@@ -28,10 +28,10 @@ blackhole = function() {};
 
 Task = (function() {
   function Task(options) {
-    var config, log, name, _ref;
+    var config, cwd, log, name, _ref;
 
     this.options = options;
-    _ref = this.options, log = _ref.log, name = _ref.name, config = _ref.config;
+    _ref = this.options, cwd = _ref.cwd, log = _ref.log, name = _ref.name, config = _ref.config;
     this.name = name;
     config = this.normalizeConfig(config, this.options.ns);
     this.program = this.options.program;
@@ -42,6 +42,7 @@ Task = (function() {
     this.filters = this.options.filters;
     this.pipelines = {};
     this._initPipelines(config);
+    this.cwd = cwd;
   }
 
   Task.prototype.normalizeConfig = function(config, ns) {
@@ -350,6 +351,10 @@ Task = (function() {
 
     this.assets = new Assets;
     that = this;
+    if (this.cwd && process.cwd() !== this.cwd) {
+      this.log.debug('Changing to task\'s work directory: ' + this.cwd);
+      process.chdir(this.cwd);
+    }
     environment = this.program.environment;
     if (!this.pipelines[environment]) {
       environment = "development";
@@ -374,7 +379,7 @@ Task = (function() {
     } else if (Array.isArray(pipeline)) {
       this._executePipeline(pipeline, cb);
     } else {
-      console.debug;
+      cb('unrecognized pipeline: ' + typeof pipeline);
     }
     return pipeObj.ran = true;
   };
@@ -384,8 +389,3 @@ Task = (function() {
 })();
 
 module.exports = Task;
-
-
-/*
-//@ sourceMappingURL=task.map
-*/

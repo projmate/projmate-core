@@ -40,7 +40,7 @@ class Assets
     asset = new FileAsset
       filename: opts.filename
       text: opts.text,
-      cwd: opts.cwd || process.cwd()
+      cwd: opts.cwd
       parent: this
       stat: opts.stat
     asset.cid = "c" + cid

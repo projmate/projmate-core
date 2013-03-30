@@ -142,8 +142,3 @@ FileAsset = (function() {
 })();
 
 module.exports = FileAsset;
-
-
-/*
-//@ sourceMappingURL=fileAsset.map
-*/

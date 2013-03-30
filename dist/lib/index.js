@@ -28,8 +28,3 @@ Projmate = {
 };
 
 module.exports = Projmate;
-
-
-/*
-//@ sourceMappingURL=index.map
-*/

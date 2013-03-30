@@ -15,8 +15,3 @@ exports.publish = function(message, data) {
     return eventBus.emit(message, data);
   }, 15);
 };
-
-
-/*
-//@ sourceMappingURL=emitter.map
-*/

@@ -12,8 +12,3 @@ module.exports = {
   defer: When.defer,
   sequence: require("when/sequence")
 };
-
-
-/*
-//@ sourceMappingURL=promise.map
-*/

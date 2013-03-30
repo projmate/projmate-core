@@ -20,8 +20,3 @@ describe("Utils", function() {
     });
   });
 });
-
-
-/*
-//@ sourceMappingURL=utilsSpec.map
-*/

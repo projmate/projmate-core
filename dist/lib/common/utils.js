@@ -154,14 +154,12 @@ Utils = {
   relativeToHome: function(path) {
     return path.replace(RegExp(Utils.escapeRegExp($.homeDir()), "i"), "~");
   },
-  relativeToCwd: function(path) {
-    return path.replace(RegExp(Utils.escapeRegExp(process.cwd()), "i"), ".");
+  relativeToCwd: function(path, cwd) {
+    if (cwd == null) {
+      cwd = process.cwd();
+    }
+    return path.replace(RegExp(Utils.escapeRegExp(cwd), "i"), ".");
   }
 };
 
 module.exports = Utils;
-
-
-/*
-//@ sourceMappingURL=utils.map
-*/

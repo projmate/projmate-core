@@ -16,7 +16,7 @@ class Task
   #
   #
   constructor: (@options) ->
-    {log, name, config} = @options
+    {cwd, log, name, config} = @options
     @name = name
     config = @normalizeConfig(config, @options.ns)
     @program = @options.program
@@ -29,6 +29,7 @@ class Task
     @filters = @options.filters
     @pipelines = {}
     @_initPipelines config
+    @cwd = cwd
 
 
   # Allows short cuts in files
@@ -297,6 +298,10 @@ class Task
   execute: (cb) ->
     @assets = new Assets
     that = @
+    if @cwd and process.cwd() != @cwd
+      @log.debug 'Changing to task\'s work directory: ' +  @cwd
+      process.chdir @cwd
+
     environment = @program.environment
     # Fall back to development if environment is not found
     environment = "development" if !@pipelines[environment]
@@ -321,7 +326,8 @@ class Task
     else if Array.isArray(pipeline)
       @_executePipeline pipeline, cb
     else
-      console.debug
+      cb 'unrecognized pipeline: ' + typeof(pipeline)
+
 
     pipeObj.ran = true
 

@@ -105,8 +105,3 @@ if (process.argv.length < 3) {
 } else {
   run();
 }
-
-
-/*
-//@ sourceMappingURL=pm-run.map
-*/

@@ -38,8 +38,3 @@ describe("EventBus", function() {
     });
   });
 });
-
-
-/*
-//@ sourceMappingURL=eventBusSpec.map
-*/

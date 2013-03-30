@@ -48,8 +48,3 @@ exports.silence = function(silent) {
 };
 
 exports.silence(false);
-
-
-/*
-//@ sourceMappingURL=logger.map
-*/
