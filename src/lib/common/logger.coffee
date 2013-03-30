@@ -1,4 +1,12 @@
 logmagic = require("mgutz-logmagic")
+eyes = require('eyes')
+
+inspect = eyes.inspector
+  styles:
+    all: 'red',
+    special: 'bold'
+  maxLength: 1024
+
 
 logmagic.setSinkOptions "console", timestamp: ->
   d = new Date
@@ -22,7 +30,11 @@ logmagic.setSinkOptions "console", timestamp: ->
 
 logmagic.registerSink "nullLogger", ->
 
-exports.getLogger = (name) -> logmagic.local(name)
+exports.getLogger = (name) ->
+  logger = logmagic.local(name)
+  logger.inspect = inspect
+  logger
+
 exports.silence = (silent) ->
   if silent
     logmagic.route logmagic.ROOT, "ERROR", "nullLogger"

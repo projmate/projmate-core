@@ -24,6 +24,7 @@ class Runner
     @program = @options.program
     @server = @options.server
     @_initFilters()
+    @Utils = require('../common/utils')
 
     #
     @defer = When.defer

@@ -4,9 +4,19 @@
  * See the file COPYING for copying permission.
  */
 
-var logmagic;
+var eyes, inspect, logmagic;
 
 logmagic = require("mgutz-logmagic");
+
+eyes = require('eyes');
+
+inspect = eyes.inspector({
+  styles: {
+    all: 'red',
+    special: 'bold'
+  },
+  maxLength: 1024
+});
 
 logmagic.setSinkOptions("console", {
   timestamp: function() {
@@ -36,7 +46,11 @@ logmagic.setSinkOptions("console", {
 logmagic.registerSink("nullLogger", function() {});
 
 exports.getLogger = function(name) {
-  return logmagic.local(name);
+  var logger;
+
+  logger = logmagic.local(name);
+  logger.inspect = inspect;
+  return logger;
 };
 
 exports.silence = function(silent) {

@@ -82,6 +82,11 @@ Note
 
 *   Tasks define one or more build environment actions.
 
+## Loading other Projfiles
+
+To load an external Projfile with a namespace and set its work directory
+
+    pm.load require(PATH), ns: 'server', cwd: __dirname+'/server'
 
 ## pm create
 

@@ -46,6 +46,7 @@ Runner = (function() {
     this.program = this.options.program;
     this.server = this.options.server;
     this._initFilters();
+    this.Utils = require('../common/utils');
     this.defer = When.defer;
     this.f = this.filterCollection.filters;
     this.t = this._tasks;

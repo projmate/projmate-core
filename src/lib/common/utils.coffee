@@ -27,6 +27,8 @@ Utils =
 
   glob: globEx
 
+  Promises: require('./promises')
+
   # Finds string between strtToken and endToken
   #
   between: (s, startToken, endToken) ->

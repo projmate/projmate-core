@@ -157,13 +157,14 @@ Filter = (function() {
     }
     return this.process(assetOrTask, options, function(err, result) {
       if (err) {
-        if (assetOrTask.filename) {
-          log.error("Processing " + assetOrTask.filename + " ...");
-        }
         if (silence) {
           Logger.silence(false);
         }
-        return cb(err);
+        if (assetOrTask.filename) {
+          log.error("Processing " + assetOrTask.filename + " ...");
+        }
+        log.inspect(err);
+        return cb('PM_SILENT');
       }
       if (isAsset && typeof result !== "undefined") {
         if (result.text) {

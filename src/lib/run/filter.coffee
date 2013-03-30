@@ -4,6 +4,7 @@ _ = require("lodash")
 S = require("string")
 
 
+
 # A filter participates with one or more filters, creating a pipeline, through which
 # a buffer is transformed by each filter.
 #
@@ -144,10 +145,12 @@ class Filter
 
       # Show filename for troubleshooting
       if err
+        Logger.silence(false) if silence
+
         if assetOrTask.filename
           log.error "Processing #{assetOrTask.filename} ..."
-        Logger.silence(false) if silence
-        return cb(err)
+        log.inspect err
+        return cb('PM_SILENT')
 
       # Update the asset to reflect the new state, in preparation
       # for the next wrappedFilter.

@@ -34,6 +34,7 @@ getEncoding = function(buffer, count) {
 
 Utils = {
   glob: globEx,
+  Promises: require('./promises'),
   between: function(s, startToken, endToken) {
     var endPos, start, startPos;
 

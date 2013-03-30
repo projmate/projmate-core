@@ -45,8 +45,56 @@ Task = (function() {
     this.cwd = cwd;
   }
 
+  Task.prototype.normalizeFiles = function(config, prop) {
+    var configFiles, excludePattern, files, pattern, removePatterns, _i, _len, _ref;
+
+    configFiles = config[prop];
+    if (configFiles) {
+      if (typeof configFiles === "string") {
+        files = configFiles;
+        config[prop] = configFiles = {
+          include: [files]
+        };
+      }
+      if (Array.isArray(configFiles)) {
+        configFiles = {
+          include: configFiles
+        };
+      }
+      if (typeof configFiles.include === "string") {
+        configFiles.include = [configFiles.include];
+      }
+      if (typeof configFiles.exclude === "string") {
+        configFiles.exclude = [configFiles.exclude];
+      }
+      if (!Array.isArray(configFiles.exclude)) {
+        configFiles.exclude = [];
+      }
+      removePatterns = [];
+      if (Array.isArray(configFiles.include)) {
+        _ref = configFiles.include;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          pattern = _ref[_i];
+          if (pattern.indexOf("!") === 0) {
+            removePatterns.push(pattern);
+            excludePattern = pattern.slice(1);
+            if (str.endsWith(excludePattern, '/')) {
+              configFiles.exclude.push(excludePattern);
+              configFiles.exclude.push(excludePattern + "/**/*");
+            } else {
+              configFiles.exclude.push(excludePattern);
+            }
+          }
+        }
+      }
+      return configFiles.include = _.reject(configFiles.include, function(pattern) {
+        return removePatterns.indexOf(pattern) >= 0;
+      });
+    }
+  };
+
   Task.prototype.normalizeConfig = function(config, ns) {
-    var dep, excludePattern, files, i, pattern, removePatterns, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
+    var dep, i, _i, _len, _ref, _ref1, _ref2;
 
     if (ns == null) {
       ns = "";
@@ -66,66 +114,23 @@ Task = (function() {
         pre: [config]
       };
     }
-    if (config.files) {
-      if (typeof config.files === "string") {
-        files = config.files;
-        config.files = {
-          include: [files]
-        };
-      }
-      if (Array.isArray(config.files)) {
-        config.files = {
-          include: config.files
-        };
-      }
-      if (typeof config.files.include === "string") {
-        config.files.include = [config.files.include];
-      }
-      if (typeof config.files.exclude === "string") {
-        config.files.exclude = [config.files.exclude];
-      }
-      if (typeof config.files.watch === "string") {
-        config.files.watch = [config.files.watch];
-      }
-      if (!Array.isArray(config.files.exclude)) {
-        config.files.exclude = [];
-      }
-      removePatterns = [];
-      if (Array.isArray(config.files.include)) {
-        _ref = config.files.include;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          pattern = _ref[_i];
-          if (pattern.indexOf("!") === 0) {
-            removePatterns.push(pattern);
-            excludePattern = pattern.slice(1);
-            if (str.endsWith(excludePattern, '/')) {
-              config.files.exclude.push(excludePattern);
-              config.files.exclude.push(excludePattern + "/**/*");
-            } else {
-              config.files.exclude.push(excludePattern);
-            }
-          }
-        }
-      }
-      config.files.include = _.reject(config.files.include, function(pattern) {
-        return removePatterns.indexOf(pattern) >= 0;
-      });
-    }
+    this.normalizeFiles(config, 'files');
+    this.normalizeFiles(config, 'watch');
     config.description = config.desc || config.description || ("Runs " + this.name + " task");
     config.dependencies = config.pre || config.deps || config.dependencies || [];
     if (typeof config.dependencies === "string") {
       config.dependencies = [config.dependencies];
     }
-    if ((_ref1 = config.development) == null) {
+    if ((_ref = config.development) == null) {
       config.development = config.dev;
     }
-    if ((_ref2 = config.production) == null) {
+    if ((_ref1 = config.production) == null) {
       config.production = config.prod;
     }
     if (ns.length > 0) {
-      _ref3 = config.dependencies;
-      for (i = _j = 0, _len1 = _ref3.length; _j < _len1; i = ++_j) {
-        dep = _ref3[i];
+      _ref2 = config.dependencies;
+      for (i = _i = 0, _len = _ref2.length; _i < _len; i = ++_i) {
+        dep = _ref2[i];
         config.dependencies[i] = ns + ":" + dep;
       }
     }
@@ -185,19 +190,19 @@ Task = (function() {
   };
 
   Task.prototype._watch = function(cb) {
-    var checkExecute, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watcher, _i, _len;
+    var checkExecute, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
 
     if (this.watching) {
       return;
     }
     this.watching = true;
-    files = this.config.files;
+    _ref = this.config, files = _ref.files, watch = _ref.watch;
     if (!files) {
       return;
     }
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/;
     dirRe = /(.*)\/\*(\..*)$/;
-    patterns = files.watch ? files.watch : files.include;
+    patterns = (watch != null ? watch.include : void 0) ? watch.include : files.include;
     paths = [];
     for (_i = 0, _len = patterns.length; _i < _len; _i++) {
       pattern = patterns[_i];
@@ -235,7 +240,7 @@ Task = (function() {
     });
     watcher.on("change", _.debounce((function(path) {
       return checkExecute("changed", path);
-    }), 300));
+    }), 1250));
     return this.log.info("Watching " + this.name + "." + this.program.environment, paths);
   };
 
@@ -296,9 +301,6 @@ Task = (function() {
       filter.environment = environment;
       if (filter instanceof TaskProcessor) {
         return filter._process(that, function(err) {
-          if (err) {
-            filter.log.error(err);
-          }
           return cb(err);
         });
       } else if (filter instanceof Filter) {
@@ -312,9 +314,9 @@ Task = (function() {
             for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
               asset = _ref[i];
               if (asset) {
-                console.log("asset[" + i + "].filename=" + asset.filename);
+                log.debug("asset[" + i + "].filename=" + asset.filename);
               } else {
-                console.log("asset[" + i + "] is undefined");
+                log.debug("asset[" + i + "] is undefined");
               }
             }
           }
@@ -322,8 +324,7 @@ Task = (function() {
             return filter._process(asset, function(err, result) {
               if (err) {
                 asset.err = err;
-                filter.log.error(err);
-                return cb("PM_SILENT");
+                return cb(err);
               } else {
                 return cb();
               }
@@ -338,9 +339,6 @@ Task = (function() {
     }, function(err) {
       if (watch) {
         that._watch();
-      }
-      if (err && err !== "PM_SILENT") {
-        log.error(err);
       }
       return cb(err);
     });

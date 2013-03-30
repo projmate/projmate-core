@@ -24,7 +24,8 @@
     "when": "~2.0.0",
     "websocket.io": "~0.2.1",
     "express": "~3.1.0",
-    "vow": "~0.3.0"
+    "vow": "~0.3.0",
+    "eyes": "~0.1.8"
   },
   "devDependencies": {
     "chai": "~1.5.0",

@@ -32,6 +32,55 @@ class Task
     @cwd = cwd
 
 
+  normalizeFiles: (config, prop) ->
+    configFiles = config[prop]
+
+    # Several short cuts to create a file set
+    if configFiles
+      # task:
+      #   files: "foo/**/*.ext
+      if typeof configFiles == "string"
+        files = configFiles
+        config[prop] = configFiles =
+          include: [files]
+
+      # task:
+      #   files: ["foo/**/*.ext]
+      if Array.isArray(configFiles)
+        configFiles =
+          include: configFiles
+
+      # task:
+      #   files:
+      #     include: "foo/**/*.ext
+      if typeof configFiles.include == "string"
+        configFiles.include =  [configFiles.include]
+
+      # check for exclusions
+      if typeof configFiles.exclude == "string"
+        configFiles.exclude = [configFiles.exclude]
+
+      if !Array.isArray(configFiles.exclude)
+        configFiles.exclude =  []
+
+      removePatterns = []
+      if Array.isArray(configFiles.include)
+        for pattern in configFiles.include
+          if pattern.indexOf("!") == 0
+            removePatterns.push pattern
+            excludePattern = pattern.slice(1)
+
+            if str.endsWith(excludePattern, '/')
+              configFiles.exclude.push excludePattern
+              configFiles.exclude.push excludePattern + "/**/*"
+            else
+              configFiles.exclude.push excludePattern
+
+      # remove exclusions
+      configFiles.include = _.reject(configFiles.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
+
+
+
   # Allows short cuts in files
   normalizeConfig: (config, ns="") ->
 
@@ -47,52 +96,56 @@ class Task
       config = pre: [config]
 
 
-    # Several short cuts to create a file set
-    if config.files
-      # task:
-      #   files: "foo/**/*.ext
-      if typeof config.files == "string"
-        files = config.files
-        config.files =
-          include: [files]
+    @normalizeFiles config, 'files'
+    @normalizeFiles config, 'watch'
 
-      # task:
-      #   files: ["foo/**/*.ext]
-      if Array.isArray(config.files)
-        config.files =
-          include: config.files
 
-      # task:
-      #   files:
-      #     include: "foo/**/*.ext
-      if typeof config.files.include == "string"
-        config.files.include =  [config.files.include]
+    # # Several short cuts to create a file set
+    # if config.files
+    #   # task:
+    #   #   files: "foo/**/*.ext
+    #   if typeof config.files == "string"
+    #     files = config.files
+    #     config.files =
+    #       include: [files]
 
-      # check for exclusions
-      if typeof config.files.exclude == "string"
-        config.files.exclude = [config.files.exclude]
+    #   # task:
+    #   #   files: ["foo/**/*.ext]
+    #   if Array.isArray(config.files)
+    #     config.files =
+    #       include: config.files
 
-      if typeof config.files.watch == "string"
-        config.files.watch = [config.files.watch]
+    #   # task:
+    #   #   files:
+    #   #     include: "foo/**/*.ext
+    #   if typeof config.files.include == "string"
+    #     config.files.include =  [config.files.include]
 
-      if !Array.isArray(config.files.exclude)
-        config.files.exclude =  []
+    #   # check for exclusions
+    #   if typeof config.files.exclude == "string"
+    #     config.files.exclude = [config.files.exclude]
 
-      removePatterns = []
-      if Array.isArray(config.files.include)
-        for pattern in config.files.include
-          if pattern.indexOf("!") == 0
-            removePatterns.push pattern
-            excludePattern = pattern.slice(1)
+    #   if typeof config.files.watch == "string"
+    #     config.files.watch = [config.files.watch]
 
-            if str.endsWith(excludePattern, '/')
-              config.files.exclude.push excludePattern
-              config.files.exclude.push excludePattern + "/**/*"
-            else
-              config.files.exclude.push excludePattern
+    #   if !Array.isArray(config.files.exclude)
+    #     config.files.exclude =  []
 
-      # remove exclusions
-      config.files.include = _.reject(config.files.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
+    #   removePatterns = []
+    #   if Array.isArray(config.files.include)
+    #     for pattern in config.files.include
+    #       if pattern.indexOf("!") == 0
+    #         removePatterns.push pattern
+    #         excludePattern = pattern.slice(1)
+
+    #         if str.endsWith(excludePattern, '/')
+    #           config.files.exclude.push excludePattern
+    #           config.files.exclude.push excludePattern + "/**/*"
+    #         else
+    #           config.files.exclude.push excludePattern
+
+    #   # remove exclusions
+    #   config.files.include = _.reject(config.files.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
 
 
     config.description = config.desc || config.description || "Runs #{@name} task"
@@ -163,7 +216,7 @@ class Task
     return if @watching
 
     @watching = true
-    {files} = @config
+    {files, watch} = @config
 
     # Function-based environment actions have optional files.
     return unless files
@@ -178,7 +231,7 @@ class Task
     # some cases, a single file includes many other files.
     # In this situation, the dependent files should be monitored
     # and declared via `files.watch` to trigger the environment action.
-    patterns = if files.watch then files.watch else files.include
+    patterns = if watch?.include then watch.include else files.include
 
     paths = []
     for pattern in patterns
@@ -202,7 +255,7 @@ class Task
               log.info "rebuilt"
 
     watcher.on "add", (path) -> checkExecute("added", path)
-    watcher.on "change", _.debounce ((path) -> checkExecute("changed", path)), 300
+    watcher.on "change", _.debounce ((path) -> checkExecute("changed", path)), 1250
     # watcher.on 'unlink', (path) -> log.debug "`#{path}` removed"
     # watcher.on 'error', (path) -> log.debug "`#{path}` errored"
     #
@@ -259,8 +312,7 @@ class Task
 
       if filter instanceof TaskProcessor
         filter._process that, (err) ->
-          filter.log.error(err) if err
-          return cb err
+          return cb(err)
       else if filter instanceof Filter
         Async.eachSeries that.assets.array(), (asset, cb) ->
 
@@ -269,17 +321,16 @@ class Task
           if that.assets.detect((asset) -> !asset)
             for asset, i in that.assets.array()
               if asset
-                console.log "asset[#{i}].filename=#{asset.filename}"
+                log.debug "asset[#{i}].filename=#{asset.filename}"
               else
-                console.log "asset[#{i}] is undefined"
+                log.debug "asset[#{i}] is undefined"
           # ENDTODO
 
           if filter.canProcess(asset)
             filter._process asset, (err, result) ->
               if err
                 asset.err = err
-                filter.log.error err
-                cb "PM_SILENT"
+                cb err
               else
                 cb()
           else
@@ -289,7 +340,6 @@ class Task
         cb("Unrecognized filter:", filter)
     , (err) -> # pipeline series
       if watch then that._watch()
-      log.error(err) if err and err isnt "PM_SILENT"
       cb err
 
 
