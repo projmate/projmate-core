@@ -47,7 +47,7 @@ class Task
       # task:
       #   files: ["foo/**/*.ext]
       if Array.isArray(configFiles)
-        configFiles =
+        config[prop] = configFiles =
           include: configFiles
 
       # task:
@@ -66,7 +66,7 @@ class Task
       removePatterns = []
       if Array.isArray(configFiles.include)
         for pattern in configFiles.include
-          if pattern.indexOf("!") == 0
+          if pattern[0] == '!'
             removePatterns.push pattern
             excludePattern = pattern.slice(1)
 
@@ -78,7 +78,6 @@ class Task
 
       # remove exclusions
       configFiles.include = _.reject(configFiles.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
-
 
 
   # Allows short cuts in files
@@ -231,7 +230,7 @@ class Task
     # some cases, a single file includes many other files.
     # In this situation, the dependent files should be monitored
     # and declared via `files.watch` to trigger the environment action.
-    patterns = if watch?.include then watch.include else files.include
+    patterns = if watch?.include? then watch.include else files.include
 
     paths = []
     for pattern in patterns

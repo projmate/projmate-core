@@ -57,7 +57,7 @@ Task = (function() {
         };
       }
       if (Array.isArray(configFiles)) {
-        configFiles = {
+        config[prop] = configFiles = {
           include: configFiles
         };
       }
@@ -75,7 +75,7 @@ Task = (function() {
         _ref = configFiles.include;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           pattern = _ref[_i];
-          if (pattern.indexOf("!") === 0) {
+          if (pattern[0] === '!') {
             removePatterns.push(pattern);
             excludePattern = pattern.slice(1);
             if (str.endsWith(excludePattern, '/')) {
@@ -202,7 +202,7 @@ Task = (function() {
     }
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/;
     dirRe = /(.*)\/\*(\..*)$/;
-    patterns = (watch != null ? watch.include : void 0) ? watch.include : files.include;
+    patterns = (watch != null ? watch.include : void 0) != null ? watch.include : files.include;
     paths = [];
     for (_i = 0, _len = patterns.length; _i < _len; _i++) {
       pattern = patterns[_i];
