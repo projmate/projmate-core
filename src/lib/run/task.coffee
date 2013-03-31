@@ -300,7 +300,7 @@ class Task
 
     Async.eachSeries pipeline, (wrappedFilter, cb) ->
       if !wrappedFilter
-        log.error "PIPELINE", Util.inspect(wrappedFilter)
+        log.error "PIPELINE", wrappedFilter
 
       # If wrappedFilter is a function then it is still the wrapper function
       # `wrappedFilter.partialProcess`. To unwrap it, call it with no arguments.
@@ -370,7 +370,7 @@ class Task
       @log.debug("skipping #{@name}.#{environment}, already ran")
       return cb()
 
-    @log.info "==> #{@name}.#{environment}"
+    @log.debug "==> #{@name}.#{environment}"
     if typeof pipeline == "function"
       @_executeFunctionTask pipeline, cb
     else if Array.isArray(pipeline)

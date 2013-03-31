@@ -100,7 +100,7 @@ Runner = (function() {
         name: nsname,
         config: definition,
         filters: this.filters(),
-        log: Logger.getLogger("T." + nsname),
+        log: Logger.getLogger("" + nsname),
         program: this.program
       });
       this._tasks[nsname] = task;
@@ -131,13 +131,13 @@ Runner = (function() {
             return cb('PM_SILENT');
           }
         }
-        task.log.debug("BEGIN T." + task.name + " deps[" + (task.dependencies.join(', ')) + "]");
+        task.log.debug("BEGIN deps[" + (task.dependencies.join(', ')) + "]");
         return that.executeTasks(task.dependencies, function(err) {
           if (err) {
             console.error(err);
             return cb(err);
           } else {
-            task.log.debug("END T." + task.name + " deps");
+            task.log.debug("END deps");
             return task.execute(cb);
           }
         });
@@ -154,6 +154,17 @@ Runner = (function() {
       return cb(err);
     });
     return null;
+  };
+
+  Runner.prototype.processConfig = function(projfile) {
+    var _ref;
+
+    if (!projfile.config) {
+      return;
+    }
+    if ((_ref = projfile.config.log) != null ? _ref.level : void 0) {
+      return Logger.setLevels(projfile.config.log.level);
+    }
   };
 
   Runner.prototype.load = function(projfile, options, cb) {
@@ -174,6 +185,7 @@ Runner = (function() {
     if (!cb) {
       cb = logError;
     }
+    this.processConfig(projfile);
     self = this;
     this.project = projfile.project;
     if (!this.project) {

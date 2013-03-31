@@ -74,7 +74,7 @@ class Runner
         name: nsname
         config: definition
         filters: @filters()
-        log: Logger.getLogger("T.#{nsname}")
+        log: Logger.getLogger("#{nsname}")
         program: @program
       @_tasks[nsname] = task
     @
@@ -103,14 +103,14 @@ class Runner
             task.log.error "Invalid dependency: #{name}"
             return cb('PM_SILENT')
 
-        task.log.debug "BEGIN T.#{task.name} deps[#{task.dependencies. join(', ')}]"
+        task.log.debug "BEGIN deps[#{task.dependencies. join(', ')}]"
 
         that.executeTasks task.dependencies, (err) ->
           if err
             console.error err
             cb err
           else
-            task.log.debug("END T.#{task.name} deps")
+            task.log.debug("END deps")
             task.execute cb
       else
         task.execute cb
@@ -120,6 +120,13 @@ class Runner
         cb 'PM_SILENT'
       cb err
     null
+
+  processConfig: (projfile) ->
+    return unless projfile.config
+
+    if projfile.config.log?.level
+      Logger.setLevels projfile.config.log.level
+
 
 
   # Loads a project.
@@ -133,6 +140,8 @@ class Runner
     if typeof options == 'function'
       cb = options
     cb = logError unless cb
+
+    @processConfig projfile
 
     self = @
     @project = projfile.project

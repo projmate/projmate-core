@@ -122,14 +122,10 @@ class Filter
     that = @
     log = @log
     inspect = @processOptions.$inspect
-    silence = @processOptions.$silence
     isAsset = assetOrTask.originalFilename?
 
     if inspect
       log.debug "Asset BEFORE", "\n"+assetOrTask.toString()
-    Logger.silence silence
-
-
     @checkAssetModifiers assetOrTask
 
     # Filters may modify processOptions which affects the next filter.
@@ -141,16 +137,12 @@ class Filter
     if isAsset and assetOrTask.__merge
       _.extend options, assetOrTask.__merge
 
-    @process assetOrTask, options, (err, result) ->
-
+    processed = (err, result) ->
       # Show filename for troubleshooting
       if err
-        Logger.silence(false) if silence
-
         if assetOrTask.filename
           log.error "Processing #{assetOrTask.filename} ..."
-        log.inspect err
-        return cb('PM_SILENT')
+        return cb(err)
 
       # Update the asset to reflect the new state, in preparation
       # for the next wrappedFilter.
@@ -170,9 +162,14 @@ class Filter
 
       if inspect
         log.debug "Asset AFTER", "\n"+assetOrTask.toString()
-
-      Logger.silence(false) if silence
-
       cb null, result
+
+    try
+      @process assetOrTask, options, processed
+    catch ex
+      console.error "CAUGHT #{assetOrTask.filename}"
+      cb ex
+
+
 
 module.exports = Filter

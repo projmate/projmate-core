@@ -292,7 +292,7 @@ Task = (function() {
       var filter;
 
       if (!wrappedFilter) {
-        log.error("PIPELINE", Util.inspect(wrappedFilter));
+        log.error("PIPELINE", wrappedFilter);
       }
       if (!wrappedFilter._process) {
         wrappedFilter = wrappedFilter();
@@ -371,7 +371,7 @@ Task = (function() {
       this.log.debug("skipping " + this.name + "." + environment + ", already ran");
       return cb();
     }
-    this.log.info("==> " + this.name + "." + environment);
+    this.log.debug("==> " + this.name + "." + environment);
     if (typeof pipeline === "function") {
       this._executeFunctionTask(pipeline, cb);
     } else if (Array.isArray(pipeline)) {

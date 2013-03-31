@@ -29,13 +29,13 @@ exports.project = (pm) ->
     desc: "Runs tests from src"
     files: "src/test/**/*{Test,Spec}.{coffee,js}"
     # silence logging while running tests on this project, output would be confusing
-    dev: [f.mocha($silence: true)]
+    dev: [f.mocha]
 
   distTests:
     desc: "Runs tests from dist"
     files: "dist/test/**/*{Test,Spec}.{coffee,js}"
     # silence logging while running tests on this project, output would be confusing
-    dev: [f.mocha($silence: true)]
+    dev: [f.mocha]
 
   dist:
     pre: ["build", "distTests"]

@@ -138,33 +138,27 @@ Filter = (function() {
   };
 
   Filter.prototype._process = function(assetOrTask, cb) {
-    var inspect, isAsset, log, options, silence, that;
+    var ex, inspect, isAsset, log, options, processed, that;
 
     that = this;
     log = this.log;
     inspect = this.processOptions.$inspect;
-    silence = this.processOptions.$silence;
     isAsset = assetOrTask.originalFilename != null;
     if (inspect) {
       log.debug("Asset BEFORE", "\n" + assetOrTask.toString());
     }
-    Logger.silence(silence);
     this.checkAssetModifiers(assetOrTask);
     options = _.clone(this.processOptions);
     this.setRunDefaults(options);
     if (isAsset && assetOrTask.__merge) {
       _.extend(options, assetOrTask.__merge);
     }
-    return this.process(assetOrTask, options, function(err, result) {
+    processed = function(err, result) {
       if (err) {
-        if (silence) {
-          Logger.silence(false);
-        }
         if (assetOrTask.filename) {
           log.error("Processing " + assetOrTask.filename + " ...");
         }
-        log.inspect(err);
-        return cb('PM_SILENT');
+        return cb(err);
       }
       if (isAsset && typeof result !== "undefined") {
         if (result.text) {
@@ -183,11 +177,15 @@ Filter = (function() {
       if (inspect) {
         log.debug("Asset AFTER", "\n" + assetOrTask.toString());
       }
-      if (silence) {
-        Logger.silence(false);
-      }
       return cb(null, result);
-    });
+    };
+    try {
+      return this.process(assetOrTask, options, processed);
+    } catch (_error) {
+      ex = _error;
+      console.error("CAUGHT " + assetOrTask.filename);
+      return cb(ex);
+    }
   };
 
   return Filter;
