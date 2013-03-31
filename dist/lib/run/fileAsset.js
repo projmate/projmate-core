@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var FileAsset, Fs, Path, Promise, Utils, eventBus, log, mkdirp;
+var FileAsset, Fs, Path, Utils, Vow, eventBus, log, mkdirp;
 
 Fs = require("fs");
 
@@ -16,7 +16,7 @@ log = require("../common/logger").getLogger("FileAsset");
 
 Utils = require("../common/utils");
 
-Promise = require("../common/promise");
+Vow = require('vow');
 
 eventBus = require("../common/eventBus");
 
@@ -99,7 +99,7 @@ FileAsset = (function() {
       filename = this.filename;
     }
     that = this;
-    return Promise.sequence(this.writingPromises).then(function() {
+    return Vow.all(this.writingPromises).then(function() {
       var text;
 
       text = that.text;

@@ -1,29 +1,29 @@
-{assert} = require("./helper")
-eventBus = require("../lib/common/eventBus")
-{defer, all} = require("when")
-emitter = require("./res/emitter")
+{assert} = require('./helper')
+eventBus = require('../lib/common/eventBus')
+Vow = require('vow')
+emitter = require('./res/emitter')
 
-describe "EventBus", ->
+describe 'EventBus', ->
 
-  it "should receive events", (done) ->
-    text = ""
+  it 'should receive events', (done) ->
+    text = ''
 
-    foo = defer()
-    eventBus.on "foo", (data) ->
+    foo = Vow.promise()
+    eventBus.on 'foo', (data) ->
       text += data
-      foo.resolve()
+      foo.fulfill()
 
-    bah = defer()
-    eventBus.on "bah", (data) ->
+    bah = Vow.promise()
+    eventBus.on 'bah', (data) ->
       text += data
-      bah.resolve()
+      bah.fulfill()
 
-    emitter.publish "foo", "bar"
-    emitter.publish "bah", "baz"
+    emitter.publish 'foo', 'bar'
+    emitter.publish 'bah', 'baz'
 
-    all [foo.promise, bah.promise], ->
-      assert.isTrue text.indexOf("bar") > -1
-      assert.isTrue text.indexOf("baz") > -1
+    Vow.all([foo, bah]).then ->
+      assert.isTrue text.indexOf('bar') > -1
+      assert.isTrue text.indexOf('baz') > -1
       done()
 
 

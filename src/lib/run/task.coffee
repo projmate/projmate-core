@@ -259,7 +259,7 @@ class Task
     # watcher.on 'unlink', (path) -> log.debug "`#{path}` removed"
     # watcher.on 'error', (path) -> log.debug "`#{path}` errored"
     #
-    @log.info "Watching #{@name}.#{@program.environment}", paths
+    @log.info "Watching #{paths.join(', ')}"
 
 
   _executeFunctionTask: (fn, cb) ->

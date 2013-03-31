@@ -6,6 +6,7 @@
 
 var colors = require('mgutz-colors');
 var color = colors.color;
+var _ = require('lodash');
 
 //"red"            // red
 //"red+b"          // red bold
@@ -25,28 +26,29 @@ function dumpError(err) {
   if (!err) return output;
 
   if (err instanceof Error) {
+    output += '\n';
     for (key in err) {
       if (key === 'stack' || key === 'message') continue;
-      output += key + ': ' + err[key];
+      output += key + ': ' + err[key] + '\n';
     }
     output += err.stack;
 
   } else if (_.isObject(err)) {
+    output += '\n';
     // show important fields first
     var important = ['message', 'filename', 'line', 'column'];
     for (key in err) {
       if (important.indexOf(key) < 0) continue;
-      output += key + ': ' + err[key];
+      output += key + ': ' + err[key] + '\n';
     }
     for (key in err) {
       if (important.indexOf(key) >= 0) continue;
-      output += key + ': ' + err[key];
+      output += key + ': ' + err[key] + '\n';
     }
 
   } else {
     output += err;
   }
-
   return output;
 }
 
@@ -150,6 +152,7 @@ function AnsiConsoleAppender(rootConfig, colorScheme) {
     output += ansih + dumpError(message);
     output += ansih + dumpError(etc);
     output += colors.reset;
+    output += '\n';
     stdout.write(output);
   }
 }

@@ -4,36 +4,36 @@
  * See the file COPYING for copying permission.
  */
 
-var all, assert, defer, emitter, eventBus, _ref;
+var Vow, assert, emitter, eventBus;
 
-assert = require("./helper").assert;
+assert = require('./helper').assert;
 
-eventBus = require("../lib/common/eventBus");
+eventBus = require('../lib/common/eventBus');
 
-_ref = require("when"), defer = _ref.defer, all = _ref.all;
+Vow = require('vow');
 
-emitter = require("./res/emitter");
+emitter = require('./res/emitter');
 
-describe("EventBus", function() {
-  return it("should receive events", function(done) {
+describe('EventBus', function() {
+  return it('should receive events', function(done) {
     var bah, foo, text;
 
-    text = "";
-    foo = defer();
-    eventBus.on("foo", function(data) {
+    text = '';
+    foo = Vow.promise();
+    eventBus.on('foo', function(data) {
       text += data;
-      return foo.resolve();
+      return foo.fulfill();
     });
-    bah = defer();
-    eventBus.on("bah", function(data) {
+    bah = Vow.promise();
+    eventBus.on('bah', function(data) {
       text += data;
-      return bah.resolve();
+      return bah.fulfill();
     });
-    emitter.publish("foo", "bar");
-    emitter.publish("bah", "baz");
-    return all([foo.promise, bah.promise], function() {
-      assert.isTrue(text.indexOf("bar") > -1);
-      assert.isTrue(text.indexOf("baz") > -1);
+    emitter.publish('foo', 'bar');
+    emitter.publish('bah', 'baz');
+    return Vow.all([foo, bah]).then(function() {
+      assert.isTrue(text.indexOf('bar') > -1);
+      assert.isTrue(text.indexOf('baz') > -1);
       return done();
     });
   });

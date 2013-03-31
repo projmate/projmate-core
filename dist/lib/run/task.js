@@ -241,7 +241,7 @@ Task = (function() {
     watcher.on("change", _.debounce((function(path) {
       return checkExecute("changed", path);
     }), 1250));
-    return this.log.info("Watching " + this.name + "." + this.program.environment, paths);
+    return this.log.info("Watching " + (paths.join(', ')));
   };
 
   Task.prototype._executeFunctionTask = function(fn, cb) {

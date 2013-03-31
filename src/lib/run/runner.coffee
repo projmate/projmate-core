@@ -7,7 +7,7 @@ Shell = require('projmate-shell')
 Task = require('./task')
 Util = require('util')
 _ = require('lodash')
-When = require('when')
+Vow = require('vow')
 
 log = Logger.getLogger('runner')
 logError = (err) ->
@@ -27,7 +27,6 @@ class Runner
     @Utils = require('../common/utils')
 
     #
-    @defer = When.defer
     @f = @filterCollection.filters
     @t = @_tasks
     @$ = Shell

@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, FilterCollection, Fs, Logger, Path, Runner, Shell, Task, Util, When, log, logError, _,
+var Async, FilterCollection, Fs, Logger, Path, Runner, Shell, Task, Util, Vow, log, logError, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
 
@@ -26,7 +26,7 @@ Util = require('util');
 
 _ = require('lodash');
 
-When = require('when');
+Vow = require('vow');
 
 log = Logger.getLogger('runner');
 
@@ -47,7 +47,6 @@ Runner = (function() {
     this.server = this.options.server;
     this._initFilters();
     this.Utils = require('../common/utils');
-    this.defer = When.defer;
     this.f = this.filterCollection.filters;
     this.t = this._tasks;
     this.$ = Shell;

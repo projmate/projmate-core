@@ -156,7 +156,7 @@ Filter = (function() {
     processed = function(err, result) {
       if (err) {
         if (assetOrTask.filename) {
-          log.error("Processing " + assetOrTask.filename + " ...");
+          log.error(">> " + assetOrTask.filename);
         }
         return cb(err);
       }

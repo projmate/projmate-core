@@ -141,7 +141,7 @@ class Filter
       # Show filename for troubleshooting
       if err
         if assetOrTask.filename
-          log.error "Processing #{assetOrTask.filename} ..."
+          log.error ">> #{assetOrTask.filename}"
         return cb(err)
 
       # Update the asset to reflect the new state, in preparation

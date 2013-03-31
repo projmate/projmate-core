@@ -1,5 +1,4 @@
-eventBus = require("../../lib/common/eventBus")
-{defer} = require("when")
+eventBus = require('../../lib/common/eventBus')
 
 exports.publish = (message, data) ->
   setTimeout ->
