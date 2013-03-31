@@ -76,7 +76,8 @@ Assets = (function() {
       parent: this,
       stat: opts.stat
     });
-    asset.cid = "c" + cid;
+    asset.cid = 'c' + cid;
+    _.defaults(asset, opts);
     cid += 1;
     this._assets.push(asset);
     return asset;

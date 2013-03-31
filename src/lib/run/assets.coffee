@@ -37,16 +37,22 @@ class Assets
     @_assets = newAssets
 
   create: (opts) ->
+
     asset = new FileAsset
       filename: opts.filename
       text: opts.text,
       cwd: opts.cwd
       parent: this
       stat: opts.stat
-    asset.cid = "c" + cid
+    asset.cid = 'c' +cid
+    _.defaults asset, opts
+
     cid += 1
     @_assets.push asset
+    # if asset.extname == '.map'
+    #   console.log 'map asset', asset
     asset
+
 
   clear: ->
     @_assets.length = 0
