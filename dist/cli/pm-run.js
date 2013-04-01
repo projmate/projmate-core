@@ -27,7 +27,8 @@ log = Logger.getLogger("pm-run");
 $ = require('projmate-shell');
 
 process.on('SIGINT', function() {
-  return $.killAll();
+  $.killAll();
+  return process.reallyExit();
 });
 
 findProjfile = function() {

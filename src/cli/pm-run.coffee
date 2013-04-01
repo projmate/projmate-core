@@ -11,6 +11,7 @@ $ = require('projmate-shell')
 
 process.on 'SIGINT', ->
   $.killAll()
+  process.reallyExit()
 
 
 # Finds project file.
