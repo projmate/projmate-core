@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Logger, Path, Pkg, Program, Run, Utils, findProjfile, log, run, taskDescriptions;
+var $, Fs, Logger, Path, Pkg, Program, Run, Utils, findProjfile, log, run, taskDescriptions;
 
 Path = require("path");
 
@@ -23,6 +23,12 @@ Run = require("../lib/run");
 Utils = require("../lib/common/utils");
 
 log = Logger.getLogger("pm-run");
+
+$ = require('projmate-shell');
+
+process.on('SIGINT', function() {
+  return $.killAll();
+});
 
 findProjfile = function() {
   var file, files, projfile, _i, _len;
@@ -62,12 +68,13 @@ run = function() {
           log.error(err);
         }
       }
-      return process.reallyExit();
+      if (!$.hasChildProcesses()) {
+        return process.exit();
+      }
     });
   } catch (_error) {
     e = _error;
-    log.error(e);
-    return process.reallyExit(1);
+    return log.error(e);
   }
 };
 

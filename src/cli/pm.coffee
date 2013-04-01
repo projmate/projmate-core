@@ -15,6 +15,7 @@ program = require("commander")
 name = ('                    Projmate v' + pkg.version).slice(-Logger.rootConfig.columnWidths[0])
 console.log "#{color(name, 'yellow+h')} #{color(Path.resolve(__dirname + '/../..'), 'yellow')}"
 
+
 program
   .version(pkg.version)
   .extbang({".js": "node"}, __dirname)
