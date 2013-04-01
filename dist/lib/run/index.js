@@ -55,7 +55,10 @@ _run = function(options, executeTasks, cb) {
     program: program,
     server: projfile.server
   });
-  return runner.load(projfile, function(err) {
+  return runner.load(projfile, {
+    ns: '',
+    cwd: process.cwd()
+  }, function(err) {
     if (err) {
       return cb(err);
     }
@@ -124,12 +127,12 @@ exports.taskDescriptions = function(options, cb) {
     runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
     desc = [];
     L = 0;
-    for (name in runner.tasks) {
+    for (name in runner._tasks) {
       if (name.length > L) {
         L = name.length;
       }
     }
-    _ref = runner.tasks;
+    _ref = runner._tasks;
     for (name in _ref) {
       task = _ref[name];
       if (name.indexOf("_") === 0) {
@@ -142,8 +145,3 @@ exports.taskDescriptions = function(options, cb) {
   };
   return _run(options, executeTasks, cb);
 };
-
-
-/*
-//@ sourceMappingURL=index.map
-*/

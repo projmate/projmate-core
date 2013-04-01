@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Logger, Path, Pkg, Program, Run, Utils, findProjfile, log, run, taskDescriptions;
+var $, Fs, Logger, Path, Pkg, Program, Run, Utils, findProjfile, log, run, taskDescriptions;
 
 Path = require("path");
 
@@ -23,6 +23,13 @@ Run = require("../lib/run");
 Utils = require("../lib/common/utils");
 
 log = Logger.getLogger("pm-run");
+
+$ = require('projmate-shell');
+
+process.on('SIGINT', function() {
+  $.killAll();
+  return process.reallyExit();
+});
 
 findProjfile = function() {
   var file, files, projfile, _i, _len;
@@ -59,10 +66,11 @@ run = function() {
     }, function(err) {
       if (err) {
         if (err !== "PM_SILENT") {
-          return log.error(err);
+          log.error(err);
         }
-      } else {
-        return process.reallyExit();
+      }
+      if (!$.hasChildProcesses()) {
+        return process.exit();
       }
     });
   } catch (_error) {
@@ -105,8 +113,3 @@ if (process.argv.length < 3) {
 } else {
   run();
 }
-
-
-/*
-//@ sourceMappingURL=pm-run.map
-*/

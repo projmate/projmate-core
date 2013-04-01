@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var FileAsset, Fs, Path, Promise, Utils, eventBus, log, mkdirp;
+var FileAsset, Fs, Path, Promises, Utils, Vow, eventBus, log, mkdirp;
 
 Fs = require("fs");
 
@@ -16,9 +16,11 @@ log = require("../common/logger").getLogger("FileAsset");
 
 Utils = require("../common/utils");
 
-Promise = require("../common/promise");
+Vow = require('vow');
 
 eventBus = require("../common/eventBus");
+
+Promises = require('../common/promises');
 
 Function.prototype.property = function(prop, desc) {
   return Object.defineProperty(this.prototype, prop, desc);
@@ -99,7 +101,7 @@ FileAsset = (function() {
       filename = this.filename;
     }
     that = this;
-    return Promise.sequence(this.writingPromises).then(function() {
+    return Promises.parallel(this.writingPromises).then(function() {
       var text;
 
       text = that.text;
@@ -142,8 +144,3 @@ FileAsset = (function() {
 })();
 
 module.exports = FileAsset;
-
-
-/*
-//@ sourceMappingURL=fileAsset.map
-*/

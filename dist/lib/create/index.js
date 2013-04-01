@@ -244,8 +244,3 @@ exports.run = function(options) {
     return log.info("OK");
   });
 };
-
-
-/*
-//@ sourceMappingURL=index.map
-*/

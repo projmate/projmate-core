@@ -82,6 +82,19 @@ Note
 
 *   Tasks define one or more build environment actions.
 
+## Misc
+
+TODO organize this README
+
+To load an external Projfile with a namespace and set its work directory
+
+    pm.load require(PATH), ns: 'server', cwd: __dirname+'/server'
+
+To set the config level in the Projfile
+
+    exports.config =
+      log:
+        level: 'info'
 
 ## pm create
 

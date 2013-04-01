@@ -7,6 +7,11 @@ Path = require("path")
 Run = require("../lib/run")
 Utils = require("../lib/common/utils")
 log = Logger.getLogger("pm-run")
+$ = require('projmate-shell')
+
+process.on 'SIGINT', ->
+  $.killAll()
+  process.reallyExit()
 
 
 # Finds project file.
@@ -27,8 +32,6 @@ findProjfile = ->
   return null
 
 
-
-
 # Runs this script
 #
 run = ->
@@ -41,11 +44,10 @@ run = ->
     Run.run {program: Program, projfilePath: projfilePath}, (err) ->
       if err
         log.error(err) if err != "PM_SILENT"
-      else
-        process.reallyExit()
+      unless $.hasChildProcesses()
+        process.exit()
   catch e
     log.error e
-
 
 # Gets task descriptions from project file
 #

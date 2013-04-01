@@ -158,6 +158,26 @@ describe "Tasks", ->
         assert.equal ran, "bPcDaDe'Dd'D"
         done()
 
+    it 'should use namespace even if only loading', (done) ->
+      ran = ""
+
+      other =
+        project: (pm) ->
+          d:
+            pre: ["e"]
+            dev: -> ran += "d'D"
+          e:
+            dev: -> ran += "e'D"
+
+      project =
+        project: (pm) ->
+          pm.load other, ns: "dopey"
+
+      runProject project, tasks: ["dopey:d"], environment: "production", (err) ->
+        assert.ifError err
+        assert.equal ran, "e'Dd'D"
+        done()
+
 
     it "should use namespace", (done) ->
       ran = ""
@@ -172,8 +192,8 @@ describe "Tasks", ->
 
       project =
         project: (pm) ->
-          pm.load other, "dopey"
-          pm.load other, "sleepy"
+          pm.load other, ns: "dopey"
+          pm.load other, ns: "sleepy"
 
           a:
             pre: ["b", "c"]

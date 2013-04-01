@@ -27,6 +27,8 @@ Utils =
 
   glob: globEx
 
+  Promises: require('./promises')
+
   # Finds string between strtToken and endToken
   #
   between: (s, startToken, endToken) ->
@@ -164,7 +166,7 @@ Utils =
   relativeToHome: (path) ->
     path.replace RegExp(Utils.escapeRegExp($.homeDir()), "i"), "~"
 
-  relativeToCwd: (path) ->
-    path.replace RegExp(Utils.escapeRegExp(process.cwd()), "i"), "."
+  relativeToCwd: (path, cwd=process.cwd()) ->
+    path.replace RegExp(Utils.escapeRegExp(cwd), "i"), "."
 
 module.exports = Utils

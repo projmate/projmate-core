@@ -14,8 +14,6 @@ Runner = require("../lib/run/runner");
 
 Logger = require("../lib/common/logger");
 
-Logger.silence(true);
-
 module.exports = {
   assert: assert,
   runProject: function(project, program, cb) {
@@ -24,17 +22,15 @@ module.exports = {
     runner = new Runner({
       program: program
     });
-    return runner.load(project, function(err) {
+    return runner.load(project, {
+      cwd: __dirname
+    }, function(err) {
       if (err) {
         console.error(err);
-        process.exit(1);
       }
-      return runner.executeTasks(program.tasks, cb);
+      return runner.executeTasks(program.tasks, function(err) {
+        return cb(err);
+      });
     });
   }
 };
-
-
-/*
-//@ sourceMappingURL=helper.map
-*/

@@ -15,7 +15,7 @@ exports.project = (pm) ->
     files: "src/**/*"
 
     development: [
-      f.coffee(bare: true)
+      f.coffee(bare: true, sourceMap: false)
       f.addHeader(filename: "doc/copyright.js")
       f.writeFile(distDir)
     ]
@@ -25,13 +25,16 @@ exports.project = (pm) ->
       $.rm_rf "dist"
 
   tests:
+    pre: ['build']
     desc: "Runs tests from src"
     files: "src/test/**/*{Test,Spec}.{coffee,js}"
+    # silence logging while running tests on this project, output would be confusing
     dev: [f.mocha]
 
   distTests:
     desc: "Runs tests from dist"
     files: "dist/test/**/*{Test,Spec}.{coffee,js}"
+    # silence logging while running tests on this project, output would be confusing
     dev: [f.mocha]
 
   dist:

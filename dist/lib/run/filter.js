@@ -138,7 +138,7 @@ Filter = (function() {
   };
 
   Filter.prototype._process = function(assetOrTask, cb) {
-    var inspect, isAsset, log, options, that;
+    var ex, inspect, isAsset, log, options, processed, that;
 
     that = this;
     log = this.log;
@@ -153,10 +153,10 @@ Filter = (function() {
     if (isAsset && assetOrTask.__merge) {
       _.extend(options, assetOrTask.__merge);
     }
-    return this.process(assetOrTask, options, function(err, result) {
+    processed = function(err, result) {
       if (err) {
         if (assetOrTask.filename) {
-          log.error("Processing " + assetOrTask.filename + " ...");
+          log.error(">> " + assetOrTask.filename);
         }
         return cb(err);
       }
@@ -178,7 +178,14 @@ Filter = (function() {
         log.debug("Asset AFTER", "\n" + assetOrTask.toString());
       }
       return cb(null, result);
-    });
+    };
+    try {
+      return this.process(assetOrTask, options, processed);
+    } catch (_error) {
+      ex = _error;
+      console.error("CAUGHT " + assetOrTask.filename);
+      return cb(ex);
+    }
   };
 
   return Filter;
@@ -186,8 +193,3 @@ Filter = (function() {
 })();
 
 module.exports = Filter;
-
-
-/*
-//@ sourceMappingURL=filter.map
-*/

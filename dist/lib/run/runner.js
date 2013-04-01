@@ -4,32 +4,34 @@
  * See the file COPYING for copying permission.
  */
 
-var Async, FilterCollection, Logger, Path, Runner, Shell, Task, Util, When, log, logError, _,
+var Async, FilterCollection, Fs, Logger, Path, Runner, Shell, Task, Util, Vow, log, logError, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
 
-Async = require("async");
+Async = require('async');
 
-FilterCollection = require("./filterCollection");
+FilterCollection = require('./filterCollection');
 
-Logger = require("../common/logger");
+Logger = require('../common/logger');
 
-Path = require("path");
+Fs = require('fs');
 
-Shell = require("projmate-shell");
+Path = require('path');
 
-Task = require("./task");
+Shell = require('projmate-shell');
 
-Util = require("util");
+Task = require('./task');
 
-_ = require("lodash");
+Util = require('util');
 
-When = require("when");
+_ = require('lodash');
 
-log = Logger.getLogger("runner");
+Vow = require('vow');
+
+log = Logger.getLogger('runner');
 
 logError = function(err) {
-  if (err && err !== "PM_SILENT") {
+  if (err && err !== 'PM_SILENT') {
     return log.error(err);
   }
 };
@@ -39,20 +41,20 @@ Runner = (function() {
     this.options = options;
     this.executeTasks = __bind(this.executeTasks, this);
     global.PROJMATE = {};
-    PROJMATE.encoding = "utf8";
-    this.tasks = {};
+    PROJMATE.encoding = 'utf8';
+    this._tasks = {};
     this.program = this.options.program;
     this.server = this.options.server;
     this._initFilters();
-    this.defer = When.defer;
+    this.Utils = require('../common/utils');
     this.f = this.filterCollection.filters;
-    this.t = this.tasks;
+    this.t = this._tasks;
     this.$ = Shell;
   }
 
   Runner.prototype._initFilters = function() {
     this.filterCollection = new FilterCollection;
-    return this.filterCollection.loadPackage("projmate-filters");
+    return this.filterCollection.loadPackage('projmate-filters');
   };
 
   Runner.prototype.filters = function() {
@@ -73,43 +75,49 @@ Runner = (function() {
     return Shell;
   };
 
-  Runner.prototype.registerTasks = function(tasksDef, ns) {
-    var definition, name, nsname, task;
+  Runner.prototype.registerTasks = function(tasksDef, options) {
+    var cwd, definition, name, ns, nsname, task;
 
-    if (ns == null) {
-      ns = "";
+    if (options == null) {
+      options = {};
+    }
+    ns = options.ns || '';
+    cwd = options.cwd;
+    if (!(cwd && Fs.existsSync(cwd))) {
+      throw new Error('Options.cwd is required');
     }
     for (name in tasksDef) {
       definition = tasksDef[name];
       if (ns.length > 0) {
-        nsname = ns + ":" + name;
+        nsname = ns + ':' + name;
       } else {
         nsname = name;
       }
       task = new Task({
+        cwd: Path.resolve(cwd),
         ns: ns,
         name: nsname,
         config: definition,
         filters: this.filters(),
-        log: Logger.getLogger("T." + nsname),
+        log: Logger.getLogger("" + nsname),
         program: this.program
       });
-      this.tasks[nsname] = task;
+      this._tasks[nsname] = task;
     }
-    return null;
+    return this;
   };
 
   Runner.prototype.executeTasks = function(taskNames, cb) {
     var that;
 
     if (!this.project) {
-      return cb("load() must be called first.");
+      return cb('load() must be called first.');
     }
     that = this;
     Async.eachSeries(taskNames, function(name, cb) {
       var task, _i, _len, _ref;
 
-      task = that.tasks[name];
+      task = that._tasks[name];
       if (!task) {
         return cb("Invalid task: " + name);
       }
@@ -117,19 +125,18 @@ Runner = (function() {
         _ref = task.dependencies;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           name = _ref[_i];
-          if (!that.tasks[name]) {
+          if (!that._tasks[name]) {
             task.log.error("Invalid dependency: " + name);
-            return cb("PM_SILENT");
+            return cb('PM_SILENT');
           }
         }
-        task.log.debug("BEGIN T." + task.name + " deps");
+        task.log.debug("BEGIN deps[" + (task.dependencies.join(', ')) + "]");
         return that.executeTasks(task.dependencies, function(err) {
           if (err) {
+            console.error(err);
             return cb(err);
           } else {
-            if (task.dependencies) {
-              task.log.debug("END T." + task.name + " deps");
-            }
+            task.log.debug("END deps");
             return task.execute(cb);
           }
         });
@@ -138,42 +145,62 @@ Runner = (function() {
       }
     }, function(err) {
       if (err) {
-        if (err !== "PM_SILENT") {
+        if (err !== 'PM_SILENT') {
           log.error(err);
         }
-        log.error("FAIL");
+        cb('PM_SILENT');
       }
       return cb(err);
     });
     return null;
   };
 
-  Runner.prototype.load = function(projfile, ns, cb) {
-    var tasks, that;
+  Runner.prototype.processConfig = function(projfile) {
+    var _ref;
 
-    if (typeof ns === "function") {
-      cb = ns;
-      ns = "";
+    if (!projfile.config) {
+      return;
+    }
+    if ((_ref = projfile.config.log) != null ? _ref.level : void 0) {
+      return Logger.setLevels(projfile.config.log.level);
+    }
+  };
+
+  Runner.prototype.load = function(projfile, options, cb) {
+    var self, tasks, _ref, _ref1;
+
+    if (options == null) {
+      options = {};
+    }
+    if ((_ref = options.cwd) == null) {
+      options.cwd = process.cwd();
+    }
+    if ((_ref1 = options.ns) == null) {
+      options.ns = '';
+    }
+    if (typeof options === 'function') {
+      cb = options;
     }
     if (!cb) {
       cb = logError;
     }
-    that = this;
+    this.processConfig(projfile);
+    self = this;
     this.project = projfile.project;
     if (!this.project) {
-      log.error("Invalid Projfile, missing or does not export `project` property.");
-      return cb("PM_SILENT");
+      log.error('Invalid Projfile, missing or does not export `project` property.');
+      return cb('PM_SILENT');
     }
     if (this.project.length === 1) {
       tasks = this.project(this);
-      this.registerTasks(tasks, ns);
+      this.registerTasks(tasks, options);
       return cb();
     } else {
       return this.project(this, function(err, tasks) {
         if (err) {
           return cb(err);
         }
-        that.registerTasks(tasks, ns);
+        self.registerTasks(tasks, options);
         return cb();
       });
     }
@@ -184,8 +211,3 @@ Runner = (function() {
 })();
 
 module.exports = Runner;
-
-
-/*
-//@ sourceMappingURL=runner.map
-*/

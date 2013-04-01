@@ -4,11 +4,15 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Path, pkg, program;
+var Fs, Logger, Path, color, name, pkg, program;
 
 Fs = require("fs");
 
 Path = require("path");
+
+color = require('mgutz-colors').color;
+
+Logger = require('../lib/common/logger');
 
 process.on("uncaughtException", function(err) {
   var message;
@@ -24,11 +28,10 @@ pkg = require("../../package.json");
 
 program = require("commander");
 
+name = ('                    Projmate v' + pkg.version).slice(-Logger.rootConfig.columnWidths[0]);
+
+console.log("" + (color(name, 'yellow+h')) + " " + (color(Path.resolve(__dirname + '/../..'), 'yellow')));
+
 program.version(pkg.version).extbang({
   ".js": "node"
 }, __dirname).command("create", "Creates a project from git repo").command("run", "Runs one or more tasks in Projfile").command("serve", "Serves pages from directory HTTP/HTTPS").parse(process.argv);
-
-
-/*
-//@ sourceMappingURL=pm.map
-*/

@@ -1,5 +1,7 @@
 Fs = require("fs")
 Path = require("path")
+color = require('mgutz-colors').color
+Logger = require('../lib/common/logger')
 
 process.on "uncaughtException", (err) ->
   message = err
@@ -8,6 +10,11 @@ process.on "uncaughtException", (err) ->
 
 pkg = require("../../package.json")
 program = require("commander")
+
+# print version
+name = ('                    Projmate v' + pkg.version).slice(-Logger.rootConfig.columnWidths[0])
+console.log "#{color(name, 'yellow+h')} #{color(Path.resolve(__dirname + '/../..'), 'yellow')}"
+
 
 program
   .version(pkg.version)

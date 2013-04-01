@@ -72,11 +72,12 @@ Assets = (function() {
     asset = new FileAsset({
       filename: opts.filename,
       text: opts.text,
-      cwd: opts.cwd || process.cwd(),
+      cwd: opts.cwd,
       parent: this,
       stat: opts.stat
     });
-    asset.cid = "c" + cid;
+    asset.cid = 'c' + cid;
+    _.defaults(asset, opts);
     cid += 1;
     this._assets.push(asset);
     return asset;
@@ -103,8 +104,3 @@ methods.forEach(function(method) {
 });
 
 module.exports = Assets;
-
-
-/*
-//@ sourceMappingURL=assets.map
-*/

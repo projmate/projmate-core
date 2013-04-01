@@ -31,8 +31,3 @@ if (program.args < 3) {
 } else {
   main();
 }
-
-
-/*
-//@ sourceMappingURL=pm-create.map
-*/

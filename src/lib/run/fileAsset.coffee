@@ -3,8 +3,10 @@ Path = require("path")
 mkdirp = require("mkdirp")
 log = require("../common/logger").getLogger("FileAsset")
 Utils = require("../common/utils")
-Promise = require("../common/promise")
+Vow = require('vow')
 eventBus = require("../common/eventBus")
+Promises = require('../common/promises')
+
 
 Function::property = (prop, desc) ->
   Object.defineProperty this.prototype, prop, desc
@@ -70,7 +72,7 @@ text: #{@text}
 
   write: (filename=@filename, cb) ->
     that = @
-    Promise.sequence(@writingPromises).then ->
+    Promises.parallel(@writingPromises).then ->
       text = that.text
       return cb() if text.length == 0
       mkdirp Path.dirname(filename), (err) ->

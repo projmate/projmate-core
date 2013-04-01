@@ -4,6 +4,7 @@ _ = require("lodash")
 S = require("string")
 
 
+
 # A filter participates with one or more filters, creating a pipeline, through which
 # a buffer is transformed by each filter.
 #
@@ -125,7 +126,6 @@ class Filter
 
     if inspect
       log.debug "Asset BEFORE", "\n"+assetOrTask.toString()
-
     @checkAssetModifiers assetOrTask
 
     # Filters may modify processOptions which affects the next filter.
@@ -137,11 +137,11 @@ class Filter
     if isAsset and assetOrTask.__merge
       _.extend options, assetOrTask.__merge
 
-    @process assetOrTask, options, (err, result) ->
+    processed = (err, result) ->
       # Show filename for troubleshooting
       if err
         if assetOrTask.filename
-          log.error "Processing #{assetOrTask.filename} ..."
+          log.error ">> #{assetOrTask.filename}"
         return cb(err)
 
       # Update the asset to reflect the new state, in preparation
@@ -162,8 +162,14 @@ class Filter
 
       if inspect
         log.debug "Asset AFTER", "\n"+assetOrTask.toString()
-
-
       cb null, result
+
+    try
+      @process assetOrTask, options, processed
+    catch ex
+      console.error "CAUGHT #{assetOrTask.filename}"
+      cb ex
+
+
 
 module.exports = Filter
