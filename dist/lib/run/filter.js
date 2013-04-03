@@ -21,6 +21,11 @@ Filter = (function() {
     this.processOptions = processOptions != null ? processOptions : {};
     this.log = Logger.getLogger("F." + this.name);
     _.extend(this, this.config);
+    if (_.isFunction(this.processOptions)) {
+      this.processOptions = {
+        command: this.processOptions
+      };
+    }
     if (!this.extnames) {
       throw new Error("`extnames` is required for filter " + this.name);
     }

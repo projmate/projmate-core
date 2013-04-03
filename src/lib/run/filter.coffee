@@ -16,6 +16,13 @@ class Filter
     @log = Logger.getLogger("F."+@name)
     _.extend @, @config
 
+    # Allows a function shortcut for command attribute. Used by functoid
+    #
+    # The anonymous function `(asset) ->` results in `processOptions = {command: (asset) ->}
+    if _.isFunction(@processOptions)
+      @processOptions =
+        command: @processOptions
+
     if !@extnames
       throw new Error("`extnames` is required for filter #{@name}")
     @extnames = [@extnames] unless Array.isArray(@extnames)

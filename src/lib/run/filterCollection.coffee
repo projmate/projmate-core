@@ -28,6 +28,9 @@ class FilterCollection
         if not filter instanceof Filter
           throw new Error("Invalid filter #{packageName}.#{name}")
 
+        # {Object} processOptions Passed to process.
+        # {Object} config Passed to constructor
+        #
         # allows simple syntax, e.g. f.coffee({bare: true}, {extnames: ['.coffee', '.funcd']})
         that.filters[name] = (processOptions={}, config={}) ->
           instance = new FilterClass(name, config, processOptions)
