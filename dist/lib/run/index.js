@@ -19,7 +19,7 @@ Str = require("underscore.string");
 Server = require("../serve/server");
 
 loadProjfile = function(projfilePath) {
-  var ex, extname;
+  var ex, extname, mod;
 
   if (!Fs.existsSync(projfilePath)) {
     throw new Error("Projfile does not exist: " + projfilePath);
@@ -34,7 +34,13 @@ loadProjfile = function(projfilePath) {
       process.exit(1);
     }
   }
-  return require(projfilePath);
+  try {
+    return mod = require(projfilePath);
+  } catch (_error) {
+    ex = _error;
+    log.error(">>> " + projfilePath);
+    throw ex;
+  }
 };
 
 _run = function(options, executeTasks, cb) {

@@ -22,7 +22,7 @@
     "glob": "~3.1.21",
     "websocket.io": "~0.2.1",
     "express": "~3.1.0",
-    "vow": "~0.3.0",
+    "vow": "git://github.com/mgutz/jspromise.git",
     "mgutz-colors": "~0.1.1"
   },
   "devDependencies": {

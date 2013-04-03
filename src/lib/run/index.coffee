@@ -19,7 +19,12 @@ loadProjfile = (projfilePath)->
       process.exit 1
 
   #projfile = Path.join(Path.dirname(projfilePath), Path.basename(projfile, extname))
-  require(projfilePath)
+  try
+    mod = require(projfilePath)
+  catch ex
+    log.error ">>> #{projfilePath}"
+    throw ex
+
 
 
 # Loads the project method in the Projfile.

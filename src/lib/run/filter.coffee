@@ -119,7 +119,8 @@ class Filter
   # Wrapped filter's process to pass processOptions
   #
   _process: (assetOrTask, cb) ->
-    that = @
+    _this = @
+
     log = @log
     inspect = @processOptions.$inspect
     isAsset = assetOrTask.originalFilename?
@@ -149,16 +150,16 @@ class Filter
       if isAsset and typeof result != "undefined"
 
         # Some filters can return more than one format. For example, Jade can return HTML or JST.
-        # Filters can return {text: "filtered text", outExtname: "the new extension"}
+        # Filters can return {text: "filtered text", extname: "the new extension"}
         if result.text
           assetOrTask.text = result.text
         else
           assetOrTask.text = result
 
-        if result.outExtName
-          assetOrTask.extname = result.outExtname
+        if result.extname
+          assetOrTask.extname = result.extname
         else
-          assetOrTask.extname = that.outExtname if that.outExtname
+          assetOrTask.extname = _this.outExtname if _this.outExtname
 
       if inspect
         log.debug "Asset AFTER", "\n"+assetOrTask.toString()

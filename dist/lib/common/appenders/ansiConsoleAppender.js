@@ -7,6 +7,7 @@
 var colors = require('mgutz-colors');
 var color = colors.color;
 var _ = require('lodash');
+var util = require('util');
 
 function pp(object, depth, embedded) {
   typeof (depth) == "number" || (depth = 0)
@@ -79,36 +80,52 @@ function formatObject() {
 }
 
 function dumpError(err) {
-  //return pp(err);
+  if (!err) return;
+  if (!_.isObject(err)) return err;
+
+  // _.forOwn(err, function(value, key) {
+  //   console.log(key, value);
+  // });
+
+  // console.dir(err);
+  //
   var output = '';
-  var key;
-  if (!err) return output;
 
-  if (err instanceof Error) {
-    output += '\n';
-    for (key in err) {
-      if (key === 'stack' || key === 'message') continue;
-      output += key + ': ' + err[key] + '\n';
-    }
-    output += err.stack;
-
-  } else if (_.isObject(err)) {
-    output += '\n';
-    // show important fields first
-    var important = ['message', 'filename', 'line', 'column'];
-    for (key in err) {
-      if (important.indexOf(key) < 0) continue;
-      output += key + ': ' + err[key] + '\n';
-    }
-    for (key in err) {
-      if (important.indexOf(key) >= 0) continue;
-      output += key + ': ' + err[key] + '\n';
-    }
-
-  } else {
-    output += err;
-  }
+  // if (err.name) output += err.name;
+  // if (err.stack) output += err.stack;
+  // if (err.message) output += err.message;
+  var output = util.inspect(err);
   return output;
+
+  // var output = '';
+  // var key;
+  // if (!err) return output;
+
+  // if (err instanceof Error) {
+  //   output += '\n';
+  //   for (key in err) {
+  //     if (key === 'stack' || key === 'message') continue;
+  //     output += key + ': ' + err[key] + '\n';
+  //   }
+  //   output += err.stack;
+
+  // } else if (_.isObject(err)) {
+  //   output += '\n';
+  //   // show important fields first
+  //   var important = ['message', 'filename', 'line', 'column'];
+  //   for (key in err) {
+  //     if (important.indexOf(key) < 0) continue;
+  //     output += key + ': ' + err[key] + '\n';
+  //   }
+  //   for (key in err) {
+  //     if (important.indexOf(key) >= 0) continue;
+  //     output += key + ': ' + err[key] + '\n';
+  //   }
+
+  // } else {
+  //   output += err;
+  // }
+  // return output;
 }
 
 function darkScheme(levels) {
@@ -208,8 +225,11 @@ function AnsiConsoleAppender(rootConfig, colorScheme) {
     if (etc) {
       output += ansi + etc + '\n';
     }
-    output += ansih + dumpError(message);
-    output += ansih + dumpError(etc);
+
+    var message = dumpError(message);
+    if (message) output += ansih + message
+    var etc = dumpError(etc)
+    if (etc) output += ansih + etc;
     output += colors.reset;
     output += '\n';
     stdout.write(output);

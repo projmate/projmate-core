@@ -138,9 +138,9 @@ Filter = (function() {
   };
 
   Filter.prototype._process = function(assetOrTask, cb) {
-    var ex, inspect, isAsset, log, options, processed, that;
+    var ex, inspect, isAsset, log, options, processed, _this;
 
-    that = this;
+    _this = this;
     log = this.log;
     inspect = this.processOptions.$inspect;
     isAsset = assetOrTask.originalFilename != null;
@@ -166,11 +166,11 @@ Filter = (function() {
         } else {
           assetOrTask.text = result;
         }
-        if (result.outExtName) {
-          assetOrTask.extname = result.outExtname;
+        if (result.extname) {
+          assetOrTask.extname = result.extname;
         } else {
-          if (that.outExtname) {
-            assetOrTask.extname = that.outExtname;
+          if (_this.outExtname) {
+            assetOrTask.extname = _this.outExtname;
           }
         }
       }

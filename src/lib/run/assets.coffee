@@ -40,7 +40,7 @@ class Assets
 
     asset = new FileAsset
       filename: opts.filename
-      text: opts.text,
+      text: opts.text
       cwd: opts.cwd
       parent: this
       stat: opts.stat
