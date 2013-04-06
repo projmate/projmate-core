@@ -155,8 +155,12 @@ Filter = (function() {
     this.checkAssetModifiers(assetOrTask);
     options = _.clone(this.processOptions);
     this.setRunDefaults(options);
-    if (isAsset && assetOrTask.__merge) {
-      _.extend(options, assetOrTask.__merge);
+    if (isAsset) {
+      if (assetOrTask.__merge) {
+        _.extend(options, assetOrTask.__merge);
+      } else if (assetOrTask.__meta) {
+        options[__meta.name] = __meta.meta;
+      }
     }
     processed = function(err, result) {
       if (err) {
@@ -165,7 +169,7 @@ Filter = (function() {
         }
         return cb(err);
       }
-      if (isAsset && typeof result !== "undefined") {
+      if (isAsset && (result != null)) {
         if (result.text) {
           assetOrTask.text = result.text;
         } else {

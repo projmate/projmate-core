@@ -180,6 +180,8 @@ Task = (function() {
             throw new Error("Invalid filter at " + this.name + ":" + name + "[" + i + "]");
           }
         }
+      } else if (typeof pipeline !== 'function') {
+        throw new Error("Pipeline is neither [filters] or function: " + this.name + ":" + name);
       }
       _results.push(this.pipelines[name] = {
         pipeline: pipeline,

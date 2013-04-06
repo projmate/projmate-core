@@ -98,55 +98,6 @@ class Task
     @normalizeFiles config, 'files'
     @normalizeFiles config, 'watch'
 
-
-    # # Several short cuts to create a file set
-    # if config.files
-    #   # task:
-    #   #   files: "foo/**/*.ext
-    #   if typeof config.files == "string"
-    #     files = config.files
-    #     config.files =
-    #       include: [files]
-
-    #   # task:
-    #   #   files: ["foo/**/*.ext]
-    #   if Array.isArray(config.files)
-    #     config.files =
-    #       include: config.files
-
-    #   # task:
-    #   #   files:
-    #   #     include: "foo/**/*.ext
-    #   if typeof config.files.include == "string"
-    #     config.files.include =  [config.files.include]
-
-    #   # check for exclusions
-    #   if typeof config.files.exclude == "string"
-    #     config.files.exclude = [config.files.exclude]
-
-    #   if typeof config.files.watch == "string"
-    #     config.files.watch = [config.files.watch]
-
-    #   if !Array.isArray(config.files.exclude)
-    #     config.files.exclude =  []
-
-    #   removePatterns = []
-    #   if Array.isArray(config.files.include)
-    #     for pattern in config.files.include
-    #       if pattern.indexOf("!") == 0
-    #         removePatterns.push pattern
-    #         excludePattern = pattern.slice(1)
-
-    #         if str.endsWith(excludePattern, '/')
-    #           config.files.exclude.push excludePattern
-    #           config.files.exclude.push excludePattern + "/**/*"
-    #         else
-    #           config.files.exclude.push excludePattern
-
-    #   # remove exclusions
-    #   config.files.include = _.reject(config.files.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
-
-
     config.description = config.desc || config.description || "Runs #{@name} task"
     config.dependencies = config.pre || config.deps || config.dependencies || []
     config.dependencies = [config.dependencies] if typeof config.dependencies == "string"
@@ -172,7 +123,10 @@ class Task
   #
   _initPipelines: (config) ->
     for name in config.environments
-      # The pipeline can either be an array of filters, OR a function.
+      # The pipeline can either be an array of filters, OR a function which
+      # returns an array of filters.
+      #
+      # A custom function is specified by development.command
       pipeline = config[name]
       continue unless pipeline
 
@@ -202,6 +156,11 @@ class Task
             throw new Error("Undefined filter at #{@name}:#{name}[#{i}]")
           unless typeof filter == "function" or filter instanceof Filter
             throw new Error("Invalid filter at #{@name}:#{name}[#{i}]")
+
+      else if typeof pipeline isnt 'function'
+        throw new Error("Pipeline is neither [filters] or function: #{@name}:#{name}")
+
+
 
       @pipelines[name] = { pipeline, ran: false }
 

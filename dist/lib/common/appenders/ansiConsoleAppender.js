@@ -9,62 +9,6 @@ var color = colors.color;
 var _ = require('lodash');
 var util = require('util');
 
-function pp(object, depth, embedded) {
-  typeof (depth) == "number" || (depth = 0)
-  typeof (embedded) == "boolean" || (embedded = false)
-  var newline = false
-  var spacer = function (depth) {
-    var spaces = "";
-    for (var i = 0; i < depth; i++) {
-      spaces += "  "
-    };
-    return spaces
-  }
-  var pretty = ""
-  if (typeof (object) == "undefined") {
-    pretty += "undefined"
-  } else if (typeof (object) == "boolean" ||
-    typeof (object) == "number") {
-    pretty += object.toString()
-  } else if (typeof (object) == "string") {
-    pretty += "\"" + object + "\""
-  } else if (object == null) {
-    pretty += "null"
-  } else if (object instanceof(Array)) {
-    if (object.length > 0) {
-      if (embedded) {
-        newline = true
-      }
-      var content = ""
-      for (var item in object) {
-        content += pp(item, depth + 1) + ",\n" + spacer(depth + 1)
-      }
-      content = content.replace(/,\n\s*$/, "").replace(/^\s*/, "")
-      pretty += "[ " + content + "\n" + spacer(depth) + "]"
-    } else {
-      pretty += "[]"
-    }
-  } else if (typeof (object) == "object") {
-    if (Object.keys(object).length > 0) {
-      if (embedded) {
-        newline = true
-      }
-      var content = ""
-      for (var key in object) {
-        content += spacer(depth + 1) + key.toString() + ": " + pp(object[key], depth + 2, true) + ",\n"
-      }
-      content = content.replace(/,\n\s*$/, "").replace(/^\s*/, "")
-      pretty += "{ " + content + "\n" + spacer(depth) + "}"
-    } else {
-      pretty += "{}"
-    }
-  } else {
-    pretty += object.toString()
-  }
-  return ((newline ? "\n" + spacer(depth) : "") + pretty)
-}
-
-
 //"red"            // red
 //"red+b"          // red bold
 //"red+u"          // red underline
@@ -83,49 +27,34 @@ function dumpError(err) {
   if (!err) return;
   if (!_.isObject(err)) return err;
 
-  // _.forOwn(err, function(value, key) {
-  //   console.log(key, value);
-  // });
-
-  // console.dir(err);
-  //
   var output = '';
+  var key;
+  if (!err) return output;
 
-  // if (err.name) output += err.name;
-  // if (err.stack) output += err.stack;
-  // if (err.message) output += err.message;
-  var output = util.inspect(err);
+  if (err instanceof Error) {
+    output += '\n';
+    for (key in err) {
+      if (key === 'stack' || key === 'message') continue;
+      output += key + ': ' + err[key] + '\n';
+    }
+    output += err.stack;
+
+  } else if (_.isObject(err)) {
+    output += '\n';
+    // show important fields first
+    var important = ['message', 'filename', 'line', 'column'];
+    for (key in err) {
+      if (important.indexOf(key) < 0) continue;
+      output += key + ': ' + err[key] + '\n';
+    }
+    for (key in err) {
+      if (important.indexOf(key) >= 0) continue;
+      output += key + ': ' + err[key] + '\n';
+    }
+  } else {
+    output += err;
+  }
   return output;
-
-  // var output = '';
-  // var key;
-  // if (!err) return output;
-
-  // if (err instanceof Error) {
-  //   output += '\n';
-  //   for (key in err) {
-  //     if (key === 'stack' || key === 'message') continue;
-  //     output += key + ': ' + err[key] + '\n';
-  //   }
-  //   output += err.stack;
-
-  // } else if (_.isObject(err)) {
-  //   output += '\n';
-  //   // show important fields first
-  //   var important = ['message', 'filename', 'line', 'column'];
-  //   for (key in err) {
-  //     if (important.indexOf(key) < 0) continue;
-  //     output += key + ': ' + err[key] + '\n';
-  //   }
-  //   for (key in err) {
-  //     if (important.indexOf(key) >= 0) continue;
-  //     output += key + ': ' + err[key] + '\n';
-  //   }
-
-  // } else {
-  //   output += err;
-  // }
-  // return output;
 }
 
 function darkScheme(levels) {

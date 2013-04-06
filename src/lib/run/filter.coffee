@@ -140,10 +140,14 @@ class Filter
     options = _.clone(@processOptions)
     @setRunDefaults options
 
-    # Filters like `extractMeta` read metadata and assign to __merge for metadata
-    # to be merged into options.
-    if isAsset and assetOrTask.__merge
-      _.extend options, assetOrTask.__merge
+    # Filters like `extractMeta` read metadata and set properties on asset.
+    # asset.__merge merges or extendes options
+    # asset.__meta defines a new property for asset
+    if isAsset
+      if assetOrTask.__merge
+        _.extend options, assetOrTask.__merge
+      else if assetOrTask.__meta
+        options[__meta.name] = __meta.meta
 
     processed = (err, result) ->
       # Show filename for troubleshooting
@@ -154,7 +158,7 @@ class Filter
 
       # Update the asset to reflect the new state, in preparation
       # for the next wrappedFilter.
-      if isAsset and typeof result != "undefined"
+      if isAsset and result?
 
         # Some filters can return more than one format. For example, Jade can return HTML or JST.
         # Filters can return {text: "filtered text", extname: "the new extension"}

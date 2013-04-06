@@ -55,7 +55,6 @@ Utils =
     else
       s += str
 
-
   # Ensures a path uses unix convention.
   #
   # @example
