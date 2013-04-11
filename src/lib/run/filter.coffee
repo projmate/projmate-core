@@ -4,9 +4,12 @@ _ = require("lodash")
 S = require("string")
 
 
-
-# A filter participates with one or more filters, creating a pipeline, through which
-# a buffer is transformed by each filter.
+# A filter participates with one or more filters, creating a pipeline, through
+# which a buffer is transformed in a series. Filters in projmate
+# process differ from traditional filters in that they only process assets
+# whose registered extension names, `extnames`, match the asset. For example
+# a pipeline can contain a `coffee` filter but that filter will only process
+# coffee asset and pass through any other asset.
 #
 class Filter
 
