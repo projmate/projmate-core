@@ -199,7 +199,7 @@ Task = (function() {
     }
     this.watching = true;
     _ref = this.config, files = _ref.files, watch = _ref.watch;
-    if (!files) {
+    if (!(files || watch)) {
       return;
     }
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/;

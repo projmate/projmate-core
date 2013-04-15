@@ -177,7 +177,7 @@ class Task
     {files, watch} = @config
 
     # Function-based environment actions have optional files.
-    return unless files
+    return unless files or watch
 
     # dir/**/*.ext => match[1] = dirname, match[2] = extname
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/
@@ -335,7 +335,6 @@ class Task
       @_executePipeline pipeline, cb
     else
       cb 'unrecognized pipeline: ' + typeof(pipeline)
-
 
     pipeObj.ran = true
 

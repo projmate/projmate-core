@@ -4,7 +4,6 @@ task "build", "Builds the project.", ->
   $.rm "-rf", "dist"
   $.coffee "-c -o dist src", (err) ->
     $.cp "-rf", "src/lib/common/*.js", "dist/lib/common"
-    $.cp "-rf", "src/lib/support/*.js", "dist/lib/support"
     $.cp "-rf", "src/lib/common/appenders", "dist/lib/common"
     # copy certs
     $.cp "-f", "src/lib/serve/local*", "dist/lib/serve"

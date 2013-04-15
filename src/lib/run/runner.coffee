@@ -127,7 +127,6 @@ class Runner
       Logger.setLevels projfile.config.log.level
 
 
-
   # Loads a project.
   #
   # @param {Object} project The Projfile exported project.
