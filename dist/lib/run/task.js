@@ -375,13 +375,18 @@ Task = (function() {
     }
     this.log.debug("==> " + this.name + "." + environment);
     if (typeof pipeline === "function") {
-      this._executeFunctionTask(pipeline, cb);
+      return this._executeFunctionTask(pipeline, function(err) {
+        pipeObj.ran = !err;
+        return cb(err);
+      });
     } else if (Array.isArray(pipeline)) {
-      this._executePipeline(pipeline, cb);
+      return this._executePipeline(pipeline, function(err) {
+        pipeObj.ran = !err;
+        return cb(err);
+      });
     } else {
-      cb('unrecognized pipeline: ' + typeof pipeline);
+      return cb('unrecognized pipeline: ' + typeof pipeline);
     }
-    return pipeObj.ran = true;
   };
 
   return Task;

@@ -330,12 +330,16 @@ class Task
 
     @log.debug "==> #{@name}.#{environment}"
     if typeof pipeline == "function"
-      @_executeFunctionTask pipeline, cb
+      @_executeFunctionTask pipeline, (err) ->
+        pipeObj.ran = !err
+        cb err
+
     else if Array.isArray(pipeline)
-      @_executePipeline pipeline, cb
+      @_executePipeline pipeline, (err) ->
+        pipeObj.ran = !err
+        cb err
     else
       cb 'unrecognized pipeline: ' + typeof(pipeline)
 
-    pipeObj.ran = true
 
 module.exports = Task
