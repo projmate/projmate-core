@@ -123,7 +123,7 @@ Program.on("--help", function() {
   });
 });
 
-Program.version(Pkg.version).option("-e, --environment <env>", "Set build environment", "development").option("--dev", "Set development mode. Default").option("--test", "Set test mode").option("--prod", "Set production mode").option("--release", "Set release (production) mode").option("-f, --projfile <file>", "Set project file", "").option("-w, --watch", "Watch and rerun tasks as needed").option("-s, --serve [dir]", "Runs HTTP/HTTPS server").usage("TASKS [options]").parse(process.argv);
+Program.version(Pkg.version).option("-e, --environment <env>", "Set build environment", "development").option("-f, --projfile <file>", "Set project file", "").option("-w, --watch", "Watch and rerun tasks as needed").option("-s, --serve [dir]", "Runs HTTP/HTTPS server").usage("TASKS [options]").parse(process.argv);
 
 if (process.argv.length < 3) {
   Program.outputHelp();
