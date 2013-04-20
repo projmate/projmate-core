@@ -39,6 +39,16 @@ run = ->
     Program.tasks = Program.args
     projfilePath = findProjfile()
 
+    # Most users will use dev, test, release environments.
+    # The custom `-e` environment flag is for custom environments.
+    unless Program.environment
+      Program.environment = "development" if Program.dev
+      Program.environment = "test" if Program.test
+      Program.environment = "production" if Program.prod
+      Program.environment = "production" if Program.release
+      # still no environment? default to development
+      Program.environment ?= "development"
+
     log.info "env: #{Program.environment} file: #{Utils.relativeToCwd(projfilePath)}"
 
     Run.run {program: Program, projfilePath: projfilePath}, (err) ->
@@ -71,6 +81,10 @@ Program.on "--help", ->
 Program
   .version(Pkg.version)
   .option("-e, --environment <env>", "Set build environment", "development")
+  .option("--dev", "Set development mode. Default")
+  .option("--test", "Set test mode")
+  .option("--prod", "Set production mode")
+  .option("--release", "Set release (production) mode")
   .option("-f, --projfile <file>", "Set project file", "")
   .option("-w, --watch", "Watch and rerun tasks as needed")
   .option("-s, --serve [dir]", "Runs HTTP/HTTPS server")

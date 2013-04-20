@@ -54,11 +54,28 @@ findProjfile = function() {
 };
 
 run = function() {
-  var e, projfilePath;
+  var e, projfilePath, _ref;
 
   try {
     Program.tasks = Program.args;
     projfilePath = findProjfile();
+    if (!Program.environment) {
+      if (Program.dev) {
+        Program.environment = "development";
+      }
+      if (Program.test) {
+        Program.environment = "test";
+      }
+      if (Program.prod) {
+        Program.environment = "production";
+      }
+      if (Program.release) {
+        Program.environment = "production";
+      }
+      if ((_ref = Program.environment) == null) {
+        Program.environment = "development";
+      }
+    }
     log.info("env: " + Program.environment + " file: " + (Utils.relativeToCwd(projfilePath)));
     return Run.run({
       program: Program,
@@ -106,7 +123,7 @@ Program.on("--help", function() {
   });
 });
 
-Program.version(Pkg.version).option("-e, --environment <env>", "Set build environment", "development").option("-f, --projfile <file>", "Set project file", "").option("-w, --watch", "Watch and rerun tasks as needed").option("-s, --serve [dir]", "Runs HTTP/HTTPS server").usage("TASKS [options]").parse(process.argv);
+Program.version(Pkg.version).option("-e, --environment <env>", "Set build environment", "development").option("--dev", "Set development mode. Default").option("--test", "Set test mode").option("--prod", "Set production mode").option("--release", "Set release (production) mode").option("-f, --projfile <file>", "Set project file", "").option("-w, --watch", "Watch and rerun tasks as needed").option("-s, --serve [dir]", "Runs HTTP/HTTPS server").usage("TASKS [options]").parse(process.argv);
 
 if (process.argv.length < 3) {
   Program.outputHelp();
