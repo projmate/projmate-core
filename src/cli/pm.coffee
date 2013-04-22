@@ -2,11 +2,12 @@ Fs = require("fs")
 Path = require("path")
 color = require('mgutz-colors').color
 Logger = require('../lib/common/logger')
+log = Logger.getLogger('pm')
 
 process.on "uncaughtException", (err) ->
   message = err
   message = err.stack if (err.stack)
-  console.error "Uncaught exception", message
+  log.error "Uncaught exception", message
 
 pkg = require("../../package.json")
 program = require("commander")

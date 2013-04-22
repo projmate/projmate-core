@@ -106,8 +106,8 @@ class Runner
 
         that.executeTasks task.dependencies, (err) ->
           if err
-            console.error err
-            cb err
+            task.log.error err
+            return cb('PM_SILENT')
           else
             task.log.debug("END deps")
             task.execute cb

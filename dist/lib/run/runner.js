@@ -133,8 +133,8 @@ Runner = (function() {
         task.log.debug("BEGIN deps[" + (task.dependencies.join(', ')) + "]");
         return that.executeTasks(task.dependencies, function(err) {
           if (err) {
-            console.error(err);
-            return cb(err);
+            task.log.error(err);
+            return cb('PM_SILENT');
           } else {
             task.log.debug("END deps");
             return task.execute(cb);

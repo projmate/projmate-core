@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Logger, Path, color, name, pkg, program;
+var Fs, Logger, Path, color, log, name, pkg, program;
 
 Fs = require("fs");
 
@@ -14,6 +14,8 @@ color = require('mgutz-colors').color;
 
 Logger = require('../lib/common/logger');
 
+log = Logger.getLogger('pm');
+
 process.on("uncaughtException", function(err) {
   var message;
 
@@ -21,7 +23,7 @@ process.on("uncaughtException", function(err) {
   if (err.stack) {
     message = err.stack;
   }
-  return console.error("Uncaught exception", message);
+  return log.error("Uncaught exception", message);
 });
 
 pkg = require("../../package.json");
