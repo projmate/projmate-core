@@ -12,10 +12,10 @@ liveReload = require("./liveReload")
 #
 # @param {String} dirname The dirname.
 #
-readLocalProjfile = (dirname) ->
+readLocalProjfile = (root=process.cwd()) ->
   files = ['Projfile.js', 'Projfile.coffee']
   for file in files
-    projfilePath = Path.join(dirname, file)
+    projfilePath = Path.join(root, file)
     if Fs.existsSync(projfilePath)
       require('coffee-script')  if file.match(/coffee$/)
       modu = require(projfilePath)
@@ -31,11 +31,17 @@ exports.run = (options) ->
   dirname = Path.resolve(dirname)
 
   # Projfile may define a `server` property for the server.
-  projfile = readLocalProjfile(dirname)
+  projfile = readLocalProjfile()
   options = _.defaults(options, projfile)
 
   # _.defaults does not update dirname but we want it to
   dirname =  projfile.dirname if projfile.dirname
+
+  aux = projfile.aux
+  if aux
+    aux.unshift dirname
+  else
+    aux = [dirname]
 
   httpPort = options.httpPort || 1080
   httpsPort = options.httpsPort || 1443
@@ -44,7 +50,8 @@ exports.run = (options) ->
   app.use express.favicon()
   app.use express.logger(immediate: true, format: "dev")
   app.use express.compress()
-  app.use express.static(dirname)
+  for d in aux
+    app.use express.static(d)
   app.use express.directory(dirname)
   app.use express.errorHandler()
 
