@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, blackhole, minimatch, str, _;
+var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, Utils, blackhole, minimatch, str, _;
 
 _ = require("lodash");
 
@@ -23,6 +23,8 @@ minimatch = require("minimatch");
 str = require("underscore.string");
 
 Assets = require("./assets");
+
+Utils = require('../common/utils');
 
 blackhole = function() {};
 
@@ -45,54 +47,6 @@ Task = (function() {
     this.cwd = cwd;
   }
 
-  Task.prototype.normalizeFiles = function(config, prop) {
-    var configFiles, excludePattern, files, pattern, removePatterns, _i, _len, _ref;
-
-    configFiles = config[prop];
-    if (configFiles) {
-      if (typeof configFiles === "string") {
-        files = configFiles;
-        config[prop] = configFiles = {
-          include: [files]
-        };
-      }
-      if (Array.isArray(configFiles)) {
-        config[prop] = configFiles = {
-          include: configFiles
-        };
-      }
-      if (typeof configFiles.include === "string") {
-        configFiles.include = [configFiles.include];
-      }
-      if (typeof configFiles.exclude === "string") {
-        configFiles.exclude = [configFiles.exclude];
-      }
-      if (!Array.isArray(configFiles.exclude)) {
-        configFiles.exclude = [];
-      }
-      removePatterns = [];
-      if (Array.isArray(configFiles.include)) {
-        _ref = configFiles.include;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          pattern = _ref[_i];
-          if (pattern[0] === '!') {
-            removePatterns.push(pattern);
-            excludePattern = pattern.slice(1);
-            if (str.endsWith(excludePattern, '/')) {
-              configFiles.exclude.push(excludePattern);
-              configFiles.exclude.push(excludePattern + "/**/*");
-            } else {
-              configFiles.exclude.push(excludePattern);
-            }
-          }
-        }
-      }
-      return configFiles.include = _.reject(configFiles.include, function(pattern) {
-        return removePatterns.indexOf(pattern) >= 0;
-      });
-    }
-  };
-
   Task.prototype.normalizeConfig = function(config, ns) {
     var dep, i, _i, _len, _ref, _ref1, _ref2;
 
@@ -114,8 +68,8 @@ Task = (function() {
         pre: [config]
       };
     }
-    this.normalizeFiles(config, 'files');
-    this.normalizeFiles(config, 'watch');
+    Utils.normalizeFiles(config, 'files');
+    Utils.normalizeFiles(config, 'watch');
     config.description = config.desc || config.description || ("Runs " + this.name + " task");
     config.dependencies = config.pre || config.deps || config.dependencies || [];
     if (typeof config.dependencies === "string") {

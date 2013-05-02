@@ -7,6 +7,7 @@ Util = require("util")
 minimatch = require("minimatch")
 str = require("underscore.string")
 Assets = require("./assets")
+Utils = require('../common/utils')
 
 blackhole = ->
 
@@ -32,54 +33,6 @@ class Task
     @cwd = cwd
 
 
-  normalizeFiles: (config, prop) ->
-    configFiles = config[prop]
-
-    # Several short cuts to create a file set
-    if configFiles
-      # task:
-      #   files: "foo/**/*.ext
-      if typeof configFiles == "string"
-        files = configFiles
-        config[prop] = configFiles =
-          include: [files]
-
-      # task:
-      #   files: ["foo/**/*.ext]
-      if Array.isArray(configFiles)
-        config[prop] = configFiles =
-          include: configFiles
-
-      # task:
-      #   files:
-      #     include: "foo/**/*.ext
-      if typeof configFiles.include == "string"
-        configFiles.include =  [configFiles.include]
-
-      # check for exclusions
-      if typeof configFiles.exclude == "string"
-        configFiles.exclude = [configFiles.exclude]
-
-      if !Array.isArray(configFiles.exclude)
-        configFiles.exclude =  []
-
-      removePatterns = []
-      if Array.isArray(configFiles.include)
-        for pattern in configFiles.include
-          if pattern[0] == '!'
-            removePatterns.push pattern
-            excludePattern = pattern.slice(1)
-
-            if str.endsWith(excludePattern, '/')
-              configFiles.exclude.push excludePattern
-              configFiles.exclude.push excludePattern + "/**/*"
-            else
-              configFiles.exclude.push excludePattern
-
-      # remove exclusions
-      configFiles.include = _.reject(configFiles.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
-
-
   # Allows short cuts in files
   normalizeConfig: (config, ns="") ->
 
@@ -95,8 +48,8 @@ class Task
       config = pre: [config]
 
 
-    @normalizeFiles config, 'files'
-    @normalizeFiles config, 'watch'
+    Utils.normalizeFiles config, 'files'
+    Utils.normalizeFiles config, 'watch'
 
     config.description = config.desc || config.description || "Runs #{@name} task"
     config.dependencies = config.pre || config.deps || config.dependencies || []

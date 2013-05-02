@@ -3,6 +3,7 @@ Path = require("path")
 Buffer = require('buffer').Buffer
 $ = require("projmate-shell")
 globEx = require("./globEx")
+_ = require('lodash')
 
 # Get the encoding of a buffer (http://stackoverflow.com/questions/10225399/check-if-a-file-is-binary-or-ascii-with-node-js)
 getEncoding = (buffer, count) ->
@@ -167,5 +168,55 @@ Utils =
 
   relativeToCwd: (path, cwd=process.cwd()) ->
     path.replace RegExp(Utils.escapeRegExp(cwd), "i"), "."
+
+
+  normalizeFiles: (config, prop) ->
+    configFiles = config[prop]
+
+    # Several short cuts to create a file set
+    if configFiles
+      # task:
+      #   files: "foo/**/*.ext
+      if typeof configFiles == "string"
+        files = configFiles
+        config[prop] = configFiles =
+          include: [files]
+
+      # task:
+      #   files: ["foo/**/*.ext]
+      if Array.isArray(configFiles)
+        config[prop] = configFiles =
+          include: configFiles
+
+      # task:
+      #   files:
+      #     include: "foo/**/*.ext
+      if typeof configFiles.include == "string"
+        configFiles.include =  [configFiles.include]
+
+      # check for exclusions
+      if typeof configFiles.exclude == "string"
+        configFiles.exclude = [configFiles.exclude]
+
+      if !Array.isArray(configFiles.exclude)
+        configFiles.exclude =  []
+
+      removePatterns = []
+      if Array.isArray(configFiles.include)
+        for pattern in configFiles.include
+          if pattern[0] == '!'
+            removePatterns.push pattern
+            excludePattern = pattern.slice(1)
+
+            if str.endsWith(excludePattern, '/')
+              configFiles.exclude.push excludePattern
+              configFiles.exclude.push excludePattern + "/**/*"
+            else
+              configFiles.exclude.push excludePattern
+
+      # remove exclusions
+      configFiles.include = _.reject(configFiles.include, (pattern) -> removePatterns.indexOf(pattern) >= 0)
+
+
 
 module.exports = Utils

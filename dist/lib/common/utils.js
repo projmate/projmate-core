@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var $, Buffer, Fs, Path, Utils, getEncoding, globEx;
+var $, Buffer, Fs, Path, Utils, getEncoding, globEx, _;
 
 Fs = require("fs");
 
@@ -15,6 +15,8 @@ Buffer = require('buffer').Buffer;
 $ = require("projmate-shell");
 
 globEx = require("./globEx");
+
+_ = require('lodash');
 
 getEncoding = function(buffer, count) {
   var charCode, contentStartBinary, contentStartUTF8, encoding, i, _i, _ref;
@@ -160,6 +162,53 @@ Utils = {
       cwd = process.cwd();
     }
     return path.replace(RegExp(Utils.escapeRegExp(cwd), "i"), ".");
+  },
+  normalizeFiles: function(config, prop) {
+    var configFiles, excludePattern, files, pattern, removePatterns, _i, _len, _ref;
+
+    configFiles = config[prop];
+    if (configFiles) {
+      if (typeof configFiles === "string") {
+        files = configFiles;
+        config[prop] = configFiles = {
+          include: [files]
+        };
+      }
+      if (Array.isArray(configFiles)) {
+        config[prop] = configFiles = {
+          include: configFiles
+        };
+      }
+      if (typeof configFiles.include === "string") {
+        configFiles.include = [configFiles.include];
+      }
+      if (typeof configFiles.exclude === "string") {
+        configFiles.exclude = [configFiles.exclude];
+      }
+      if (!Array.isArray(configFiles.exclude)) {
+        configFiles.exclude = [];
+      }
+      removePatterns = [];
+      if (Array.isArray(configFiles.include)) {
+        _ref = configFiles.include;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          pattern = _ref[_i];
+          if (pattern[0] === '!') {
+            removePatterns.push(pattern);
+            excludePattern = pattern.slice(1);
+            if (str.endsWith(excludePattern, '/')) {
+              configFiles.exclude.push(excludePattern);
+              configFiles.exclude.push(excludePattern + "/**/*");
+            } else {
+              configFiles.exclude.push(excludePattern);
+            }
+          }
+        }
+      }
+      return configFiles.include = _.reject(configFiles.include, function(pattern) {
+        return removePatterns.indexOf(pattern) >= 0;
+      });
+    }
   }
 };
 
