@@ -26,7 +26,7 @@ readLocalProjfile = (root=process.cwd()) ->
 # Creates an HTTP and HTTPS server.
 #
 exports.run = (options) ->
-  dirname = options.dirname
+  dirname = options.dirname || options.root
   throw new Error("options.dirname is required") unless dirname
   dirname = Path.resolve(dirname)
 

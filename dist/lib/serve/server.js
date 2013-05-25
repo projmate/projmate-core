@@ -50,7 +50,7 @@ readLocalProjfile = function(root) {
 exports.run = function(options) {
   var app, aux, d, dirname, dname, httpDomain, httpPort, httpsConfig, httpsDomain, httpsPort, projfile, server, _i, _len;
 
-  dirname = options.dirname;
+  dirname = options.dirname || options.root;
   if (!dirname) {
     throw new Error("options.dirname is required");
   }
