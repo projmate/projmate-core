@@ -134,6 +134,15 @@ FileAsset = (function() {
     return this.stat.mtime.getTime() > referenceStat.mtime.getTime();
   };
 
+  FileAsset.property("filterOptions", {
+    get: function() {
+      return this.__merge;
+    },
+    set: function(options) {
+      return this.__merge = options;
+    }
+  });
+
   return FileAsset;
 
 })();

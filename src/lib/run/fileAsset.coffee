@@ -93,6 +93,10 @@ text: #{@text}
     referenceStat = Fs.statSync(reference)
     @stat.mtime.getTime() > referenceStat.mtime.getTime()
 
+  @property "filterOptions",
+    get: -> @__merge
+    set: (options) -> @__merge = options
 
+  # Merge options with next filter's op
 module.exports = FileAsset
 
