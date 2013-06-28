@@ -17,7 +17,6 @@ emitter = require('./res/emitter');
 describe('EventBus', function() {
   return it('should receive events', function(done) {
     var bah, foo, text;
-
     text = '';
     foo = Vow.promise();
     eventBus.on('foo', function(data) {

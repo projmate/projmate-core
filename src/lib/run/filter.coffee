@@ -94,11 +94,16 @@ class Filter
 
       for prop, modifiers of $asset
         for asset in assets
-          chain = S(asset[prop])
-          for fn, args of modifiers
-            args = [args] if typeof args == 'string'
-            chain = chain[fn].apply(chain, args)
-          asset[prop] = chain.s
+
+          # _filename: 'foo.html'
+          if typeof modifiers == "string"
+            asset[prop] = modifiers
+          else
+            chain = S(asset[prop])
+            for fn, args of modifiers
+              args = [args] if typeof args == "string"
+              chain = chain[fn].apply(chain, args)
+            asset[prop] = chain.s
 
 
   # Set defaults in `options` based on the run environment.

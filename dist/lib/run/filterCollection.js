@@ -19,7 +19,6 @@ FilterCollection = (function() {
 
   FilterCollection.prototype.loadPackage = function(packageName) {
     var FilterClass, classFactory, modules, name, that, _results;
-
     that = this;
     modules = require(packageName);
     _results = [];
@@ -28,14 +27,12 @@ FilterCollection = (function() {
       FilterClass = classFactory(Projmate);
       _results.push((function(name, FilterClass) {
         var filter;
-
         filter = new FilterClass;
         if (!filter instanceof Filter) {
           throw new Error("Invalid filter " + packageName + "." + name);
         }
         return that.filters[name] = function(processOptions, config) {
           var extnames, instance, newext;
-
           if (processOptions == null) {
             processOptions = {};
           }

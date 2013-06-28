@@ -37,7 +37,6 @@ Assets = (function() {
 
   Assets.prototype.remove = function(asset) {
     var idx;
-
     idx = this.indexOf(function(asst) {
       return asst.cid === asset.cid;
     });
@@ -49,7 +48,6 @@ Assets = (function() {
 
   Assets.prototype.removeAssets = function(lambda) {
     var l, _results;
-
     l = this._assets.length;
     _results = [];
     while (l--) {
@@ -68,7 +66,6 @@ Assets = (function() {
 
   Assets.prototype.create = function(opts) {
     var asset;
-
     asset = new FileAsset({
       filename: opts.filename,
       text: opts.text,
@@ -96,7 +93,6 @@ methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl', 'inject', 're
 methods.forEach(function(method) {
   return Assets.prototype[method] = function() {
     var args;
-
     args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     args.unshift(this._assets);
     return _[method].apply(_, args);

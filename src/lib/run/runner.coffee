@@ -15,6 +15,7 @@ logError = (err) ->
 
 # Runs the command line app.
 #
+# NOTE: Runner is passed as the argument to exports.project callback
 class Runner
 
   constructor: (@options) ->
@@ -26,10 +27,15 @@ class Runner
     @_initFilters()
     @Utils = require('../common/utils')
 
-    #
+    # expose short
     @f = @filterCollection.filters
     @t = @_tasks
+
     @$ = Shell
+    shellLog = Logger.getLogger('shell')
+    Shell.info = (args...) -> shellLog.info args...
+    Shell.log = (args...) -> shellLog.log args...
+    Shell.error = (args...) -> shellLog.error args...
 
   _initFilters: ->
     # Start with official filters

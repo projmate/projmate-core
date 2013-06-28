@@ -33,7 +33,6 @@ process.on('SIGINT', function() {
 
 findProjfile = function() {
   var file, files, projfile, _i, _len;
-
   files = [Program.projfile, "Projfile.js", "Projfile.coffee"];
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     file = files[_i];
@@ -54,8 +53,7 @@ findProjfile = function() {
 };
 
 run = function() {
-  var e, projfilePath, _ref;
-
+  var e, projfilePath;
   try {
     Program.tasks = Program.args;
     projfilePath = findProjfile();
@@ -72,7 +70,7 @@ run = function() {
       if (Program.release) {
         Program.environment = "production";
       }
-      if ((_ref = Program.environment) == null) {
+      if (Program.environment == null) {
         Program.environment = "development";
       }
     }
@@ -98,7 +96,6 @@ run = function() {
 
 taskDescriptions = function(cb) {
   var e, projfilePath;
-
   try {
     projfilePath = findProjfile();
     return Run.taskDescriptions({

@@ -40,7 +40,6 @@ Filter = (function() {
 
   Filter.prototype.canProcess = function(asset) {
     var comparison, filename, prop, truthy, value, _ref;
-
     if (this.processOptions.$if) {
       truthy = true;
       _ref = this.processOptions.$if;
@@ -74,7 +73,6 @@ Filter = (function() {
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
     var $asset, args, asset, assets, chain, fn, isAsset, modifiers, prop, reserved, _i, _len, _ref, _results;
-
     $asset = this.processOptions.$asset;
     _ref = ["_filename"];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -94,19 +92,22 @@ Filter = (function() {
         modifiers = $asset[prop];
         _results.push((function() {
           var _j, _len1, _results1;
-
           _results1 = [];
           for (_j = 0, _len1 = assets.length; _j < _len1; _j++) {
             asset = assets[_j];
-            chain = S(asset[prop]);
-            for (fn in modifiers) {
-              args = modifiers[fn];
-              if (typeof args === 'string') {
-                args = [args];
+            if (typeof modifiers === "string") {
+              _results1.push(asset[prop] = modifiers);
+            } else {
+              chain = S(asset[prop]);
+              for (fn in modifiers) {
+                args = modifiers[fn];
+                if (typeof args === "string") {
+                  args = [args];
+                }
+                chain = chain[fn].apply(chain, args);
               }
-              chain = chain[fn].apply(chain, args);
+              _results1.push(asset[prop] = chain.s);
             }
-            _results1.push(asset[prop] = chain.s);
           }
           return _results1;
         })());
@@ -117,7 +118,6 @@ Filter = (function() {
 
   Filter.prototype.setRunDefaults = function(options) {
     var defaults, env;
-
     if (!this.environment) {
       return;
     }
@@ -144,7 +144,6 @@ Filter = (function() {
 
   Filter.prototype._process = function(assetOrTask, cb) {
     var ex, inspect, isAsset, log, options, processed, _this;
-
     _this = this;
     log = this.log;
     inspect = this.processOptions.$inspect;

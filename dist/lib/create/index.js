@@ -30,7 +30,6 @@ log = require("../common/logger").getLogger("pm-create");
 
 realUri = function(url) {
   var slashes;
-
   slashes = (url.match(/\//g) || []).length;
   if (slashes === 1) {
     return "git://github.com/" + url + ".git";
@@ -51,14 +50,12 @@ cloneProject = function(url, dirname) {
 
 clone = function(url, dirname, options, cb) {
   var fetchIt;
-
   if (typeof options === 'function') {
     cb = options;
     options = {};
   }
   fetchIt = function() {
     var opts;
-
     if (Fs.existsSync(dirname)) {
       opts = {
         prompt: "Project " + dirname + " exists. Overwrite? Type yes or",
@@ -81,7 +78,6 @@ clone = function(url, dirname, options, cb) {
   if (options.subProject) {
     return Temp.mkdir('pm-create', function(err, tempDir) {
       var newUrl;
-
       cloneProject(url, tempDir);
       newUrl = "file://" + Path.join(tempDir, options.subProject);
       return clone(newUrl, dirname, cb);
@@ -97,7 +93,6 @@ getMeta = function(source, cb) {
   source = "" + source + ";\nJSON.stringify(meta)";
   return sandbox.run(source, function(output) {
     var ex;
-
     try {
       return cb(null, JSON.parse(S(output.result).chompLeft("'").chompRight("'").s));
     } catch (_error) {
@@ -111,7 +106,6 @@ updateMeta = function(source, inputs, cb) {
   source = "" + source + ";\nvar fn, inputs = " + (JSON.stringify(inputs)) + ";\nfor (var key in meta) {\n  fn = meta[key];\n  if (typeof fn  === 'function') {\n    inputs[key] = fn.apply(inputs);\n  }\n}\nJSON.stringify(inputs)";
   return sandbox.run(source, function(output) {
     var ex, res;
-
     try {
       res = S(output.result).chompLeft("'").chompRight("'").s;
       return cb(null, JSON.parse(res));
@@ -124,7 +118,6 @@ updateMeta = function(source, inputs, cb) {
 
 readSandboxedInputs = function(dirname, cb) {
   var meta, metaFile, projectName;
-
   metaFile = dirname + "/__meta.js";
   if (!Fs.existsSync(dirname + "/__meta.js")) {
     return cb("Invalid project skeleton, `__meta.js` not found");
@@ -138,7 +131,6 @@ readSandboxedInputs = function(dirname, cb) {
     }
     return Async.eachSeries(Object.keys(inputs), function(key, cb) {
       var opts;
-
       opts = {
         prompt: "Enter " + inputs[key] + ": "
       };
@@ -167,7 +159,6 @@ readSandboxedInputs = function(dirname, cb) {
 
 template = function(text, locals) {
   var key, value;
-
   for (key in locals) {
     value = locals[key];
     text = text.replace(new RegExp("\\{\\{pm__" + key + "}}", "g"), value);
@@ -177,7 +168,6 @@ template = function(text, locals) {
 
 exports.run = function(options) {
   var dirname, fetchProject, inputs, readUserInput, updateFileAndContentTemplates, url;
-
   if (options == null) {
     options = {};
   }
@@ -198,11 +188,9 @@ exports.run = function(options) {
   };
   updateFileAndContentTemplates = function(cb) {
     var ex;
-
     try {
       Utils.walkDirSync(dirname, true, function(dirname, subdirs, files) {
         var content, dir, file, newPath, path, _i, _j, _len, _len1, _results;
-
         for (_i = 0, _len = subdirs.length; _i < _len; _i++) {
           dir = subdirs[_i];
           path = Path.join(dirname, dir);

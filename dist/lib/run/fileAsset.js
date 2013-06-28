@@ -29,7 +29,6 @@ Function.prototype.property = function(prop, desc) {
 FileAsset = (function() {
   function FileAsset(options) {
     var cwd, filename, parent, stat, text;
-
     cwd = options.cwd, filename = options.filename, parent = options.parent, text = options.text, stat = options.stat;
     if (options.parent == null) {
       throw new Error("parent property is required");
@@ -53,7 +52,6 @@ FileAsset = (function() {
     },
     set: function(fname) {
       var filename;
-
       filename = Utils.unixPath(fname);
       this._filename = filename;
       this._extname = Path.extname(filename);
@@ -96,14 +94,12 @@ FileAsset = (function() {
 
   FileAsset.prototype.write = function(filename, cb) {
     var that;
-
     if (filename == null) {
       filename = this.filename;
     }
     that = this;
     return Promises.parallel(this.writingPromises).then(function() {
       var text;
-
       text = that.text;
       if (text.length === 0) {
         return cb();
@@ -128,7 +124,6 @@ FileAsset = (function() {
 
   FileAsset.prototype.newerThan = function(reference) {
     var referenceStat;
-
     if (!this.stat) {
       return true;
     }

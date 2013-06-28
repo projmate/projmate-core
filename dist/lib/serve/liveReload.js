@@ -49,7 +49,6 @@ Server = (function() {
 
   Server.prototype.listen = function() {
     var config, server;
-
     log.debug("LiveReload is waiting for browser to connect.");
     config = this.config;
     server = ws.attach(config.server);
@@ -59,7 +58,6 @@ Server = (function() {
 
   Server.prototype.onConnection = function(socket) {
     var _this = this;
-
     socket.send(JSON.stringify({
       command: 'hello',
       protocols: ['http://livereload.com/protocols/official-7'],
@@ -73,7 +71,6 @@ Server = (function() {
 
   Server.prototype.reloadFile = function(filepath) {
     var config, data, socket, _i, _len, _ref, _results;
-
     config = this.config;
     log.debug("Reload file: " + filepath);
     data = JSON.stringify({
@@ -93,7 +90,6 @@ Server = (function() {
 
   Server.prototype.reloadAll = function() {
     var data, socket, _i, _len, _ref, _results;
-
     log.debug("Reload all");
     data = JSON.stringify({
       command: 'reload',
@@ -116,7 +112,6 @@ Server = (function() {
 
 exports.attach = function(config) {
   var app, srv;
-
   app = config.app;
   srv = new Server(config);
   app.get('/livereload.js', function(req, res) {
@@ -124,7 +119,6 @@ exports.attach = function(config) {
   });
   app.post('/reload', function(req, res) {
     var _this = this;
-
     setTimeout(function() {
       return server.reloadAll();
     }, server.config.delay);

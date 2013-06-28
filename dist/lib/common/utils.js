@@ -20,7 +20,6 @@ _ = require('lodash');
 
 getEncoding = function(buffer, count) {
   var charCode, contentStartBinary, contentStartUTF8, encoding, i, _i, _ref;
-
   contentStartBinary = buffer.toString('binary', 0, count);
   contentStartUTF8 = buffer.toString('utf8', 0, count);
   encoding = 'utf8';
@@ -39,7 +38,6 @@ Utils = {
   Promises: require('./promises'),
   between: function(s, startToken, endToken) {
     var endPos, start, startPos;
-
     startPos = s.indexOf(startToken);
     endPos = s.indexOf(endToken);
     start = startPos + startToken.length;
@@ -75,7 +73,6 @@ Utils = {
   },
   findDirUp: function(basename, dir) {
     var parent;
-
     if (dir == null) {
       dir = process.cwd();
     }
@@ -91,7 +88,6 @@ Utils = {
   },
   isFileBinary: function(filename) {
     var buffer, count, fd;
-
     fd = Fs.openSync(filename, "r");
     buffer = new Buffer(24);
     count = Fs.readSync(fd, buffer, 0, 24, 0);
@@ -100,7 +96,6 @@ Utils = {
   },
   walkDirSync: function(start, deepestFirst, callback) {
     var coll, control, filenames, stat;
-
     stat = Fs.statSync(start);
     if (typeof arguments[1] === 'function') {
       callback = arguments[1];
@@ -110,7 +105,6 @@ Utils = {
       filenames = Fs.readdirSync(start);
       coll = filenames.reduce(function(acc, name) {
         var abspath;
-
         abspath = Path.join(start, name);
         if (Fs.statSync(abspath).isDirectory()) {
           acc.dirs.push(name);
@@ -129,7 +123,6 @@ Utils = {
       if (control.stop == null) {
         coll.dirs.forEach(function(d) {
           var abspath;
-
           abspath = Path.join(start, d);
           return Utils.walkDirSync(abspath, deepestFirst, callback);
         });
@@ -143,7 +136,6 @@ Utils = {
   },
   outdated: function(target, reference) {
     var referenceStat, targetStat;
-
     if (!Fs.existsSync(target)) {
       return true;
     }
@@ -165,7 +157,6 @@ Utils = {
   },
   normalizeFiles: function(config, prop) {
     var configFiles, excludePattern, files, pattern, removePatterns, _i, _len, _ref;
-
     configFiles = config[prop];
     if (configFiles) {
       if (typeof configFiles === "string") {

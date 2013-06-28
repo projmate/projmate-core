@@ -18,7 +18,6 @@ log = Logger.getLogger('pm');
 
 process.on("uncaughtException", function(err) {
   var message;
-
   message = err;
   if (err.stack) {
     message = err.stack;

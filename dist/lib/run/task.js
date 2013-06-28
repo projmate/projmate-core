@@ -31,7 +31,6 @@ blackhole = function() {};
 Task = (function() {
   function Task(options) {
     var config, cwd, log, name, _ref;
-
     this.options = options;
     _ref = this.options, cwd = _ref.cwd, log = _ref.log, name = _ref.name, config = _ref.config;
     this.name = name;
@@ -48,8 +47,7 @@ Task = (function() {
   }
 
   Task.prototype.normalizeConfig = function(config, ns) {
-    var dep, i, _i, _len, _ref, _ref1, _ref2;
-
+    var dep, i, _i, _len, _ref;
     if (ns == null) {
       ns = "";
     }
@@ -75,16 +73,16 @@ Task = (function() {
     if (typeof config.dependencies === "string") {
       config.dependencies = [config.dependencies];
     }
-    if ((_ref = config.development) == null) {
+    if (config.development == null) {
       config.development = config.dev;
     }
-    if ((_ref1 = config.production) == null) {
+    if (config.production == null) {
       config.production = config.prod;
     }
     if (ns.length > 0) {
-      _ref2 = config.dependencies;
-      for (i = _i = 0, _len = _ref2.length; _i < _len; i = ++_i) {
-        dep = _ref2[i];
+      _ref = config.dependencies;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        dep = _ref[i];
         config.dependencies[i] = ns + ":" + dep;
       }
     }
@@ -96,7 +94,6 @@ Task = (function() {
 
   Task.prototype._initPipelines = function(config) {
     var filter, i, load, name, pipeline, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _results;
-
     _ref = config.environments;
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -147,7 +144,6 @@ Task = (function() {
 
   Task.prototype._watch = function(cb) {
     var checkExecute, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
-
     if (this.watching) {
       return;
     }
@@ -176,7 +172,6 @@ Task = (function() {
     log = this.log;
     checkExecute = function(action, path) {
       var _j, _len1;
-
       log.debug("`" + path + "` " + action);
       for (_j = 0, _len1 = patterns.length; _j < _len1; _j++) {
         pattern = patterns[_j];
@@ -202,7 +197,6 @@ Task = (function() {
 
   Task.prototype._executeFunctionTask = function(fn, cb) {
     var environment, ex, that, timeout, timeoutId, watch;
-
     that = this;
     watch = this.program.watch;
     environment = this.program.environment;
@@ -239,14 +233,12 @@ Task = (function() {
 
   Task.prototype._executePipeline = function(pipeline, cb) {
     var environment, log, that, watch;
-
     that = this;
     watch = this.program.watch;
     log = this.log;
     environment = this.program.environment;
     return Async.eachSeries(pipeline, function(wrappedFilter, cb) {
       var filter;
-
       if (!wrappedFilter) {
         log.error("PIPELINE", wrappedFilter);
       }
@@ -262,7 +254,6 @@ Task = (function() {
       } else if (filter instanceof Filter) {
         return Async.eachSeries(that.assets.array(), function(asset, cb) {
           var i, _i, _len, _ref;
-
           if (that.assets.detect(function(asset) {
             return !asset;
           })) {
@@ -302,7 +293,6 @@ Task = (function() {
 
   Task.prototype.execute = function(cb) {
     var environment, pipeObj, pipeline, ran, that;
-
     this.assets = new Assets;
     that = this;
     if (this.cwd && process.cwd() !== this.cwd) {

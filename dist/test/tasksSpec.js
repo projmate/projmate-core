@@ -12,7 +12,6 @@ describe("Tasks", function() {
   describe("Order and Dependecies", function() {
     it("should do simple task", function(done) {
       var name, project;
-
       name = "";
       project = {
         project: function(pm) {
@@ -36,7 +35,6 @@ describe("Tasks", function() {
     });
     it("should run multiple tasks", function(done) {
       var project, ran;
-
       ran = "";
       project = {
         project: function(pm) {
@@ -64,7 +62,6 @@ describe("Tasks", function() {
     });
     it("should run dependencies", function(done) {
       var project, total;
-
       total = 100;
       project = {
         project: function(pm) {
@@ -93,7 +90,6 @@ describe("Tasks", function() {
     });
     it("should run tasks only once", function(done) {
       var project, ran;
-
       ran = "";
       project = {
         project: function(pm) {
@@ -128,7 +124,6 @@ describe("Tasks", function() {
     });
     return it("should run async/sync", function(done) {
       var project, ran;
-
       ran = "";
       project = {
         project: function(pm) {
@@ -168,7 +163,6 @@ describe("Tasks", function() {
   describe("Build Environments", function() {
     return it("should default to development", function(done) {
       var project, ran;
-
       ran = "";
       project = {
         project: function(pm) {
@@ -215,7 +209,6 @@ describe("Tasks", function() {
   return describe("Namespaced tasks", function() {
     it("should use default or empty namespace by default", function(done) {
       var other, project, ran;
-
       ran = "";
       other = {
         project: function(pm) {
@@ -278,7 +271,6 @@ describe("Tasks", function() {
     });
     it('should use namespace even if only loading', function(done) {
       var other, project, ran;
-
       ran = "";
       other = {
         project: function(pm) {
@@ -315,7 +307,6 @@ describe("Tasks", function() {
     });
     it("should use namespace", function(done) {
       var other, project, ran;
-
       ran = "";
       other = {
         project: function(pm) {
@@ -384,7 +375,6 @@ describe("Tasks", function() {
     return describe("Sugar", function() {
       return it("can be all dependencies", function(done) {
         var project, ran;
-
         ran = "";
         project = {
           project: function(pm) {

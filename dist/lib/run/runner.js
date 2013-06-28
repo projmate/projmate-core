@@ -38,6 +38,7 @@ logError = function(err) {
 
 Runner = (function() {
   function Runner(options) {
+    var shellLog;
     this.options = options;
     this.executeTasks = __bind(this.executeTasks, this);
     global.PROJMATE = {};
@@ -50,6 +51,22 @@ Runner = (function() {
     this.f = this.filterCollection.filters;
     this.t = this._tasks;
     this.$ = Shell;
+    shellLog = Logger.getLogger('shell');
+    Shell.info = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return shellLog.info.apply(shellLog, args);
+    };
+    Shell.log = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return shellLog.log.apply(shellLog, args);
+    };
+    Shell.error = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return shellLog.error.apply(shellLog, args);
+    };
   }
 
   Runner.prototype._initFilters = function() {
@@ -59,7 +76,6 @@ Runner = (function() {
 
   Runner.prototype.filters = function() {
     var filterPackage, userFilters, _i, _len;
-
     userFilters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     if (userFilters.length > 0) {
       for (_i = 0, _len = userFilters.length; _i < _len; _i++) {
@@ -77,7 +93,6 @@ Runner = (function() {
 
   Runner.prototype.registerTasks = function(tasksDef, options) {
     var cwd, definition, name, ns, nsname, task;
-
     if (options == null) {
       options = {};
     }
@@ -109,14 +124,12 @@ Runner = (function() {
 
   Runner.prototype.executeTasks = function(taskNames, cb) {
     var that;
-
     if (!this.project) {
       return cb('load() must be called first.');
     }
     that = this;
     Async.eachSeries(taskNames, function(name, cb) {
       var task, _i, _len, _ref;
-
       task = that._tasks[name];
       if (!task) {
         return cb("Invalid task: " + name);
@@ -157,7 +170,6 @@ Runner = (function() {
 
   Runner.prototype.processConfig = function(projfile) {
     var _ref;
-
     if (!projfile.config) {
       return;
     }
@@ -167,15 +179,14 @@ Runner = (function() {
   };
 
   Runner.prototype.load = function(projfile, options, cb) {
-    var self, tasks, _ref, _ref1;
-
+    var self, tasks;
     if (options == null) {
       options = {};
     }
-    if ((_ref = options.cwd) == null) {
+    if (options.cwd == null) {
       options.cwd = process.cwd();
     }
-    if ((_ref1 = options.ns) == null) {
+    if (options.ns == null) {
       options.ns = '';
     }
     if (typeof options === 'function') {
