@@ -85,6 +85,9 @@ class Task
 
       if Array.isArray(pipeline)
 
+        # Allow sub pipelines
+        pipeline = _.flatten(pipeline)
+
         # check if filters disable reading of file contents and storing them into asset.text
         for filter in pipeline
           if !filter

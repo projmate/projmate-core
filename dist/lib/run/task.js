@@ -103,6 +103,7 @@ Task = (function() {
         continue;
       }
       if (Array.isArray(pipeline)) {
+        pipeline = _.flatten(pipeline);
         for (_j = 0, _len1 = pipeline.length; _j < _len1; _j++) {
           filter = pipeline[_j];
           if (!filter) {
