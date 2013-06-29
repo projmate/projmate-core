@@ -186,17 +186,21 @@ class Task
     if fn.length == 1
       timeoutId = null
 
-      fn (err) ->
-        clearTimeout timeoutId
-        return cb(err) if err
-        if watch then that._watch()
-        cb()
+      env = {environment, timeout: 2000}
+      fn.call env, (err) ->
+        # timeout may have expired, which sets cb to null
+        if cb
+          clearTimeout timeoutId
+          return cb(err) if err
+          if watch then that._watch()
+          cb()
 
-      timeout = fn.timeout || 2000
+      timeout = env.timeout
       timeoutId = setTimeout ->
-        return cb('Function exceed ' + timeout + 'ms. Check callback was called or `this.timeout(ms)` increases it')
+        clearTimeout timeoutId
+        cb('Execution exceeded ' + timeout + 'ms. Check callback was called or set `this.timeout = ms` to increase allowed time')
+        cb = null
       , timeout
-
     else
       try
         fn()

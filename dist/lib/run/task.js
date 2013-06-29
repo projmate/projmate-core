@@ -197,26 +197,34 @@ Task = (function() {
   };
 
   Task.prototype._executeFunctionTask = function(fn, cb) {
-    var environment, ex, that, timeout, timeoutId, watch;
+    var env, environment, ex, that, timeout, timeoutId, watch;
     that = this;
     watch = this.program.watch;
     environment = this.program.environment;
     fn.environment = environment;
     if (fn.length === 1) {
       timeoutId = null;
-      fn(function(err) {
-        clearTimeout(timeoutId);
-        if (err) {
-          return cb(err);
+      env = {
+        environment: environment,
+        timeout: 2000
+      };
+      fn.call(env, function(err) {
+        if (cb) {
+          clearTimeout(timeoutId);
+          if (err) {
+            return cb(err);
+          }
+          if (watch) {
+            that._watch();
+          }
+          return cb();
         }
-        if (watch) {
-          that._watch();
-        }
-        return cb();
       });
-      timeout = fn.timeout || 2000;
+      timeout = env.timeout;
       return timeoutId = setTimeout(function() {
-        return cb('Function exceed ' + timeout + 'ms. Check callback was called or `this.timeout(ms)` increases it');
+        clearTimeout(timeoutId);
+        cb('Execution exceeded ' + timeout + 'ms. Check callback was called or set `this.timeout = ms` to increase allowed time');
+        return cb = null;
       }, timeout);
     } else {
       try {

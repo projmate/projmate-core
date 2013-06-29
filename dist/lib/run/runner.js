@@ -161,7 +161,7 @@ Runner = (function() {
         if (err !== 'PM_SILENT') {
           log.error(err);
         }
-        cb('PM_SILENT');
+        return cb('PM_SILENT');
       }
       return cb(err);
     });

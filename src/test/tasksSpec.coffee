@@ -94,6 +94,22 @@ describe "Tasks", ->
         assert.equal ran, "bca"
         done()
 
+    it "should run async with function specified timeout", (done) ->
+      ran = ""
+      project =
+        project: (pm) ->
+          a: (cb) ->
+            ran = "a"
+            this.timeout = 50
+            setTimeout ->
+              ran += "b"
+              cb()
+            , 75
+
+      runProject project, tasks: ["a"], (err) ->
+        assert.equal ran, "a"
+        done()
+
 
   describe "Build Environments", ->
     it "should default to development", (done) ->

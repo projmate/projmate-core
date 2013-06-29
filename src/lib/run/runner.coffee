@@ -122,7 +122,7 @@ class Runner
     , (err) ->
       if err
         log.error(err) if err != 'PM_SILENT'
-        cb 'PM_SILENT'
+        return cb 'PM_SILENT'
       cb err
     null
 

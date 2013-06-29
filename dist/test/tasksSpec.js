@@ -122,7 +122,7 @@ describe("Tasks", function() {
         return done();
       });
     });
-    return it("should run async/sync", function(done) {
+    it("should run async/sync", function(done) {
       var project, ran;
       ran = "";
       project = {
@@ -156,6 +156,30 @@ describe("Tasks", function() {
       }, function(err) {
         assert.ifError(err);
         assert.equal(ran, "bca");
+        return done();
+      });
+    });
+    return it("should run async with function specified timeout", function(done) {
+      var project, ran;
+      ran = "";
+      project = {
+        project: function(pm) {
+          return {
+            a: function(cb) {
+              ran = "a";
+              this.timeout = 50;
+              return setTimeout(function() {
+                ran += "b";
+                return cb();
+              }, 75);
+            }
+          };
+        }
+      };
+      return runProject(project, {
+        tasks: ["a"]
+      }, function(err) {
+        assert.equal(ran, "a");
         return done();
       });
     });
