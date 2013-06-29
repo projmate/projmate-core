@@ -94,8 +94,8 @@ text: #{@text}
     @stat.mtime.getTime() > referenceStat.mtime.getTime()
 
   @property "filterOptions",
-    get: -> @__merge
-    set: (options) -> @__merge = options
+    get: -> @__filterOptions
+    set: (options) -> @__filterOptions = options
 
   # Merge options with next filter's op
 module.exports = FileAsset

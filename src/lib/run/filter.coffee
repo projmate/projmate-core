@@ -149,11 +149,11 @@ class Filter
     @setRunDefaults options
 
     # Filters like `extractMeta` read metadata and set properties on asset.
-    # asset.__merge merges or extendes options
+    # asset.__filterOptions merges or extends options
     # asset.__meta defines a new property for asset
     if isAsset
       if assetOrTask.__merge
-        _.extend options, assetOrTask.__merge
+        _.extend options, assetOrTask.__filterOptions
       else if assetOrTask.__meta
         options[__meta.name] = __meta.meta
 
