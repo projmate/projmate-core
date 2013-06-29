@@ -156,7 +156,7 @@ Filter = (function() {
     this.setRunDefaults(options);
     if (isAsset) {
       if (assetOrTask.__merge) {
-        _.extend(options, assetOrTask.__merge);
+        _.extend(options, assetOrTask.__filterOptions);
       } else if (assetOrTask.__meta) {
         options[__meta.name] = __meta.meta;
       }

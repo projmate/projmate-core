@@ -136,10 +136,10 @@ FileAsset = (function() {
 
   FileAsset.property("filterOptions", {
     get: function() {
-      return this.__merge;
+      return this.__filterOptions;
     },
     set: function(options) {
-      return this.__merge = options;
+      return this.__filterOptions = options;
     }
   });
 
