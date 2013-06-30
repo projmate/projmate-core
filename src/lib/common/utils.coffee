@@ -208,7 +208,7 @@ Utils =
             removePatterns.push pattern
             excludePattern = pattern.slice(1)
 
-            if str.endsWith(excludePattern, '/')
+            if excludePattern.match(/\/$/)
               configFiles.exclude.push excludePattern
               configFiles.exclude.push excludePattern + "/**/*"
             else
