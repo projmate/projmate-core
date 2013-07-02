@@ -28,6 +28,11 @@ class FilterCollection
         if not filter instanceof Filter
           throw new Error("Invalid filter #{packageName}.#{name}")
 
+        # Wrap the real filter in a wrapper so the filter may
+        # be used without parentheses. The task executor must check
+        # to see if the filter is a wrapper and if so invoke it as a function
+        # to get the instance.
+        #
         # {Object} processOptions Passed to process.
         # {Object} config Passed to constructor
         #
@@ -45,6 +50,9 @@ class FilterCollection
 
           instance
 
+        # even though this is a function, we can still attach a property
+        # which is later used to determine if the pipeline starts with a loader
+        that.filters[name].isAssetLoader = filter.isAssetLoader
 
 
 module.exports = FilterCollection

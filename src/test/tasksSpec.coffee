@@ -72,6 +72,26 @@ describe "Tasks", ->
         done()
 
 
+    it "should have option to load filenames only without loading text", (done) ->
+      tapped = null
+      project =
+        project: (pm) ->
+          {f} = pm
+          loadFilenames:
+            files: __dirname + "/res/em*.js"
+            development: [
+              f.stat
+              f.tap (asset) ->
+                tapped = asset
+            ]
+
+      runProject project, tasks: ["loadFilenames"], (err) ->
+        assert.ifError err
+        assert.equal tapped.text, ''
+        assert.ok tapped.filename.match(/emitter\.js$/)
+        done()
+
+
     it "should run async/sync", (done) ->
       ran = ""
       project =

@@ -4,7 +4,6 @@
  * See the file COPYING for copying permission.
  */
 
-
 exports.server = {
   httpPort: 1080,
   httpsPort: 1443,

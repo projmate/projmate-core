@@ -31,7 +31,7 @@ FilterCollection = (function() {
         if (!filter instanceof Filter) {
           throw new Error("Invalid filter " + packageName + "." + name);
         }
-        return that.filters[name] = function(processOptions, config) {
+        that.filters[name] = function(processOptions, config) {
           var extnames, instance, newext;
           if (processOptions == null) {
             processOptions = {};
@@ -53,6 +53,7 @@ FilterCollection = (function() {
           }
           return instance;
         };
+        return that.filters[name].isAssetLoader = filter.isAssetLoader;
       })(name, FilterClass));
     }
     return _results;

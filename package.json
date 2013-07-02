@@ -8,7 +8,7 @@
     "projmate-filters": "git://github.com/projmate/projmate-filters.git#develop",
     "projmate-shell": "git://github.com/projmate/projmate-shell.git#develop",
     "async": "~0.2.0",
-    "chokidar": "~0.5.3",
+    "chokidar": "~0.6.2",
     "coffee-script": "~1.6.3",
     "commander": "git://github.com/mgutz/commander.js.git",
     "lodash": "~1.0.1",

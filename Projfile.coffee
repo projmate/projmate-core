@@ -29,7 +29,10 @@ exports.project = (pm) ->
     desc: "Runs tests from src"
     files: "src/test/**/*{Test,Spec}.{coffee,js}"
     # silence logging while running tests on this project, output would be confusing
-    dev: [f.mocha]
+    dev: [
+      f.stat
+      f.mocha
+    ]
 
   distTests:
     desc: "Runs tests from dist"

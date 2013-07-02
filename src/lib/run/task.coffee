@@ -88,23 +88,13 @@ class Task
         # Allow sub pipelines
         pipeline = _.flatten(pipeline)
 
-        # check if filters disable reading of file contents and storing them into asset.text
-        for filter in pipeline
-          if !filter
-            throw new Error("Undefined filter for #{@name}:#{name}")
-
-          load = !filter.__pragma?.disableLoadFiles
-          break if load # get out if ANY need files loading
-
         # Each pipeline starts by loading files or just the filenames.
+        # (or any filter that has isAssetLoader property set to true)
         # Since this is so common, prepend it if it is not declared in
         # pipeline.
-        if load
-          unless pipeline[0] instanceof @filters.loadFiles
-            pipeline.unshift @filters.loadFiles
-        else
-          unless pipeline[0] instanceof @filters.loadFilenames
-            pipeline.unshift @filters.loadFilenames
+
+        if !pipeline[0].isAssetLoader?
+          pipeline.unshift @filters.loadFiles
 
         # sanity check
         for filter, i in pipeline
@@ -116,11 +106,8 @@ class Task
       else if typeof pipeline isnt 'function'
         throw new Error("Pipeline is neither [filters] or function: #{@name}:#{name}")
 
-
-
       @pipelines[name] = { pipeline, ran: false }
 
-    # TODO find pipeline via hierarchy
 
 
   # Watch files in `files.watch` or `files.include` and execute this

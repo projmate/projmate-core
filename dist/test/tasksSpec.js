@@ -122,6 +122,34 @@ describe("Tasks", function() {
         return done();
       });
     });
+    it("should have option to load filenames only without loading text", function(done) {
+      var project, tapped;
+      tapped = null;
+      project = {
+        project: function(pm) {
+          var f;
+          f = pm.f;
+          return {
+            loadFilenames: {
+              files: __dirname + "/res/em*.js",
+              development: [
+                f.stat, f.tap(function(asset) {
+                  return tapped = asset;
+                })
+              ]
+            }
+          };
+        }
+      };
+      return runProject(project, {
+        tasks: ["loadFilenames"]
+      }, function(err) {
+        assert.ifError(err);
+        assert.equal(tapped.text, '');
+        assert.ok(tapped.filename.match(/emitter\.js$/));
+        return done();
+      });
+    });
     it("should run async/sync", function(done) {
       var project, ran;
       ran = "";
