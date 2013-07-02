@@ -116,6 +116,7 @@ describe "Tasks", ->
 
     it "should run async with function specified timeout", (done) ->
       ran = ""
+      console.error 'exceeded 50ms error is false negative, part of test suite'
       project =
         project: (pm) ->
           a: (cb) ->

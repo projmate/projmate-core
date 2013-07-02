@@ -190,6 +190,7 @@ describe("Tasks", function() {
     return it("should run async with function specified timeout", function(done) {
       var project, ran;
       ran = "";
+      console.error('exceeded 50ms error is false negative, part of test suite');
       project = {
         project: function(pm) {
           return {
