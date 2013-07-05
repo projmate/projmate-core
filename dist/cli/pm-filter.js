@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var $, Colors, Fs, Helpers, Logger, Path, Pkg, Program, Run, Runner, Str, Utils, blue, filterDescriptions, green, loadFilters, log, magenta, prettyPrint, printExamples, printProperties, run, runProject, _;
+var $, Colors, Fs, Helpers, Logger, Path, Pkg, Program, Run, Runner, Str, Utils, blue, filterDescriptions, green, loadFilters, log, magenta, prettyPrint, printExamples, printProperties, run, runProject, yellow, _;
 
 Program = require("commander");
 
@@ -40,6 +40,8 @@ green = Colors.fn('green+h');
 
 magenta = Colors.fn('magenta+h');
 
+yellow = Colors.fn('yellow+h');
+
 runProject = function(project, cb) {
   var program, runner;
   program = {};
@@ -62,14 +64,23 @@ process.on("SIGINT", function() {
 });
 
 printProperties = function(names, properties, options) {
-  var L, descriptions, name, o, _i, _len, _ref;
+  var L, P, descriptions, len, name, o, property, _i, _len, _ref;
   L = options.longestName;
+  P = 0;
+  for (name in properties) {
+    property = properties[name];
+    len = property.length;
+    if (len > P) {
+      P = len;
+    }
+  }
   descriptions = [];
   _ref = names.sort();
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     name = _ref[_i];
     o = properties[name];
-    descriptions.push("  " + green(Str.pad(name + ':', L + 1, ' ', 'right')) + Str.sprintf(" %-9s %s", "{" + o.type + "}", o.description));
+    name = Str.sprintf("%-" + L + "s", name);
+    descriptions.push(Str.sprintf("  %s  %-" + P + "s %s", green(name), o.type, o.description));
   }
   return console.log(descriptions.join("\n"));
 };
@@ -105,18 +116,21 @@ printExamples = function(schema) {
 };
 
 prettyPrint = function(filterName, Filter, options) {
-  var L, keys, name, properties;
+  var L, keys, len, name, properties, property, _ref;
   properties = [];
   console.log("");
   if (Filter.schema) {
     L = 0;
-    for (name in Filter.schema.properties) {
-      if (name.length > L) {
-        L = name.length;
+    _ref = Filter.schema.properties;
+    for (name in _ref) {
+      property = _ref[name];
+      len = name.length;
+      if (len > L) {
+        L = len;
       }
     }
     console.log("FILTER");
-    console.log("  " + (blue(filterName)) + " - " + Filter.schema.title);
+    console.log("  " + (yellow(filterName)) + " - " + Filter.schema.title);
     console.log("");
     if (options.json) {
       console.log(JSON.stringify(Filter.schema, null, "  "));
@@ -137,7 +151,7 @@ prettyPrint = function(filterName, Filter, options) {
       printExamples(Filter.schema);
     }
   } else {
-    console.log("" + (blue(filterName)) + " - No schema");
+    console.log("" + filterName + " - No schema");
   }
   return console.log("");
 };

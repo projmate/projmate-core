@@ -17,6 +17,7 @@ Runner = require("../lib/run/runner")
 blue = Colors.fn('blue+h')
 green = Colors.fn('green+h')
 magenta = Colors.fn('magenta+h')
+yellow = Colors.fn('yellow+h')
 
 runProject = (project, cb) ->
   program = {}
@@ -34,10 +35,17 @@ printProperties = (names, properties, options) ->
   # calc longest property name
   L = options.longestName
 
+  P = 0
+  for name, property of properties
+    len = property.length
+    P = len if len  > P
+
+
   descriptions = []
   for name in names.sort()
     o = properties[name]
-    descriptions.push "  " + green(Str.pad(name + ':', L+1, ' ', 'right')) + Str.sprintf(" %-9s %s", "{"+o.type+"}", o.description)
+    name = Str.sprintf("%-#{L}s", name)
+    descriptions.push Str.sprintf("  %s  %-#{P}s %s", green(name), o.type, o.description)
   console.log descriptions.join("\n")
 
 printExamples = (schema) ->
@@ -63,12 +71,12 @@ prettyPrint = (filterName, Filter, options) ->
 
     # calc longest property name
     L = 0
-    for name of Filter.schema.properties
-      L = name.length if name.length > L
-
+    for name, property of Filter.schema.properties
+      len = name.length
+      L = len if len  > L
 
     console.log "FILTER"
-    console.log "  #{blue(filterName)} - #{Filter.schema.title}"
+    console.log "  #{yellow(filterName)} - #{Filter.schema.title}"
     console.log ""
 
     if options.json
@@ -87,7 +95,7 @@ prettyPrint = (filterName, Filter, options) ->
 
       printExamples Filter.schema
   else
-    console.log "#{blue(filterName)} - No schema"
+    console.log "#{filterName} - No schema"
 
   console.log ""
 
