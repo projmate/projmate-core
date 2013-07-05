@@ -3,9 +3,8 @@ Pkg = require("../../package.json")
 Fs = require("fs")
 Logger = require("../lib/common/logger")
 Path = require("path")
-Run = require("../lib/run")
 Utils = require("../lib/common/utils")
-log = Logger.getLogger("pm-meta")
+log = Logger.getLogger("pm-filter")
 $ = require("projmate-shell")
 Helpers = require("./helpers")
 Str = require("underscore.string")
@@ -40,13 +39,13 @@ printProperties = (names, properties, options) ->
     len = property.length
     P = len if len  > P
 
-
   descriptions = []
   for name in names.sort()
     o = properties[name]
     name = Str.sprintf("%-#{L}s", name)
     descriptions.push Str.sprintf("  %s  %-#{P}s %s", green(name), o.type, o.description)
   console.log descriptions.join("\n")
+
 
 printExamples = (schema) ->
   examples = schema._examples
