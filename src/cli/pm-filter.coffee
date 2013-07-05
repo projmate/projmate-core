@@ -3,6 +3,8 @@ Pkg = require("../../package.json")
 Fs = require("fs")
 Logger = require("../lib/common/logger")
 Path = require("path")
+# TODO why is this needed, it prevents "to: wrong arguments" error
+require("../lib/run")
 Utils = require("../lib/common/utils")
 log = Logger.getLogger("pm-filter")
 $ = require("projmate-shell")
@@ -10,11 +12,11 @@ Helpers = require("./helpers")
 Str = require("underscore.string")
 Colors = require('mgutz-colors')
 _ = require("lodash")
-
 Runner = require("../lib/run/runner")
 
 blue = Colors.fn('blue+h')
-green = Colors.fn('green+h')
+greenh = Colors.fn('green+h')
+green = Colors.fn('green')
 magenta = Colors.fn('magenta+h')
 yellow = Colors.fn('yellow+h')
 
@@ -34,16 +36,27 @@ printProperties = (names, properties, options) ->
   # calc longest property name
   L = options.longestName
 
+  # calc longest type
   P = 0
   for name, property of properties
-    len = property.length
+    if property.type is "array"
+      len = property.items.type.length + 2 # '[]'.length
+    else
+      len = property.type.length
     P = len if len  > P
 
   descriptions = []
   for name in names.sort()
     o = properties[name]
     name = Str.sprintf("%-#{L}s", name)
-    descriptions.push Str.sprintf("  %s  %-#{P}s %s", green(name), o.type, o.description)
+    if o.type is "array"
+      type = "[]" + o.items.type
+    else
+      type = o.type
+
+    type = Str.sprintf("%-#{P}s", type)
+
+    descriptions.push Str.sprintf("  %s %s %s", greenh(name), green(type), o.description)
   console.log descriptions.join("\n")
 
 

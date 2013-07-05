@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var $, Colors, Fs, Helpers, Logger, Path, Pkg, Program, Run, Runner, Str, Utils, blue, filterDescriptions, green, loadFilters, log, magenta, prettyPrint, printExamples, printProperties, run, runProject, yellow, _;
+var $, Colors, Fs, Helpers, Logger, Path, Pkg, Program, Runner, Str, Utils, blue, filterDescriptions, green, greenh, loadFilters, log, magenta, prettyPrint, printExamples, printProperties, run, runProject, yellow, _;
 
 Program = require("commander");
 
@@ -16,11 +16,11 @@ Logger = require("../lib/common/logger");
 
 Path = require("path");
 
-Run = require("../lib/run");
+require("../lib/run");
 
 Utils = require("../lib/common/utils");
 
-log = Logger.getLogger("pm-meta");
+log = Logger.getLogger("pm-filter");
 
 $ = require("projmate-shell");
 
@@ -36,7 +36,9 @@ Runner = require("../lib/run/runner");
 
 blue = Colors.fn('blue+h');
 
-green = Colors.fn('green+h');
+greenh = Colors.fn('green+h');
+
+green = Colors.fn('green');
 
 magenta = Colors.fn('magenta+h');
 
@@ -64,12 +66,16 @@ process.on("SIGINT", function() {
 });
 
 printProperties = function(names, properties, options) {
-  var L, P, descriptions, len, name, o, property, _i, _len, _ref;
+  var L, P, descriptions, len, name, o, property, type, _i, _len, _ref;
   L = options.longestName;
   P = 0;
   for (name in properties) {
     property = properties[name];
-    len = property.length;
+    if (property.type === "array") {
+      len = property.items.type.length + 2;
+    } else {
+      len = property.type.length;
+    }
     if (len > P) {
       P = len;
     }
@@ -80,7 +86,13 @@ printProperties = function(names, properties, options) {
     name = _ref[_i];
     o = properties[name];
     name = Str.sprintf("%-" + L + "s", name);
-    descriptions.push(Str.sprintf("  %s  %-" + P + "s %s", green(name), o.type, o.description));
+    if (o.type === "array") {
+      type = "[]" + o.items.type;
+    } else {
+      type = o.type;
+    }
+    type = Str.sprintf("%-" + P + "s", type);
+    descriptions.push(Str.sprintf("  %s %s %s", greenh(name), green(type), o.description));
   }
   return console.log(descriptions.join("\n"));
 };
