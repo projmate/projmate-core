@@ -26,6 +26,8 @@ program.on("--help", function() {
 
 program.version(pkg.version).description("Create a project from git repo skeleton").usage("url [dirname]").option("-s, --sub-project <dirname>", "Select sub project").option("-g, --git-init", "Initialize as git repo").parse(process.argv);
 
+program._name = 'pm create';
+
 if (program.args < 3) {
   program.outputHelp();
 } else {

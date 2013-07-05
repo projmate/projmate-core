@@ -1,0 +1,235 @@
+/**
+ * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
+ *
+ * See the file COPYING for copying permission.
+ */
+
+var $, Colors, Fs, Helpers, Logger, Path, Pkg, Program, Run, Runner, Str, Utils, blue, filterDescriptions, green, loadFilters, log, magenta, prettyPrint, printExamples, printProperties, run, runProject, _;
+
+Program = require("commander");
+
+Pkg = require("../../package.json");
+
+Fs = require("fs");
+
+Logger = require("../lib/common/logger");
+
+Path = require("path");
+
+Run = require("../lib/run");
+
+Utils = require("../lib/common/utils");
+
+log = Logger.getLogger("pm-meta");
+
+$ = require("projmate-shell");
+
+Helpers = require("./helpers");
+
+Str = require("underscore.string");
+
+Colors = require('mgutz-colors');
+
+_ = require("lodash");
+
+Runner = require("../lib/run/runner");
+
+blue = Colors.fn('blue+h');
+
+green = Colors.fn('green+h');
+
+magenta = Colors.fn('magenta+h');
+
+runProject = function(project, cb) {
+  var program, runner;
+  program = {};
+  runner = new Runner({
+    program: program
+  });
+  return runner.load(project, {
+    cwd: __dirname
+  }, function(err) {
+    if (err) {
+      console.error(err);
+    }
+    return cb();
+  });
+};
+
+process.on("SIGINT", function() {
+  $.killAll();
+  return process.reallyExit();
+});
+
+printProperties = function(names, properties, options) {
+  var L, descriptions, name, o, _i, _len, _ref;
+  L = options.longestName;
+  descriptions = [];
+  _ref = names.sort();
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    name = _ref[_i];
+    o = properties[name];
+    descriptions.push("  " + green(Str.pad(name + ':', L + 1, ' ', 'right')) + Str.sprintf(" %-9s %s", "{" + o.type + "}", o.description));
+  }
+  return console.log(descriptions.join("\n"));
+};
+
+printExamples = function(schema) {
+  var example, examples, first, line, _i, _len, _results;
+  examples = schema._examples;
+  if (!examples) {
+    return;
+  }
+  console.log("\nEXAMPLES");
+  first = true;
+  _results = [];
+  for (_i = 0, _len = examples.length; _i < _len; _i++) {
+    example = examples[_i];
+    if (!first) {
+      console.log("\n");
+    }
+    first = false;
+    console.log("  * " + example.title + "\n");
+    _results.push((function() {
+      var _j, _len1, _ref, _results1;
+      _ref = Str.lines(example.text);
+      _results1 = [];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        line = _ref[_j];
+        _results1.push(console.log("    " + line));
+      }
+      return _results1;
+    })());
+  }
+  return _results;
+};
+
+prettyPrint = function(filterName, Filter, options) {
+  var L, keys, name, properties;
+  properties = [];
+  console.log("");
+  if (Filter.schema) {
+    L = 0;
+    for (name in Filter.schema.properties) {
+      if (name.length > L) {
+        L = name.length;
+      }
+    }
+    console.log("FILTER");
+    console.log("  " + (blue(filterName)) + " - " + Filter.schema.title);
+    console.log("");
+    if (options.json) {
+      console.log(JSON.stringify(Filter.schema, null, "  "));
+    } else {
+      keys = _(Filter.schema.properties).keys().sort().value();
+      if (Filter.schema.required) {
+        console.log("REQUIRED");
+        printProperties(Filter.schema.required, Filter.schema.properties, {
+          longestName: L
+        });
+        console.log("");
+        keys = _.difference(keys, Filter.schema.required);
+      }
+      console.log("OPTIONAL");
+      printProperties(keys, Filter.schema.properties, {
+        longestName: L
+      });
+      printExamples(Filter.schema);
+    }
+  } else {
+    console.log("" + (blue(filterName)) + " - No schema");
+  }
+  return console.log("");
+};
+
+run = function() {
+  return loadFilters(function(err, Filters) {
+    var Filter, e, k, name, v;
+    if (err) {
+      return log.error(err);
+    }
+    try {
+      name = Program.args[0];
+      for (k in Filters) {
+        v = Filters[k];
+        if (k.toLowerCase() === name.toLowerCase()) {
+          name = k;
+          Filter = v;
+        }
+      }
+      if (Filter) {
+        return prettyPrint(name, Filter, Program);
+      } else {
+        return log.error("Filter not found: " + name);
+      }
+    } catch (_error) {
+      e = _error;
+      return log.error(e);
+    }
+  });
+};
+
+loadFilters = function(cb) {
+  var Filters, dummyProj;
+  Filters = [];
+  dummyProj = {
+    project: function(pm) {
+      Filters = pm.filterCollection._filterClasses;
+      return {
+        noop: 'does nothing'
+      };
+    }
+  };
+  return runProject(dummyProj, function(err) {
+    return cb(err, Filters);
+  });
+};
+
+/*
+# Get filter descriptions
+*/
+
+
+filterDescriptions = function(cb) {
+  return loadFilters(function(err, Filters) {
+    var Filter, L, description, lines, name, _ref;
+    if (err) {
+      return cb(err);
+    }
+    lines = [];
+    L = 0;
+    for (name in Filters) {
+      if (name.length > L) {
+        L = name.length;
+      }
+    }
+    for (name in Filters) {
+      Filter = Filters[name];
+      description = ((_ref = Filter.schema) != null ? _ref.title : void 0) != null ? Filter.schema.title : '';
+      lines.push(Str.sprintf("    %-" + L + "s  %s", name, description));
+    }
+    return cb(null, lines.sort().join("\n"));
+  });
+};
+
+Program.on("--help", function() {
+  return filterDescriptions(function(err, descriptions) {
+    if (err) {
+      return log.error(err);
+    } else {
+      console.log("  Available Filters:");
+      console.log("");
+      return console.log(descriptions);
+    }
+  });
+});
+
+Program.version(Pkg.version).description("Prints information about a filter").usage("FILTER").option("-j, --json", "Print out JSON").parse(process.argv);
+
+Program._name = 'pm filter';
+
+if (process.argv.length < 3) {
+  Program.outputHelp();
+} else {
+  run();
+}

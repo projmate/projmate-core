@@ -7,9 +7,11 @@ Projmate = require("..")
 class FilterCollection
 
   constructor: ->
-    # factory functions
-    @filters = {}
+    # In projfiles, filters are actually factories which create instances
+    # of a FilterClass
+    @factories = {}
 
+    @_filterClasses = {}
 
   # Loads built-in filters.
   #
@@ -23,22 +25,45 @@ class FilterCollection
       FilterClass = classFactory(Projmate)
 
       do (name, FilterClass) ->
+        schema = FilterClass.schema
+        if !schema?.__?
+          throw new Error("Invalid filter `#{packageName}.#{name}`: schema.__ is required")
+        if !schema.title
+          throw new Error("Invalid filter `#{packageName}.#{name}`: schema.title is required")
+        if !schema.__.extnames
+          throw new Error("Invalid filter `#{packageName}.#{name}`: schema.__.extnames is required")
+
         # ensure it is a filter
         filter = new FilterClass
+
         if not filter instanceof Filter
           throw new Error("Invalid filter #{packageName}.#{name}")
 
-        # Wrap the real filter in a wrapper so the filter may
+        # External utilities read the schema from the real filter instead
+        # of the factory
+        that._filterClasses[name] = FilterClass
+
+        # Wrap the real filter in a factory so the filter may
         # be used without parentheses. The task executor must check
         # to see if the filter is a wrapper and if so invoke it as a function
         # to get the instance.
+        #
+        # To check if it is a filter `factory._process?`
         #
         # {Object} processOptions Passed to process.
         # {Object} config Passed to constructor
         #
         # allows simple syntax, e.g. f.coffee({bare: true}, {extnames: ['.coffee', '.funcd']})
-        that.filters[name] = (processOptions={}, config={}) ->
+        that.factories[name] = (processOptions={}, config={}) ->
           instance = new FilterClass(name, config, processOptions)
+
+          # The contains a section which is not to be validated but used by
+          # Projmate. It has special proeprty name of `__`
+          for prop in ['extnames', 'outExtname', 'isAssetLoader', 'defaults', 'useLoader']
+            val = schema['__'][prop]
+            instance[prop] = val if val?
+
+          instance.extnames = [instance.extnames] unless Array.isArray(instance.extnames)
 
           if processOptions.$addExtname
             newext = processOptions.$addExtname
@@ -50,9 +75,10 @@ class FilterCollection
 
           instance
 
-        # even though this is a function, we can still attach a property
-        # which is later used to determine if the pipeline starts with a loader
-        that.filters[name].isAssetLoader = filter.isAssetLoader
+        # even though this is a function, we can still attach a property to it
+        # sometimes we need things from the schema like determining which asset loader
+        # to user
+        that.factories[name].schema = FilterClass.schema
 
 
 module.exports = FilterCollection

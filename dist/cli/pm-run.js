@@ -4,9 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var $, Fs, Logger, Path, Pkg, Program, Run, Utils, findProjfile, log, run, taskDescriptions;
-
-Path = require("path");
+var $, Fs, Helpers, Logger, Path, Pkg, Program, Run, Utils, log, run, taskDescriptions;
 
 Program = require("commander");
 
@@ -26,37 +24,18 @@ log = Logger.getLogger("pm-run");
 
 $ = require('projmate-shell');
 
+Helpers = require('./helpers');
+
 process.on('SIGINT', function() {
   $.killAll();
   return process.reallyExit();
 });
 
-findProjfile = function() {
-  var file, files, projfile, _i, _len;
-  files = [Program.projfile, "Projfile.js", "Projfile.coffee"];
-  for (_i = 0, _len = files.length; _i < _len; _i++) {
-    file = files[_i];
-    if (!((file != null ? file.length : void 0) > 0)) {
-      continue;
-    }
-    projfile = Path.resolve(file);
-    if (Fs.existsSync(projfile)) {
-      return projfile;
-    }
-  }
-  if (Program.projfile) {
-    throw new Error("Projfile not found: " + Program.projfile);
-  } else {
-    throw new Error("Projfile not found in " + (process.cwd()) + " or any of its parent directories");
-  }
-  return null;
-};
-
 run = function() {
   var e, projfilePath;
   try {
     Program.tasks = Program.args;
-    projfilePath = findProjfile();
+    projfilePath = Helpers.findProjfile(Program);
     if (!Program.environment) {
       if (Program.dev) {
         Program.environment = "development";
@@ -97,7 +76,7 @@ run = function() {
 taskDescriptions = function(cb) {
   var e, projfilePath;
   try {
-    projfilePath = findProjfile();
+    projfilePath = Helpers.findProjfile(Program);
     return Run.taskDescriptions({
       program: Program,
       projfilePath: projfilePath
@@ -121,6 +100,8 @@ Program.on("--help", function() {
 });
 
 Program.version(Pkg.version).option("-e, --environment <env>", "Set build environment", "development").option("-f, --projfile <file>", "Set project file", "").option("-w, --watch", "Watch and rerun tasks as needed").option("-s, --serve [dir]", "Runs HTTP/HTTPS server").usage("TASKS [options]").parse(process.argv);
+
+Program._name = 'pm run';
 
 if (process.argv.length < 3) {
   Program.outputHelp();

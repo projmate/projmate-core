@@ -2,6 +2,7 @@ $ = require("projmate-shell")
 
 task "build", "Builds the project.", ->
   $.rm "-rf", "dist"
+  $.mkdir "-p", "dist/lib/serve"
   $.coffee "-c -o dist src", (err) ->
     $.cp "-rf", "src/lib/common/*.js", "dist/lib/common"
     $.cp "-rf", "src/lib/common/appenders", "dist/lib/common"

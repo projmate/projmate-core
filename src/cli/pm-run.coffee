@@ -1,4 +1,3 @@
-Path = require("path")
 Program = require("commander")
 Pkg = require("../../package.json")
 Fs = require("fs")
@@ -8,28 +7,11 @@ Run = require("../lib/run")
 Utils = require("../lib/common/utils")
 log = Logger.getLogger("pm-run")
 $ = require('projmate-shell')
+Helpers = require('./helpers')
 
 process.on 'SIGINT', ->
   $.killAll()
   process.reallyExit()
-
-
-# Finds project file.
-#
-# @returns Returns the full path to found projec file.
-#
-findProjfile = ->
-  files = [Program.projfile, "Projfile.js", "Projfile.coffee"]
-  for file in files
-    continue unless file?.length > 0
-    projfile = Path.resolve(file)
-    return projfile if Fs.existsSync(projfile)
-
-  if Program.projfile
-    throw new Error("Projfile not found: #{Program.projfile}")
-  else
-    throw new Error("Projfile not found in #{process.cwd()} or any of its parent directories")
-  return null
 
 
 # Runs this script
@@ -37,7 +19,7 @@ findProjfile = ->
 run = ->
   try
     Program.tasks = Program.args
-    projfilePath = findProjfile()
+    projfilePath = Helpers.findProjfile(Program)
 
     # Most users will use dev, test, release environments.
     # The custom `-e` environment flag is for custom environments.
@@ -63,7 +45,7 @@ run = ->
 #
 taskDescriptions = (cb) ->
   try
-    projfilePath = findProjfile()
+    projfilePath = Helpers.findProjfile(Program)
     Run.taskDescriptions {program: Program, projfilePath: projfilePath}, cb
   catch e
     log.error e
@@ -90,6 +72,8 @@ Program
   .option("-s, --serve [dir]", "Runs HTTP/HTTPS server")
   .usage("TASKS [options]")
   .parse(process.argv)
+
+Program._name = 'pm run'
 
 if process.argv.length < 3
   Program.outputHelp()

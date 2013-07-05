@@ -32,6 +32,8 @@ program
   .option("-g, --git-init", "Initialize as git repo")
   .parse(process.argv)
 
+program._name = 'pm create'
+
 if program.args < 3
   program.outputHelp()
 else

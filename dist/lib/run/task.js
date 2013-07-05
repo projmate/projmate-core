@@ -93,7 +93,7 @@ Task = (function() {
   };
 
   Task.prototype._initPipelines = function(config) {
-    var filter, i, name, pipeline, _i, _j, _len, _len1, _ref, _results;
+    var alternateLoader, filter, i, name, pipeline, schema, _i, _j, _len, _len1, _ref, _results;
     _ref = config.environments;
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -104,7 +104,16 @@ Task = (function() {
       }
       if (Array.isArray(pipeline)) {
         pipeline = _.flatten(pipeline);
-        if (pipeline[0].isAssetLoader == null) {
+        filter = pipeline[0];
+        if (filter._process) {
+          schema = filter;
+        } else {
+          schema = filter.schema;
+        }
+        alternateLoader = filter.useLoader;
+        if (alternateLoader) {
+          pipeline.unshift(this.filters[alternateLoader]);
+        } else if (filter.isAssetLoader == null) {
           pipeline.unshift(this.filters.loadFiles);
         }
         for (i = _j = 0, _len1 = pipeline.length; _j < _len1; i = ++_j) {

@@ -31,6 +31,8 @@ program
   .option("-P, --https-port <ssl port>", "HTTPS port")
   .parse(process.argv)
 
+program._name = 'pm serve'
+
 
 main()
 

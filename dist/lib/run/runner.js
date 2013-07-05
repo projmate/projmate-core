@@ -48,7 +48,7 @@ Runner = (function() {
     this.server = this.options.server;
     this._initFilters();
     this.Utils = require('../common/utils');
-    this.f = this.filterCollection.filters;
+    this.f = this.filterCollection.factories;
     this.t = this._tasks;
     this.$ = Shell;
     shellLog = Logger.getLogger('shell');
@@ -83,7 +83,7 @@ Runner = (function() {
         this.filterCollection.loadPackage(filterPackage);
       }
     }
-    return this.filterCollection.filters;
+    return this.filterCollection.factories;
   };
 
   Runner.prototype.shell = function(shellOptions) {

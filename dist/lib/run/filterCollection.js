@@ -14,7 +14,8 @@ Projmate = require("..");
 
 FilterCollection = (function() {
   function FilterCollection() {
-    this.filters = {};
+    this.factories = {};
+    this._filterClasses = {};
   }
 
   FilterCollection.prototype.loadPackage = function(packageName) {
@@ -26,13 +27,24 @@ FilterCollection = (function() {
       classFactory = modules[name];
       FilterClass = classFactory(Projmate);
       _results.push((function(name, FilterClass) {
-        var filter;
+        var filter, schema;
+        schema = FilterClass.schema;
+        if ((schema != null ? schema.__ : void 0) == null) {
+          throw new Error("Invalid filter `" + packageName + "." + name + "`: schema.__ is required");
+        }
+        if (!schema.title) {
+          throw new Error("Invalid filter `" + packageName + "." + name + "`: schema.title is required");
+        }
+        if (!schema.__.extnames) {
+          throw new Error("Invalid filter `" + packageName + "." + name + "`: schema.__.extnames is required");
+        }
         filter = new FilterClass;
         if (!filter instanceof Filter) {
           throw new Error("Invalid filter " + packageName + "." + name);
         }
-        that.filters[name] = function(processOptions, config) {
-          var extnames, instance, newext;
+        that._filterClasses[name] = FilterClass;
+        that.factories[name] = function(processOptions, config) {
+          var extnames, instance, newext, prop, val, _i, _len, _ref;
           if (processOptions == null) {
             processOptions = {};
           }
@@ -40,6 +52,17 @@ FilterCollection = (function() {
             config = {};
           }
           instance = new FilterClass(name, config, processOptions);
+          _ref = ['extnames', 'outExtname', 'isAssetLoader', 'defaults', 'useLoader'];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            prop = _ref[_i];
+            val = schema['__'][prop];
+            if (val != null) {
+              instance[prop] = val;
+            }
+          }
+          if (!Array.isArray(instance.extnames)) {
+            instance.extnames = [instance.extnames];
+          }
           if (processOptions.$addExtname) {
             newext = processOptions.$addExtname;
             extnames = instance.extname;
@@ -53,7 +76,7 @@ FilterCollection = (function() {
           }
           return instance;
         };
-        return that.filters[name].isAssetLoader = filter.isAssetLoader;
+        return that.factories[name].schema = FilterClass.schema;
       })(name, FilterClass));
     }
     return _results;

@@ -39,4 +39,6 @@ main = function() {
 
 program.version(Pkg.version).usage("[dirname] [options]").option("-p, --http-port <port>", "HTTP port").option("-P, --https-port <ssl port>", "HTTPS port").parse(process.argv);
 
+program._name = 'pm serve';
+
 main();

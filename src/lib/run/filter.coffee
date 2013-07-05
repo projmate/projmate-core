@@ -26,9 +26,6 @@ class Filter
       @processOptions =
         command: @processOptions
 
-    if !@extnames
-      throw new Error("`extnames` is required for filter #{@name}")
-    @extnames = [@extnames] unless Array.isArray(@extnames)
 
 
   # Every concrete filter must implement this method.
@@ -73,8 +70,8 @@ class Filter
   #
   # @example
   #
-  #   f.writeFiles($asset: {filename: {replace: [/^src/, "build"]}}})
-  #   f.writeFiles(_filename: {replace: [/^src/, "build"]})
+  #   f.writeFile($asset: {filename: {replace: [/^src/, "build"]}}})
+  #   f.writeFile(_filename: {replace: [/^src/, "build"]})
   #
   # Both convert the filename from `src` to the `build` directory.
   #

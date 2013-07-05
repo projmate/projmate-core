@@ -26,12 +26,6 @@ Filter = (function() {
         command: this.processOptions
       };
     }
-    if (!this.extnames) {
-      throw new Error("`extnames` is required for filter " + this.name);
-    }
-    if (!Array.isArray(this.extnames)) {
-      this.extnames = [this.extnames];
-    }
   }
 
   Filter.prototype.process = function(asset, options, cb) {

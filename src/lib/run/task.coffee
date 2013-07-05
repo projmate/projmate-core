@@ -88,12 +88,23 @@ class Task
         # Allow sub pipelines
         pipeline = _.flatten(pipeline)
 
-        # Each pipeline starts by loading files or just the filenames.
-        # (or any filter that has isAssetLoader property set to true)
-        # Since this is so common, prepend it if it is not declared in
-        # pipeline.
 
-        if !pipeline[0].isAssetLoader?
+        # A pipeline can be a factory or a filter (created by executing factory)
+        # Important schema properties are assigned to the instance when created
+        # so we can treat the filter itself as a schema
+        filter = pipeline[0]
+        if filter._process
+          schema = filter
+        else
+          schema = filter.schema
+
+        # Each pipeline needs to load assets. Determine if the first filter
+        # has a specific loader or is an assetLoader. If a loader is not found
+        # then default to `loadFiles`
+        alternateLoader = filter.useLoader
+        if alternateLoader
+          pipeline.unshift @filters[alternateLoader]
+        else if !filter.isAssetLoader?
           pipeline.unshift @filters.loadFiles
 
         # sanity check

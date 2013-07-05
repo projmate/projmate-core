@@ -27,8 +27,8 @@ class Runner
     @_initFilters()
     @Utils = require('../common/utils')
 
-    # expose short
-    @f = @filterCollection.filters
+    # expose single letter aliases
+    @f = @filterCollection.factories
     @t = @_tasks
 
     @$ = Shell
@@ -49,7 +49,7 @@ class Runner
     if userFilters.length > 0
       for filterPackage in userFilters
         @filterCollection.loadPackage filterPackage
-    @filterCollection.filters
+    @filterCollection.factories
 
 
   # Gets the shell object which contains cross-platform shell helpers.
