@@ -13,7 +13,7 @@ pkg = require("../../package.json")
 program = require("commander")
 
 # print version
-name = ('                    Projmate v' + pkg.version).slice(-Logger.rootConfig.columnWidths[0])
+name = ('  Projmate v' + pkg.version).slice(-Logger.rootConfig.columnWidths[0])
 console.log "#{color(name, 'yellow+h')} #{color(Path.resolve(__dirname + '/../..'), 'yellow')}"
 
 

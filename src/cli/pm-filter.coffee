@@ -6,15 +6,8 @@ Path = require("path")
 log = Logger.getLogger("pm-filter")
 Helpers = require("./helpers")
 Str = require("underscore.string")
-Colors = require('mgutz-colors')
 _ = require("lodash")
 Runner = require("../lib/run/runner")
-
-blue = Colors.fn('blue+h')
-greenh = Colors.fn('green+h')
-green = Colors.fn('green')
-magenta = Colors.fn('magenta+h')
-yellow = Colors.fn('yellow+h')
 
 runProject = (project, cb) ->
   program = {}
@@ -53,7 +46,7 @@ printProperties = (names, properties, options) ->
 
     type = Str.sprintf("%-#{P}s", type)
 
-    descriptions.push Str.sprintf("  %s %s %s", greenh(name), green(type), o.description)
+    descriptions.push Str.sprintf("    %s %s %s", name, type, o.description)
   console.log descriptions.join("\n")
 
 
@@ -61,15 +54,15 @@ printExamples = (schema) ->
   examples = schema._examples
   return unless examples
 
-  console.log "\nEXAMPLES"
+  console.log "\n  Examples:"
   first = true
   for example in examples
     if !first
       console.log "\n"
     first = false
-    console.log "  * " + example.title + "\n"
+    console.log "    * " + example.title + "\n"
     for line in Str.lines(example.text)
-      console.log "    " + line
+      console.log "      " + line
 
 
 prettyPrint = (filterName, Filter, options) ->
@@ -84,8 +77,7 @@ prettyPrint = (filterName, Filter, options) ->
       len = name.length
       L = len if len  > L
 
-    console.log "FILTER"
-    console.log "  #{yellow(filterName)} - #{Filter.schema.title}"
+    console.log "  Filter: #{filterName} - #{Filter.schema.title}"
     console.log ""
 
     if options.json
@@ -94,12 +86,14 @@ prettyPrint = (filterName, Filter, options) ->
       keys = _(Filter.schema.properties).keys().sort().value()
 
       if Filter.schema.required
-        console.log "REQUIRED"
+        console.log "  Required Options:"
+        console.log ""
         printProperties Filter.schema.required, Filter.schema.properties, longestName: L
         console.log ""
         keys = _.difference(keys, Filter.schema.required)
 
-      console.log "OPTIONAL"
+      console.log "  Optional Options:"
+      console.log ""
       printProperties keys, Filter.schema.properties, longestName: L
 
       printExamples Filter.schema
