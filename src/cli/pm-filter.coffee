@@ -51,10 +51,11 @@ printProperties = (names, properties, options) ->
 
 
 printExamples = (schema) ->
-  examples = schema._examples
+  examples = schema.__.examples
   return unless examples
 
   console.log "\n  Examples:"
+  console.log ""
   first = true
   for example in examples
     if !first

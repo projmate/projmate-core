@@ -83,11 +83,12 @@ printProperties = function(names, properties, options) {
 
 printExamples = function(schema) {
   var example, examples, first, line, _i, _len, _results;
-  examples = schema._examples;
+  examples = schema.__.examples;
   if (!examples) {
     return;
   }
   console.log("\n  Examples:");
+  console.log("");
   first = true;
   _results = [];
   for (_i = 0, _len = examples.length; _i < _len; _i++) {
