@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var $, Colors, Fs, Helpers, Logger, Path, Pkg, Program, Runner, Str, Utils, blue, filterDescriptions, green, greenh, loadFilters, log, magenta, prettyPrint, printExamples, printProperties, run, runProject, yellow, _;
+var Colors, Fs, Helpers, Logger, Path, Pkg, Program, Runner, Str, blue, filterDescriptions, green, greenh, loadFilters, log, magenta, prettyPrint, printExamples, printProperties, run, runProject, yellow, _;
 
 Program = require("commander");
 
@@ -16,13 +16,7 @@ Logger = require("../lib/common/logger");
 
 Path = require("path");
 
-require("../lib/run");
-
-Utils = require("../lib/common/utils");
-
 log = Logger.getLogger("pm-filter");
-
-$ = require("projmate-shell");
 
 Helpers = require("./helpers");
 
@@ -61,6 +55,8 @@ runProject = function(project, cb) {
 };
 
 process.on("SIGINT", function() {
+  var $;
+  $ = require("projmate-shell");
   $.killAll();
   return process.reallyExit();
 });

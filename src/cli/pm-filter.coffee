@@ -3,11 +3,7 @@ Pkg = require("../../package.json")
 Fs = require("fs")
 Logger = require("../lib/common/logger")
 Path = require("path")
-# TODO why is this needed, it prevents "to: wrong arguments" error
-require("../lib/run")
-Utils = require("../lib/common/utils")
 log = Logger.getLogger("pm-filter")
-$ = require("projmate-shell")
 Helpers = require("./helpers")
 Str = require("underscore.string")
 Colors = require('mgutz-colors')
@@ -28,6 +24,7 @@ runProject = (project, cb) ->
     cb()
 
 process.on "SIGINT", ->
+  $ = require("projmate-shell")
   $.killAll()
   process.reallyExit()
 
