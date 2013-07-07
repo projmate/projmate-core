@@ -51,6 +51,11 @@ process.on("SIGINT", function() {
 
 printProperties = function(names, properties, options) {
   var L, P, descriptions, len, name, o, property, type, _i, _len, _ref;
+  if ((names != null ? names.length : void 0) < 1) {
+    return;
+  }
+  console.log("  " + options.header + ":");
+  console.log("");
   L = options.longestName;
   P = 0;
   for (name in properties) {
@@ -133,18 +138,16 @@ prettyPrint = function(filterName, Filter, options) {
     } else {
       keys = _(Filter.schema.properties).keys().sort().value();
       if (Filter.schema.required) {
-        console.log("  Required Options:");
-        console.log("");
         printProperties(Filter.schema.required, Filter.schema.properties, {
-          longestName: L
+          longestName: L,
+          header: 'Required Options'
         });
         console.log("");
         keys = _.difference(keys, Filter.schema.required);
       }
-      console.log("  Optional Options:");
-      console.log("");
       printProperties(keys, Filter.schema.properties, {
-        longestName: L
+        longestName: L,
+        header: 'Optional Options'
       });
       printExamples(Filter.schema);
     }

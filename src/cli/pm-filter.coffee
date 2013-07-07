@@ -23,6 +23,11 @@ process.on "SIGINT", ->
 
 
 printProperties = (names, properties, options) ->
+  return if names?.length < 1
+
+  console.log "  #{options.header}:"
+  console.log ""
+
   # calc longest property name
   L = options.longestName
 
@@ -87,16 +92,11 @@ prettyPrint = (filterName, Filter, options) ->
       keys = _(Filter.schema.properties).keys().sort().value()
 
       if Filter.schema.required
-        console.log "  Required Options:"
-        console.log ""
-        printProperties Filter.schema.required, Filter.schema.properties, longestName: L
+        printProperties Filter.schema.required, Filter.schema.properties, longestName: L, header: 'Required Options'
         console.log ""
         keys = _.difference(keys, Filter.schema.required)
 
-      console.log "  Optional Options:"
-      console.log ""
-      printProperties keys, Filter.schema.properties, longestName: L
-
+      printProperties keys, Filter.schema.properties, longestName: L, header: 'Optional Options'
       printExamples Filter.schema
   else
     console.log "#{filterName} - No schema"
