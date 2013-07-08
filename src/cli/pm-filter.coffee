@@ -77,29 +77,32 @@ prettyPrint = (filterName, Filter, options) ->
   console.log ""
   if Filter.schema
 
+    schema = Filter.schema
+
     # calc longest property name
     L = 0
-    for name, property of Filter.schema.properties
+    for name, property of schema.properties
       len = name.length
       L = len if len  > L
 
-    console.log "  Filter: #{filterName} - #{Filter.schema.title}"
+
+    console.log "  Filter: #{filterName} - #{schema.title}"
     console.log ""
-    console.log "    #{Filter.schema.__.extnames} -> #{Filter.schema.__.outExtname}"
+    console.log "    #{schema.__.extnames} -> #{if schema.__.outExtname then schema.__.outExtname else '*'}"
     console.log ""
 
     if options.json
-      console.log JSON.stringify(Filter.schema, null, "  ")
+      console.log JSON.stringify(schema, null, "  ")
     else
-      keys = _(Filter.schema.properties).keys().sort().value()
+      keys = _(schema.properties).keys().sort().value()
 
-      if Filter.schema.required
-        printProperties Filter.schema.required, Filter.schema.properties, longestName: L, header: 'Required Options'
+      if schema.required
+        printProperties schema.required, schema.properties, longestName: L, header: 'Required Options'
         console.log ""
-        keys = _.difference(keys, Filter.schema.required)
+        keys = _.difference(keys, schema.required)
 
-      printProperties keys, Filter.schema.properties, longestName: L, header: 'Optional Options'
-      printExamples Filter.schema
+      printProperties keys, schema.properties, longestName: L, header: 'Optional Options'
+      printExamples schema
   else
     console.log "#{filterName} - No schema"
 

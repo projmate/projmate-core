@@ -118,12 +118,13 @@ printExamples = function(schema) {
 };
 
 prettyPrint = function(filterName, Filter, options) {
-  var L, keys, len, name, properties, property, _ref;
+  var L, keys, len, name, properties, property, schema, _ref;
   properties = [];
   console.log("");
   if (Filter.schema) {
+    schema = Filter.schema;
     L = 0;
-    _ref = Filter.schema.properties;
+    _ref = schema.properties;
     for (name in _ref) {
       property = _ref[name];
       len = name.length;
@@ -131,27 +132,27 @@ prettyPrint = function(filterName, Filter, options) {
         L = len;
       }
     }
-    console.log("  Filter: " + filterName + " - " + Filter.schema.title);
+    console.log("  Filter: " + filterName + " - " + schema.title);
     console.log("");
-    console.log("    " + Filter.schema.__.extnames + " -> " + Filter.schema.__.outExtname);
+    console.log("    " + schema.__.extnames + " -> " + (schema.__.outExtname ? schema.__.outExtname : '*'));
     console.log("");
     if (options.json) {
-      console.log(JSON.stringify(Filter.schema, null, "  "));
+      console.log(JSON.stringify(schema, null, "  "));
     } else {
-      keys = _(Filter.schema.properties).keys().sort().value();
-      if (Filter.schema.required) {
-        printProperties(Filter.schema.required, Filter.schema.properties, {
+      keys = _(schema.properties).keys().sort().value();
+      if (schema.required) {
+        printProperties(schema.required, schema.properties, {
           longestName: L,
           header: 'Required Options'
         });
         console.log("");
-        keys = _.difference(keys, Filter.schema.required);
+        keys = _.difference(keys, schema.required);
       }
-      printProperties(keys, Filter.schema.properties, {
+      printProperties(keys, schema.properties, {
         longestName: L,
         header: 'Optional Options'
       });
-      printExamples(Filter.schema);
+      printExamples(schema);
     }
   } else {
     console.log("" + filterName + " - No schema");
