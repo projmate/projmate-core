@@ -81,7 +81,7 @@ printProperties = function(names, properties, options) {
       type = o.type;
     }
     type = Str.sprintf("%-" + P + "s", type);
-    descriptions.push(Str.sprintf("    %s %s %s", name, type, o.description));
+    descriptions.push(Str.sprintf("    %s  %s %s", name, type, o.description));
   }
   return console.log(descriptions.join("\n"));
 };
