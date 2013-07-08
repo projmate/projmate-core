@@ -85,6 +85,8 @@ prettyPrint = (filterName, Filter, options) ->
 
     console.log "  Filter: #{filterName} - #{Filter.schema.title}"
     console.log ""
+    console.log "    #{Filter.schema.__.extnames} -> #{Filter.schema.__.outExtname}"
+    console.log ""
 
     if options.json
       console.log JSON.stringify(Filter.schema, null, "  ")

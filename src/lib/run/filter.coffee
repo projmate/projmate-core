@@ -64,7 +64,10 @@ class Filter
 
     # must hanlde cases like ".coffee.md"
     filename = asset.filename
-    _.any @extnames, (extname) -> S(filename).endsWith(extname)
+    result = _.any(@extnames, (extname) -> S(filename).endsWith(extname))
+    if !result
+      @log.debug "Ignoring extname #{filename}"
+    result
 
   # Filter options may declaritively modify asset properties.
   #

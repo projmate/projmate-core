@@ -33,7 +33,7 @@ Filter = (function() {
   };
 
   Filter.prototype.canProcess = function(asset) {
-    var comparison, filename, prop, truthy, value, _ref;
+    var comparison, filename, prop, result, truthy, value, _ref;
     if (this.processOptions.$if) {
       truthy = true;
       _ref = this.processOptions.$if;
@@ -60,9 +60,13 @@ Filter = (function() {
       return true;
     }
     filename = asset.filename;
-    return _.any(this.extnames, function(extname) {
+    result = _.any(this.extnames, function(extname) {
       return S(filename).endsWith(extname);
     });
+    if (!result) {
+      this.log.debug("Ignoring extname " + filename);
+    }
+    return result;
   };
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
