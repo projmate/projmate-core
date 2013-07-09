@@ -9,7 +9,7 @@ str = require("underscore.string")
 Assets = require("./assets")
 Utils = require('../common/utils')
 
-blackhole = ->
+noop = ->
 
 class Task
 
@@ -47,9 +47,13 @@ class Task
     if typeof config is "string"
       config = pre: [config]
 
-
     Utils.normalizeFiles config, 'files'
     Utils.normalizeFiles config, 'watch'
+
+
+    # keep a copy of the include since it may be modified on watch
+    config.files?.originalInclude = config.files.include.slice(0)
+
 
     config.description = config.desc || config.description || "Runs #{@name} task"
     config.dependencies = config.pre || config.deps || config.dependencies || []
@@ -89,14 +93,15 @@ class Task
         pipeline = _.flatten(pipeline)
 
 
+
         # A pipeline can be a factory or a filter (created by executing factory)
         # Important schema properties are assigned to the instance when created
         # so we can treat the filter itself as a schema
         filter = pipeline[0]
-        if filter._process
-          schema = filter
-        else
-          schema = filter.schema
+        # if filter._process
+        #   schema = filter
+        # else
+        #   schema = filter.schema
 
         # Each pipeline needs to load assets. Determine if the first filter
         # has a specific loader or is an assetLoader. If a loader is not found
@@ -113,6 +118,14 @@ class Task
             throw new Error("Undefined filter at #{@name}:#{name}[#{i}]")
           unless typeof filter == "function" or filter instanceof Filter
             throw new Error("Invalid filter at #{@name}:#{name}[#{i}]")
+
+          # If filter is a function then it is still the wrapper function
+          # To unwrap it, call it with no arguments.
+          if !filter._process
+            filter = pipeline[i] = filter()
+
+          if !filter.isAssetLoader? and filter instanceof TaskProcessor
+            @singleFileWatch = true
 
       else if typeof pipeline isnt 'function'
         throw new Error("Pipeline is neither [filters] or function: #{@name}:#{name}")
@@ -160,11 +173,22 @@ class Task
       log.debug "`#{path}` #{action}"
       for pattern in patterns
         if minimatch(path, pattern)
+          filename = if that.singleFileWatch? then path else null
           return that.execute (err) ->
-            if err
-              log.error(err)
+            return log.error(err) if err
+
+            if that.forwardTasks?.length > 0
+              async.eachSeries that.forwardTasks, (task, cb) ->
+                task.execute (err) ->
+                  if  err
+                    task.log.error err
+                  else
+                    task.log.info "rebuilt"
+                  cb err
+              , (err) ->
+                # each task already logged, nothing to do
             else
-              log.info "rebuilt"
+              log.info 'rebuilt'
 
     watcher.on "add", (path) -> checkExecute("added", path)
     watcher.on "change", _.debounce ((path) -> checkExecute("changed", path)), 1250
@@ -261,7 +285,17 @@ class Task
 
   # Executes this task's environment pipeline.
   #
-  execute: (cb) ->
+  execute: (filename, cb) ->
+    if typeof filename is 'function'
+      cb = filename
+      filename = null
+
+    if @config.files?
+      if filename
+        @config.files.include = [filename]
+      else
+        @config.files.include = @config.files.originalInclude
+
     @assets = new Assets
     that = @
     if @cwd and process.cwd() != @cwd

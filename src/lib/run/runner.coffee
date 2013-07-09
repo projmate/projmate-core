@@ -82,6 +82,25 @@ class Runner
         log: Logger.getLogger("#{nsname}")
         program: @program
       @_tasks[nsname] = task
+
+    # Track forward dependencies for smart watching
+    for nsname, task of @_tasks
+      # if a task doesn't have a pipeline, meaning it just run dependencies, then
+      # id doesn't need to be executed as this task has been run by the _watch trigger
+      if Object.keys(task.pipelines).length > 0
+        for dependantNsname in task.dependencies
+          dependant = @_tasks[dependantNsname]
+          dependant.forwardDependencies ?= []
+          dependant.forwardTasks ?= []
+          if dependant.forwardDependencies.indexOf(nsname) < 0
+            dependant.forwardDependencies.push nsname
+            dependant.forwardTasks.push task
+      else
+        log.debug "Skipping #{task.name} as a forward dependency"
+
+    for nsname, task of @_tasks
+      log.debug "#{task.name}.dependencies #{task.dependencies}"
+      log.debug "#{task.name}.forwardDependencies #{task.forwardDependencies}"
     @
 
 

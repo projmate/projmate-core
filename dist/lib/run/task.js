@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, Utils, blackhole, minimatch, str, _;
+var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, Utils, minimatch, noop, str, _;
 
 _ = require("lodash");
 
@@ -26,7 +26,7 @@ Assets = require("./assets");
 
 Utils = require('../common/utils');
 
-blackhole = function() {};
+noop = function() {};
 
 Task = (function() {
   function Task(options) {
@@ -47,7 +47,7 @@ Task = (function() {
   }
 
   Task.prototype.normalizeConfig = function(config, ns) {
-    var dep, i, _i, _len, _ref;
+    var dep, i, _i, _len, _ref, _ref1;
     if (ns == null) {
       ns = "";
     }
@@ -68,6 +68,9 @@ Task = (function() {
     }
     Utils.normalizeFiles(config, 'files');
     Utils.normalizeFiles(config, 'watch');
+    if ((_ref = config.files) != null) {
+      _ref.originalInclude = config.files.include.slice(0);
+    }
     config.description = config.desc || config.description || ("Runs " + this.name + " task");
     config.dependencies = config.pre || config.deps || config.dependencies || [];
     if (typeof config.dependencies === "string") {
@@ -80,9 +83,9 @@ Task = (function() {
       config.production = config.prod;
     }
     if (ns.length > 0) {
-      _ref = config.dependencies;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        dep = _ref[i];
+      _ref1 = config.dependencies;
+      for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
+        dep = _ref1[i];
         config.dependencies[i] = ns + ":" + dep;
       }
     }
@@ -93,7 +96,7 @@ Task = (function() {
   };
 
   Task.prototype._initPipelines = function(config) {
-    var alternateLoader, filter, i, name, pipeline, schema, _i, _j, _len, _len1, _ref, _results;
+    var alternateLoader, filter, i, name, pipeline, _i, _j, _len, _len1, _ref, _results;
     _ref = config.environments;
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -105,11 +108,6 @@ Task = (function() {
       if (Array.isArray(pipeline)) {
         pipeline = _.flatten(pipeline);
         filter = pipeline[0];
-        if (filter._process) {
-          schema = filter;
-        } else {
-          schema = filter.schema;
-        }
         alternateLoader = filter.useLoader;
         if (alternateLoader) {
           pipeline.unshift(this.filters[alternateLoader]);
@@ -123,6 +121,12 @@ Task = (function() {
           }
           if (!(typeof filter === "function" || filter instanceof Filter)) {
             throw new Error("Invalid filter at " + this.name + ":" + name + "[" + i + "]");
+          }
+          if (!filter._process) {
+            filter = pipeline[i] = filter();
+          }
+          if ((filter.isAssetLoader == null) && filter instanceof TaskProcessor) {
+            this.singleFileWatch = true;
           }
         }
       } else if (typeof pipeline !== 'function') {
@@ -165,16 +169,30 @@ Task = (function() {
     that = this;
     log = this.log;
     checkExecute = function(action, path) {
-      var _j, _len1;
+      var filename, _j, _len1;
       log.debug("`" + path + "` " + action);
       for (_j = 0, _len1 = patterns.length; _j < _len1; _j++) {
         pattern = patterns[_j];
         if (minimatch(path, pattern)) {
+          filename = that.singleFileWatch != null ? path : null;
           return that.execute(function(err) {
+            var _ref1;
             if (err) {
               return log.error(err);
+            }
+            if (((_ref1 = that.forwardTasks) != null ? _ref1.length : void 0) > 0) {
+              return async.eachSeries(that.forwardTasks, function(task, cb) {
+                return task.execute(function(err) {
+                  if (err) {
+                    task.log.error(err);
+                  } else {
+                    task.log.info("rebuilt");
+                  }
+                  return cb(err);
+                });
+              }, function(err) {});
             } else {
-              return log.info("rebuilt");
+              return log.info('rebuilt');
             }
           });
         }
@@ -293,8 +311,19 @@ Task = (function() {
     });
   };
 
-  Task.prototype.execute = function(cb) {
+  Task.prototype.execute = function(filename, cb) {
     var environment, pipeObj, pipeline, ran, that;
+    if (typeof filename === 'function') {
+      cb = filename;
+      filename = null;
+    }
+    if (this.config.files != null) {
+      if (filename) {
+        this.config.files.include = [filename];
+      } else {
+        this.config.files.include = this.config.files.originalInclude;
+      }
+    }
     this.assets = new Assets;
     that = this;
     if (this.cwd && process.cwd() !== this.cwd) {

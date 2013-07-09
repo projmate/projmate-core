@@ -92,7 +92,7 @@ Runner = (function() {
   };
 
   Runner.prototype.registerTasks = function(tasksDef, options) {
-    var cwd, definition, name, ns, nsname, task;
+    var cwd, definition, dependant, dependantNsname, name, ns, nsname, task, _i, _len, _ref, _ref1, _ref2;
     if (options == null) {
       options = {};
     }
@@ -118,6 +118,35 @@ Runner = (function() {
         program: this.program
       });
       this._tasks[nsname] = task;
+    }
+    _ref = this._tasks;
+    for (nsname in _ref) {
+      task = _ref[nsname];
+      if (Object.keys(task.pipelines).length > 0) {
+        _ref1 = task.dependencies;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          dependantNsname = _ref1[_i];
+          dependant = this._tasks[dependantNsname];
+          if (dependant.forwardDependencies == null) {
+            dependant.forwardDependencies = [];
+          }
+          if (dependant.forwardTasks == null) {
+            dependant.forwardTasks = [];
+          }
+          if (dependant.forwardDependencies.indexOf(nsname) < 0) {
+            dependant.forwardDependencies.push(nsname);
+            dependant.forwardTasks.push(task);
+          }
+        }
+      } else {
+        log.debug("Skipping " + task.name + " as a forward dependency");
+      }
+    }
+    _ref2 = this._tasks;
+    for (nsname in _ref2) {
+      task = _ref2[nsname];
+      log.debug("" + task.name + ".dependencies " + task.dependencies);
+      log.debug("" + task.name + ".forwardDependencies " + task.forwardDependencies);
     }
     return this;
   };
