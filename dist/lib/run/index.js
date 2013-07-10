@@ -75,13 +75,14 @@ _run = function(options, executeTasks, cb) {
 };
 
 exports.run = function(options, cb) {
-  var executeTasks, pjfile, program, startTime, tasks;
+  var executeTasks, pjfile, program, runner, startTime, tasks;
   startTime = Date.now();
   program = options.program;
   tasks = program.tasks;
   pjfile = null;
+  runner = null;
   executeTasks = function(args, cb) {
-    var projfile, projfilePath, runner;
+    var projfile, projfilePath;
     runner = args.runner, projfile = args.projfile, projfilePath = args.projfilePath;
     pjfile = projfile;
     process.chdir(Path.dirname(projfilePath));
@@ -109,6 +110,7 @@ exports.run = function(options, cb) {
       }
       return Server.run(serveOptions);
     } else if (program.watch) {
+      runner.watchTasks();
       return log.info("Watching ...");
     } else {
       endTime = Date.now();

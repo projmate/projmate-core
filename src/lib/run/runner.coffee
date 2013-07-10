@@ -41,6 +41,7 @@ class Runner
     # Start with official filters
     @filterCollection = new FilterCollection
     @filterCollection.loadPackage 'projmate-filters'
+    @watchList = {}
 
 
   # Gets the wrapped filters, array of Filter.partialProcess
@@ -82,7 +83,34 @@ class Runner
         log: Logger.getLogger("#{nsname}")
         program: @program
       @_tasks[nsname] = task
+
+    # # Track forward dependencies for smart watching
+    # for nsname, task of @_tasks
+    #   # if a task doesn't have a pipeline, meaning it just run dependencies, then
+    #   # id doesn't need to be executed as this task has been run by the watch trigger
+    #   if Object.keys(task.pipelines).length > 0
+    #     for dependantNsname in task.dependencies
+    #       dependant = @_tasks[dependantNsname]
+    #       dependant.forwardDependencies ?= []
+    #       dependant.forwardTasks ?= []
+    #       if dependant.forwardDependencies.indexOf(nsname) < 0
+    #         dependant.forwardDependencies.push nsname
+    #         dependant.forwardTasks.push task
+    #   else
+    #     log.debug "Skipping #{task.name} as a forward dependency"
+
+    # for nsname, task of @_tasks
+    #   log.debug "#{task.name}.dependencies #{task.dependencies}"
+    #   log.debug "#{task.name}.forwardDependencies #{task.forwardDependencies}"
     @
+
+
+  # Watch tasks which were collected as each task was run in executeTasks
+  watchTasks: ->
+    that = @
+    for name of @watchList
+      task = @_tasks[name]
+      task.watch()
 
 
   # Executes the environment pipeline including their dependecies
@@ -95,10 +123,16 @@ class Runner
   executeTasks: (taskNames, cb) =>
     return cb('load() must be called first.') unless @project
     that = @
+    watching = @program.watch
     Async.eachSeries taskNames, (name, cb) ->
       task = that._tasks[name]
       if !task
         return cb("Invalid task: #{name}")
+
+      # Watch tasks only if they have processing to do. Watches are applied
+      # after all tasks have run.
+      if watching and task.hasPipeline()
+        that.watchList[name] = true
 
       if task.dependencies.length > 0
 

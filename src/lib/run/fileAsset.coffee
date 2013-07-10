@@ -20,7 +20,7 @@ class FileAsset
     @_filename = filename
     @originalFilename = filename
     @_extname = Path.extname(filename)
-    @dirname = Path.dirname(filename)
+    @_dirname = Path.dirname(filename)
     @basename = Path.basename(filename)
     @cwd = cwd
     @stat = stat
@@ -34,7 +34,7 @@ class FileAsset
       filename = Utils.unixPath(fname)
       @_filename = filename
       @_extname = Path.extname(filename)
-      @dirname = Path.dirname(filename)
+      @_dirname = Path.dirname(filename)
       @basename = Path.basename(filename)
 
   @property "text",
@@ -48,6 +48,12 @@ class FileAsset
       @basename = Path.basename(@basename, @_extname) + ext
       @filename = Utils.unixPath(Path.join(@dirname, @basename))
       @_extname = ext
+
+  @property "dirname",
+    get: -> @_dirname
+    set: (dirname) ->
+      @_dirname = dirname
+      @_filename = Utils.unixPath(Path.join(dirname, @basename))
 
   toString: -> """
 originalFilename: #{@originalFilename}

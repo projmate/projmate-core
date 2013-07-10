@@ -9,7 +9,7 @@ str = require("underscore.string")
 Assets = require("./assets")
 Utils = require('../common/utils')
 
-blackhole = ->
+noop = ->
 
 class Task
 
@@ -29,8 +29,18 @@ class Task
     @dependencies = config.dependencies
     @filters = @options.filters
     @pipelines = {}
+
+    # whether to process single file on watch, if there is an aggregator
+    # (TaskProcessor) then all files have to be processed. Must come
+    # beofre _initPipeline.
+    @singleFileWatch = true
+
     @_initPipelines config
     @cwd = cwd
+
+
+  hasPipeline: ->
+    Object.keys(@pipelines).length > 0
 
 
   # Allows short cuts in files
@@ -47,9 +57,13 @@ class Task
     if typeof config is "string"
       config = pre: [config]
 
-
     Utils.normalizeFiles config, 'files'
     Utils.normalizeFiles config, 'watch'
+
+
+    # keep a copy of the include since it may be modified on watch
+    config.files?.originalInclude = config.files.include.slice(0)
+
 
     config.description = config.desc || config.description || "Runs #{@name} task"
     config.dependencies = config.pre || config.deps || config.dependencies || []
@@ -75,6 +89,7 @@ class Task
   # the pipeline (if needed) to kick things off.
   #
   _initPipelines: (config) ->
+    @singleFileWatch = true
     for name in config.environments
       # The pipeline can either be an array of filters, OR a function which
       # returns an array of filters.
@@ -88,15 +103,14 @@ class Task
         # Allow sub pipelines
         pipeline = _.flatten(pipeline)
 
-
         # A pipeline can be a factory or a filter (created by executing factory)
         # Important schema properties are assigned to the instance when created
         # so we can treat the filter itself as a schema
         filter = pipeline[0]
-        if filter._process
-          schema = filter
-        else
-          schema = filter.schema
+        # if filter._process
+        #   schema = filter
+        # else
+        #   schema = filter.schema
 
         # Each pipeline needs to load assets. Determine if the first filter
         # has a specific loader or is an assetLoader. If a loader is not found
@@ -114,17 +128,30 @@ class Task
           unless typeof filter == "function" or filter instanceof Filter
             throw new Error("Invalid filter at #{@name}:#{name}[#{i}]")
 
+          # If filter is a function then it is still the wrapper function
+          # To unwrap it, call it with no arguments.
+          if !filter._process
+            filter = pipeline[i] = filter()
+
+          # Determine if a single file should be procssed on a watch trigger
+          if i is 0 and ['loadFiles', 'stat'].indexOf(filter.name) > -1
+            # DO NOTHING
+
+          # A TaskProcessor usually aggregates one or more assets it is
+          # not safe to process only the file that changed
+          else if filter instanceof TaskProcessor
+            @singleFileWatch = false
+
       else if typeof pipeline isnt 'function'
         throw new Error("Pipeline is neither [filters] or function: #{@name}:#{name}")
 
       @pipelines[name] = { pipeline, ran: false }
 
 
-
   # Watch files in `files.watch` or `files.include` and execute this
   # tasks whenever any matching files changes.
   #
-  _watch: (cb) ->
+  watch: ->
     return if @watching
 
     @watching = true
@@ -160,17 +187,19 @@ class Task
       log.debug "`#{path}` #{action}"
       for pattern in patterns
         if minimatch(path, pattern)
-          return that.execute (err) ->
+          filename = if that.singleFileWatch then path else null
+
+          return that.execute filename, (err) ->
             if err
-              log.error(err)
+              log.error err
             else
-              log.info "rebuilt"
+              log.info 'rebuilt'
 
     watcher.on "add", (path) -> checkExecute("added", path)
     watcher.on "change", _.debounce ((path) -> checkExecute("changed", path)), 1250
     # watcher.on 'unlink', (path) -> log.debug "`#{path}` removed"
     # watcher.on 'error', (path) -> log.debug "`#{path}` errored"
-    #
+
     @log.info "Watching #{paths.join(', ')}"
 
 
@@ -190,7 +219,6 @@ class Task
         if cb
           clearTimeout timeoutId
           return cb(err) if err
-          if watch then that._watch()
           cb()
 
       timeout = env.timeout
@@ -202,7 +230,6 @@ class Task
     else
       try
         fn()
-        if watch then that._watch()
         cb()
       catch ex
         cb ex
@@ -255,13 +282,22 @@ class Task
       else
         cb("Unrecognized filter:", filter)
     , (err) -> # pipeline series
-      if watch then that._watch()
       cb err
 
 
   # Executes this task's environment pipeline.
   #
-  execute: (cb) ->
+  execute: (filename, cb) ->
+    if typeof filename is 'function'
+      cb = filename
+      filename = null
+
+    if @config.files?
+      if filename
+        @config.files.include = [filename]
+      else
+        @config.files.include = @config.files.originalInclude
+
     @assets = new Assets
     that = @
     if @cwd and process.cwd() != @cwd

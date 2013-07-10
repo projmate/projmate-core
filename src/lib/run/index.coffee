@@ -60,6 +60,7 @@ exports.run = (options, cb) ->
   program = options.program
   {tasks} = program
   pjfile = null
+  runner = null
 
   executeTasks = (args, cb) ->
     {runner, projfile, projfilePath} = args
@@ -87,8 +88,8 @@ exports.run = (options, cb) ->
 
       Server.run serveOptions
     else if program.watch
+      runner.watchTasks()
       log.info "Watching ..."
-
     else
       endTime = Date.now()
       elapsed = endTime - startTime

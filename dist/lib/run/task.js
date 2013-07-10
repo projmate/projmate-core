@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, Utils, blackhole, minimatch, str, _;
+var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, Utils, minimatch, noop, str, _;
 
 _ = require("lodash");
 
@@ -26,7 +26,7 @@ Assets = require("./assets");
 
 Utils = require('../common/utils');
 
-blackhole = function() {};
+noop = function() {};
 
 Task = (function() {
   function Task(options) {
@@ -42,12 +42,17 @@ Task = (function() {
     this.dependencies = config.dependencies;
     this.filters = this.options.filters;
     this.pipelines = {};
+    this.singleFileWatch = true;
     this._initPipelines(config);
     this.cwd = cwd;
   }
 
+  Task.prototype.hasPipeline = function() {
+    return Object.keys(this.pipelines).length > 0;
+  };
+
   Task.prototype.normalizeConfig = function(config, ns) {
-    var dep, i, _i, _len, _ref;
+    var dep, i, _i, _len, _ref, _ref1;
     if (ns == null) {
       ns = "";
     }
@@ -68,6 +73,9 @@ Task = (function() {
     }
     Utils.normalizeFiles(config, 'files');
     Utils.normalizeFiles(config, 'watch');
+    if ((_ref = config.files) != null) {
+      _ref.originalInclude = config.files.include.slice(0);
+    }
     config.description = config.desc || config.description || ("Runs " + this.name + " task");
     config.dependencies = config.pre || config.deps || config.dependencies || [];
     if (typeof config.dependencies === "string") {
@@ -80,9 +88,9 @@ Task = (function() {
       config.production = config.prod;
     }
     if (ns.length > 0) {
-      _ref = config.dependencies;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        dep = _ref[i];
+      _ref1 = config.dependencies;
+      for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
+        dep = _ref1[i];
         config.dependencies[i] = ns + ":" + dep;
       }
     }
@@ -93,7 +101,8 @@ Task = (function() {
   };
 
   Task.prototype._initPipelines = function(config) {
-    var alternateLoader, filter, i, name, pipeline, schema, _i, _j, _len, _len1, _ref, _results;
+    var alternateLoader, filter, i, name, pipeline, _i, _j, _len, _len1, _ref, _results;
+    this.singleFileWatch = true;
     _ref = config.environments;
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -105,11 +114,6 @@ Task = (function() {
       if (Array.isArray(pipeline)) {
         pipeline = _.flatten(pipeline);
         filter = pipeline[0];
-        if (filter._process) {
-          schema = filter;
-        } else {
-          schema = filter.schema;
-        }
         alternateLoader = filter.useLoader;
         if (alternateLoader) {
           pipeline.unshift(this.filters[alternateLoader]);
@@ -124,6 +128,14 @@ Task = (function() {
           if (!(typeof filter === "function" || filter instanceof Filter)) {
             throw new Error("Invalid filter at " + this.name + ":" + name + "[" + i + "]");
           }
+          if (!filter._process) {
+            filter = pipeline[i] = filter();
+          }
+          if (i === 0 && ['loadFiles', 'stat'].indexOf(filter.name) > -1) {
+
+          } else if (filter instanceof TaskProcessor) {
+            this.singleFileWatch = false;
+          }
         }
       } else if (typeof pipeline !== 'function') {
         throw new Error("Pipeline is neither [filters] or function: " + this.name + ":" + name);
@@ -136,7 +148,7 @@ Task = (function() {
     return _results;
   };
 
-  Task.prototype._watch = function(cb) {
+  Task.prototype.watch = function() {
     var checkExecute, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
     if (this.watching) {
       return;
@@ -165,16 +177,17 @@ Task = (function() {
     that = this;
     log = this.log;
     checkExecute = function(action, path) {
-      var _j, _len1;
+      var filename, _j, _len1;
       log.debug("`" + path + "` " + action);
       for (_j = 0, _len1 = patterns.length; _j < _len1; _j++) {
         pattern = patterns[_j];
         if (minimatch(path, pattern)) {
-          return that.execute(function(err) {
+          filename = that.singleFileWatch ? path : null;
+          return that.execute(filename, function(err) {
             if (err) {
               return log.error(err);
             } else {
-              return log.info("rebuilt");
+              return log.info('rebuilt');
             }
           });
         }
@@ -207,9 +220,6 @@ Task = (function() {
           if (err) {
             return cb(err);
           }
-          if (watch) {
-            that._watch();
-          }
           return cb();
         }
       });
@@ -222,9 +232,6 @@ Task = (function() {
     } else {
       try {
         fn();
-        if (watch) {
-          that._watch();
-        }
         return cb();
       } catch (_error) {
         ex = _error;
@@ -286,15 +293,23 @@ Task = (function() {
         return cb("Unrecognized filter:", filter);
       }
     }, function(err) {
-      if (watch) {
-        that._watch();
-      }
       return cb(err);
     });
   };
 
-  Task.prototype.execute = function(cb) {
+  Task.prototype.execute = function(filename, cb) {
     var environment, pipeObj, pipeline, ran, that;
+    if (typeof filename === 'function') {
+      cb = filename;
+      filename = null;
+    }
+    if (this.config.files != null) {
+      if (filename) {
+        this.config.files.include = [filename];
+      } else {
+        this.config.files.include = this.config.files.originalInclude;
+      }
+    }
     this.assets = new Assets;
     that = this;
     if (this.cwd && process.cwd() !== this.cwd) {

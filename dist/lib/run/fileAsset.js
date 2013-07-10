@@ -37,7 +37,7 @@ FileAsset = (function() {
     this._filename = filename;
     this.originalFilename = filename;
     this._extname = Path.extname(filename);
-    this.dirname = Path.dirname(filename);
+    this._dirname = Path.dirname(filename);
     this.basename = Path.basename(filename);
     this.cwd = cwd;
     this.stat = stat;
@@ -55,7 +55,7 @@ FileAsset = (function() {
       filename = Utils.unixPath(fname);
       this._filename = filename;
       this._extname = Path.extname(filename);
-      this.dirname = Path.dirname(filename);
+      this._dirname = Path.dirname(filename);
       return this.basename = Path.basename(filename);
     }
   });
@@ -77,6 +77,16 @@ FileAsset = (function() {
       this.basename = Path.basename(this.basename, this._extname) + ext;
       this.filename = Utils.unixPath(Path.join(this.dirname, this.basename));
       return this._extname = ext;
+    }
+  });
+
+  FileAsset.property("dirname", {
+    get: function() {
+      return this._dirname;
+    },
+    set: function(dirname) {
+      this._dirname = dirname;
+      return this._filename = Utils.unixPath(Path.join(dirname, this.basename));
     }
   });
 

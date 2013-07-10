@@ -71,7 +71,8 @@ Runner = (function() {
 
   Runner.prototype._initFilters = function() {
     this.filterCollection = new FilterCollection;
-    return this.filterCollection.loadPackage('projmate-filters');
+    this.filterCollection.loadPackage('projmate-filters');
+    return this.watchList = {};
   };
 
   Runner.prototype.filters = function() {
@@ -122,17 +123,32 @@ Runner = (function() {
     return this;
   };
 
+  Runner.prototype.watchTasks = function() {
+    var name, task, that, _results;
+    that = this;
+    _results = [];
+    for (name in this.watchList) {
+      task = this._tasks[name];
+      _results.push(task.watch());
+    }
+    return _results;
+  };
+
   Runner.prototype.executeTasks = function(taskNames, cb) {
-    var that;
+    var that, watching;
     if (!this.project) {
       return cb('load() must be called first.');
     }
     that = this;
+    watching = this.program.watch;
     Async.eachSeries(taskNames, function(name, cb) {
       var task, _i, _len, _ref;
       task = that._tasks[name];
       if (!task) {
         return cb("Invalid task: " + name);
+      }
+      if (watching && task.hasPipeline()) {
+        that.watchList[name] = true;
       }
       if (task.dependencies.length > 0) {
         _ref = task.dependencies;
