@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Fs, Helpers, Logger, Path, Pkg, Program, Runner, Str, filterDescriptions, loadFilters, log, prettyPrint, printExamples, printProperties, run, runProject, _;
+var Fs, Helpers, Logger, Path, Pkg, Program, Runner, Str, filterDescriptions, loadFilters, log, prettyPrint, printExamples, printNote, printProperties, run, runProject, _;
 
 Program = require("commander");
 
@@ -117,6 +117,23 @@ printExamples = function(schema) {
   return _results;
 };
 
+printNote = function(schema) {
+  var line, note, _i, _len, _ref, _results;
+  note = schema.__.note;
+  if (!note) {
+    return;
+  }
+  console.log("\n  Note:");
+  console.log("");
+  _ref = Str.lines(note);
+  _results = [];
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    line = _ref[_i];
+    _results.push(console.log("    " + line));
+  }
+  return _results;
+};
+
 prettyPrint = function(filterName, Filter, options) {
   var L, keys, len, name, properties, property, schema, _ref;
   properties = [];
@@ -153,6 +170,7 @@ prettyPrint = function(filterName, Filter, options) {
         header: 'Optional Options'
       });
       printExamples(schema);
+      printNote(schema);
     }
   } else {
     console.log("" + filterName + " - No schema");

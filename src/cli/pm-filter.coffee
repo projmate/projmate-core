@@ -71,6 +71,14 @@ printExamples = (schema) ->
       console.log "      " + line
 
 
+printNote = (schema) ->
+  note = schema.__.note
+  return unless note
+  console.log "\n  Note:"
+  console.log ""
+  for line in Str.lines(note)
+    console.log "    " + line
+
 prettyPrint = (filterName, Filter, options) ->
   properties = []
 
@@ -103,6 +111,7 @@ prettyPrint = (filterName, Filter, options) ->
 
       printProperties keys, schema.properties, longestName: L, header: 'Optional Options'
       printExamples schema
+      printNote schema
   else
     console.log "#{filterName} - No schema"
 
