@@ -19,12 +19,17 @@ FilterCollection = (function() {
   }
 
   FilterCollection.prototype.loadPackage = function(packageName) {
-    var FilterClass, classFactory, modules, name, that, _results;
-    that = this;
+    var modules;
     modules = require(packageName);
+    return this.loadFromObject(modules);
+  };
+
+  FilterCollection.prototype.loadFromObject = function(obj) {
+    var FilterClass, classFactory, name, that, _results;
+    that = this;
     _results = [];
-    for (name in modules) {
-      classFactory = modules[name];
+    for (name in obj) {
+      classFactory = obj[name];
       FilterClass = classFactory(Projmate);
       _results.push((function(name, FilterClass) {
         var filter, schema;

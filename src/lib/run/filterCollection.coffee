@@ -13,15 +13,19 @@ class FilterCollection
 
     @_filterClasses = {}
 
+  loadPackage: (packageName) ->
+
+    modules = require(packageName)
+    @loadFromObject modules
+
   # Loads built-in filters.
   #
   # @param {String} dirname The directory path.
   #
-  loadPackage: (packageName) ->
+  loadFromObject: (obj) ->
     that = @
 
-    modules = require(packageName)
-    for name, classFactory of modules
+    for name, classFactory of obj
       FilterClass = classFactory(Projmate)
 
       do (name, FilterClass) ->

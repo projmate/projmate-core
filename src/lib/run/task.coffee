@@ -253,9 +253,8 @@ class Task
       filter = wrappedFilter
       filter.environment = environment
 
-      if filter instanceof TaskProcessor
-        filter._process that, (err) ->
-          return cb(err)
+      if filter instanceof TaskProcessor or filter.name is "intrude"
+        filter._process that, cb
       else if filter instanceof Filter
         Async.eachSeries that.assets.array(), (asset, cb) ->
 

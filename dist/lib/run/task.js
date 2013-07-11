@@ -256,10 +256,8 @@ Task = (function() {
       }
       filter = wrappedFilter;
       filter.environment = environment;
-      if (filter instanceof TaskProcessor) {
-        return filter._process(that, function(err) {
-          return cb(err);
-        });
+      if (filter instanceof TaskProcessor || filter.name === "intrude") {
+        return filter._process(that, cb);
       } else if (filter instanceof Filter) {
         return Async.eachSeries(that.assets.array(), function(asset, cb) {
           var i, _i, _len, _ref;
