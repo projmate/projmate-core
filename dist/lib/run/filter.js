@@ -153,7 +153,7 @@ Filter = (function() {
     options = _.clone(this.processOptions);
     this.setRunDefaults(options);
     if (isAsset) {
-      if (assetOrTask.__merge) {
+      if (assetOrTask.__filterOptions) {
         _.extend(options, assetOrTask.__filterOptions);
       } else if (assetOrTask.__meta) {
         options[__meta.name] = __meta.meta;
