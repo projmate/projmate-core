@@ -34,6 +34,8 @@ printProperties = (names, properties, options) ->
   # calc longest type
   P = 0
   for name, property of properties
+    if !property.type?
+      throw new Error("Missing `type` field for property `#{name}`")
     if property.type is "array"
       len = property.items.type.length + 2 # '[]'.length
     else

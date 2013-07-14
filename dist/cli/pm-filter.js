@@ -60,6 +60,9 @@ printProperties = function(names, properties, options) {
   P = 0;
   for (name in properties) {
     property = properties[name];
+    if (property.type == null) {
+      throw new Error("Missing `type` field for property `" + name + "`");
+    }
     if (property.type === "array") {
       len = property.items.type.length + 2;
     } else {
