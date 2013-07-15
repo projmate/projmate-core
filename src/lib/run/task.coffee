@@ -189,6 +189,10 @@ class Task
         if minimatch(path, pattern)
           filename = if that.singleFileWatch then path else null
 
+          # TODO breaks on stylesheets: development and editing a
+          # dependency file
+          filename = null
+
           return that.execute filename, (err) ->
             if err
               log.error err

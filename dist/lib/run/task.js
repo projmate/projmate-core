@@ -183,6 +183,7 @@ Task = (function() {
         pattern = patterns[_j];
         if (minimatch(path, pattern)) {
           filename = that.singleFileWatch ? path : null;
+          filename = null;
           return that.execute(filename, function(err) {
             if (err) {
               return log.error(err);
