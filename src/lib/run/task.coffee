@@ -170,7 +170,9 @@ class Task
     # some cases, a single file includes many other files.
     # In this situation, the dependent files should be monitored
     # and declared via `files.watch` to trigger the environment action.
-    patterns = if watch?.include? then watch.include else files.include
+
+    customWatch = watch?.include?
+    patterns = if customWatch then watch.include else files.include
 
     paths = []
     for pattern in patterns
@@ -185,13 +187,22 @@ class Task
     log = @log
     checkExecute = (action, path) ->
       log.debug "`#{path}` #{action}"
+
       for pattern in patterns
         if minimatch(path, pattern)
-          filename = if that.singleFileWatch then path else null
 
-          # TODO breaks on stylesheets: development and editing a
-          # dependency file
+          # If a task has a custom `watch` check to see if the file change
+          # is in  the normal `files` include. If the file is in `files` then
+          # it should be sent as the only file to process.
           filename = null
+          if that.singleFileWatch
+            if customWatch and files?.include?.length > 0
+              for pattern in files.include
+                if minimatch(path, pattern)
+                  filename = path
+                  break
+            else
+              filename = path
 
           return that.execute filename, (err) ->
             if err

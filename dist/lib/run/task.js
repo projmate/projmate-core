@@ -149,7 +149,7 @@ Task = (function() {
   };
 
   Task.prototype.watch = function() {
-    var checkExecute, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
+    var checkExecute, customWatch, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
     if (this.watching) {
       return;
     }
@@ -160,7 +160,8 @@ Task = (function() {
     }
     subdirRe = /(.*)\/\*\*\/\*(\..*)$/;
     dirRe = /(.*)\/\*(\..*)$/;
-    patterns = (watch != null ? watch.include : void 0) != null ? watch.include : files.include;
+    customWatch = (watch != null ? watch.include : void 0) != null;
+    patterns = customWatch ? watch.include : files.include;
     paths = [];
     for (_i = 0, _len = patterns.length; _i < _len; _i++) {
       pattern = patterns[_i];
@@ -177,13 +178,26 @@ Task = (function() {
     that = this;
     log = this.log;
     checkExecute = function(action, path) {
-      var filename, _j, _len1;
+      var filename, _j, _k, _len1, _len2, _ref1, _ref2;
       log.debug("`" + path + "` " + action);
       for (_j = 0, _len1 = patterns.length; _j < _len1; _j++) {
         pattern = patterns[_j];
         if (minimatch(path, pattern)) {
-          filename = that.singleFileWatch ? path : null;
           filename = null;
+          if (that.singleFileWatch) {
+            if (customWatch && (files != null ? (_ref1 = files.include) != null ? _ref1.length : void 0 : void 0) > 0) {
+              _ref2 = files.include;
+              for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                pattern = _ref2[_k];
+                if (minimatch(path, pattern)) {
+                  filename = path;
+                  break;
+                }
+              }
+            } else {
+              filename = path;
+            }
+          }
           return that.execute(filename, function(err) {
             if (err) {
               return log.error(err);
