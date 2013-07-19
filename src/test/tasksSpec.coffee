@@ -253,6 +253,100 @@ describe "Tasks", ->
         done()
 
 
+    describe "Filters", ->
+      it "should load a custom filter", (done) ->
+        ran = ""
+        helloFilter = require(__dirname + '/res/helloFilter')
+
+        project =
+          project: (pm) ->
+            f = pm.filters(hello: helloFilter)
+
+            hello:
+              files: __dirname + '/res/world.txt'
+              dev: [
+                f.hello
+                f.tap (asset) ->
+                  ran = asset.text
+              ]
+
+        runProject project, tasks: ["hello"], (err, result) ->
+          assert.ifError err
+          assert.equal ran, "Hello world!\n"
+          done()
+
+      it "load can be called multiple times", (done) ->
+        ran = ""
+        helloFilter = require(__dirname + '/res/helloFilter')
+        alohaFilter = require(__dirname + '/res/alohaFilter')
+
+        project =
+          project: (pm) ->
+            f = pm.filters(hello: helloFilter)
+            f = pm.filters(aloha: alohaFilter)
+
+            hello:
+              files: __dirname + '/res/world.txt'
+              dev: [
+                f.hello
+                f.aloha
+                f.tap (asset) ->
+                  ran = asset.text
+              ]
+
+        runProject project, tasks: ["hello"], (err, result) ->
+          assert.ifError err
+          assert.equal ran, "Aloha Hello world!\n"
+          done()
+
+
+      it "load can load name, fn", (done) ->
+        ran = ""
+        helloFilter = require(__dirname + '/res/helloFilter')
+        alohaFilter = require(__dirname + '/res/alohaFilter')
+
+        project =
+          project: (pm) ->
+            f = pm.filters('hello', helloFilter)
+            f = pm.filters(aloha: alohaFilter)
+
+            hello:
+              files: __dirname + '/res/world.txt'
+              dev: [
+                f.hello
+                f.aloha
+                f.tap (asset) ->
+                  ran = asset.text
+              ]
+
+        runProject project, tasks: ["hello"], (err, result) ->
+          assert.ifError err
+          assert.equal ran, "Aloha Hello world!\n"
+          done()
+
+      it "load can load multi-filter object", (done) ->
+        ran = ""
+        helloFilter = require(__dirname + '/res/helloFilter')
+        alohaFilter = require(__dirname + '/res/alohaFilter')
+
+        project =
+          project: (pm) ->
+            f = pm.filters(hello: helloFilter, aloha: alohaFilter)
+
+            hello:
+              files: __dirname + '/res/world.txt'
+              dev: [
+                f.hello
+                f.aloha
+                f.tap (asset) ->
+                  ran = asset.text
+              ]
+
+        runProject project, tasks: ["hello"], (err, result) ->
+          assert.ifError err
+          assert.equal ran, "Aloha Hello world!\n"
+          done()
+
     describe "Sugar", ->
       it "can be all dependencies", (done) ->
         ran = ""
@@ -274,8 +368,4 @@ describe "Tasks", ->
           assert.ifError err
           assert.equal ran, "bPcD"
           done()
-
-
-
-
 

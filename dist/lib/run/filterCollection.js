@@ -21,11 +21,20 @@ FilterCollection = (function() {
   FilterCollection.prototype.loadPackage = function(packageName) {
     var modules;
     modules = require(packageName);
-    return this.loadFromObject(modules);
+    return this.load(modules);
   };
 
-  FilterCollection.prototype.loadFromObject = function(obj) {
-    var FilterClass, classFactory, name, that, _results;
+  FilterCollection.prototype.load = function(name, fn) {
+    var FilterClass, classFactory, obj, that, _results;
+    if (_.isString(name)) {
+      obj = {};
+      obj[name] = fn;
+    } else if (_.isObject(name)) {
+      obj = name;
+    } else {
+      console.error(arguments);
+      throw new Error('Invalid load filter arguments');
+    }
     that = this;
     _results = [];
     for (name in obj) {

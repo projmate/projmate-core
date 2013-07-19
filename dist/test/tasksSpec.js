@@ -425,6 +425,136 @@ describe("Tasks", function() {
         return done();
       });
     });
+    describe("Filters", function() {
+      it("should load a custom filter", function(done) {
+        var helloFilter, project, ran;
+        ran = "";
+        helloFilter = require(__dirname + '/res/helloFilter');
+        project = {
+          project: function(pm) {
+            var f;
+            f = pm.filters({
+              hello: helloFilter
+            });
+            return {
+              hello: {
+                files: __dirname + '/res/world.txt',
+                dev: [
+                  f.hello, f.tap(function(asset) {
+                    return ran = asset.text;
+                  })
+                ]
+              }
+            };
+          }
+        };
+        return runProject(project, {
+          tasks: ["hello"]
+        }, function(err, result) {
+          assert.ifError(err);
+          assert.equal(ran, "Hello world!\n");
+          return done();
+        });
+      });
+      it("load can be called multiple times", function(done) {
+        var alohaFilter, helloFilter, project, ran;
+        ran = "";
+        helloFilter = require(__dirname + '/res/helloFilter');
+        alohaFilter = require(__dirname + '/res/alohaFilter');
+        project = {
+          project: function(pm) {
+            var f;
+            f = pm.filters({
+              hello: helloFilter
+            });
+            f = pm.filters({
+              aloha: alohaFilter
+            });
+            return {
+              hello: {
+                files: __dirname + '/res/world.txt',
+                dev: [
+                  f.hello, f.aloha, f.tap(function(asset) {
+                    return ran = asset.text;
+                  })
+                ]
+              }
+            };
+          }
+        };
+        return runProject(project, {
+          tasks: ["hello"]
+        }, function(err, result) {
+          assert.ifError(err);
+          assert.equal(ran, "Aloha Hello world!\n");
+          return done();
+        });
+      });
+      it("load can load name, fn", function(done) {
+        var alohaFilter, helloFilter, project, ran;
+        ran = "";
+        helloFilter = require(__dirname + '/res/helloFilter');
+        alohaFilter = require(__dirname + '/res/alohaFilter');
+        project = {
+          project: function(pm) {
+            var f;
+            f = pm.filters('hello', helloFilter);
+            f = pm.filters({
+              aloha: alohaFilter
+            });
+            return {
+              hello: {
+                files: __dirname + '/res/world.txt',
+                dev: [
+                  f.hello, f.aloha, f.tap(function(asset) {
+                    return ran = asset.text;
+                  })
+                ]
+              }
+            };
+          }
+        };
+        return runProject(project, {
+          tasks: ["hello"]
+        }, function(err, result) {
+          assert.ifError(err);
+          assert.equal(ran, "Aloha Hello world!\n");
+          return done();
+        });
+      });
+      return it("load can load multi-filter object", function(done) {
+        var alohaFilter, helloFilter, project, ran;
+        ran = "";
+        helloFilter = require(__dirname + '/res/helloFilter');
+        alohaFilter = require(__dirname + '/res/alohaFilter');
+        project = {
+          project: function(pm) {
+            var f;
+            f = pm.filters({
+              hello: helloFilter,
+              aloha: alohaFilter
+            });
+            return {
+              hello: {
+                files: __dirname + '/res/world.txt',
+                dev: [
+                  f.hello, f.aloha, f.tap(function(asset) {
+                    return ran = asset.text;
+                  })
+                ]
+              }
+            };
+          }
+        };
+        return runProject(project, {
+          tasks: ["hello"]
+        }, function(err, result) {
+          assert.ifError(err);
+          assert.equal(ran, "Aloha Hello world!\n");
+          return done();
+        });
+      });
+    });
     return describe("Sugar", function() {
       return it("can be all dependencies", function(done) {
         var project, ran;

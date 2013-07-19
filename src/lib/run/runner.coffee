@@ -27,7 +27,7 @@ class Runner
     @_initFilters()
     @Utils = require('../common/utils')
 
-    # expose single letter aliases
+    # expose single lettes aliases
     @f = @filterCollection.factories
     @t = @_tasks
 
@@ -46,10 +46,10 @@ class Runner
 
   # Gets the wrapped filters, array of Filter.partialProcess
   #
-  filters: (userFilters...) ->
-    if userFilters.length > 0
-      for filterPackage in userFilters
-        @filterCollection.loadPackage filterPackage
+  # @param {Object} userFiltersMap
+  #
+  filters: (args...) ->
+    @filterCollection.load(args...) if args.length > 0
     @filterCollection.factories
 
 

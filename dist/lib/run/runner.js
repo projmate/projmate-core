@@ -76,13 +76,10 @@ Runner = (function() {
   };
 
   Runner.prototype.filters = function() {
-    var filterPackage, userFilters, _i, _len;
-    userFilters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    if (userFilters.length > 0) {
-      for (_i = 0, _len = userFilters.length; _i < _len; _i++) {
-        filterPackage = userFilters[_i];
-        this.filterCollection.loadPackage(filterPackage);
-      }
+    var args, _ref;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    if (args.length > 0) {
+      (_ref = this.filterCollection).load.apply(_ref, args);
     }
     return this.filterCollection.factories;
   };

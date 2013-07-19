@@ -11,18 +11,29 @@ exports.project = (pm) ->
   distDir = _filename: { replace: [/^src/, "dist"] }
 
   build:
-    pre: "clean"
-    files: "src/**/*"
+    pre: ["clean", "staticFiles"]
+    files: "src/**/*.{coffee,js}"
 
     development: [
       f.coffee(bare: true, sourceMap: false)
       f.addHeader(filename: "doc/copyright.js")
       f.writeFile(distDir)
+      f.intrude command: ->
+        $.cp '-Rf', 'src/test/res/*', 'dist/test/res'
+    ]
+
+  staticFiles:
+    files: [
+      'src/test/**/*.{html,txt}'
+      'src/lib/serve/local*'
+    ]
+    dev: [
+      f.writeFile distDir
     ]
 
   clean:
     development: ->
-      $.rm_rf "dist"
+      $.rm_rf 'dist'
 
   tests:
     pre: ['build']
@@ -38,7 +49,9 @@ exports.project = (pm) ->
     desc: "Runs tests from dist"
     files: "dist/test/**/*{Test,Spec}.{coffee,js}"
     # silence logging while running tests on this project, output would be confusing
-    dev: [f.mocha]
+    dev: [
+      f.mocha
+    ]
 
   dist:
     pre: ["build", "distTests"]

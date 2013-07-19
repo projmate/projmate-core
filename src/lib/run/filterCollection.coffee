@@ -10,19 +10,28 @@ class FilterCollection
     # In projfiles, filters are actually factories which create instances
     # of a FilterClass
     @factories = {}
-
     @_filterClasses = {}
 
   loadPackage: (packageName) ->
-
     modules = require(packageName)
-    @loadFromObject modules
+    @load modules
 
-  # Loads built-in filters.
+
+  # Loads filters.
   #
-  # @param {String} dirname The directory path.
+  # In all cases a name is required. The arguments can either be load('somefilter',  function(pm){})
+  # or load(object)
   #
-  loadFromObject: (obj) ->
+  load: (name, fn) ->
+    if _.isString(name)
+      obj = {}
+      obj[name] = fn
+    else if _.isObject(name)
+      obj = name
+    else
+      console.error arguments
+      throw new Error('Invalid load filter arguments')
+
     that = @
 
     for name, classFactory of obj
