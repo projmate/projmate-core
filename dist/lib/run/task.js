@@ -4,7 +4,7 @@
  * See the file COPYING for copying permission.
  */
 
-var Assets, Async, Chokidar, Filter, Task, TaskProcessor, Util, Utils, minimatch, noop, str, _;
+var Assets, Async, Chokidar, Filter, Fs, Path, Task, TaskProcessor, Util, Utils, minimatch, noop, str, _;
 
 _ = require("lodash");
 
@@ -25,6 +25,10 @@ str = require("underscore.string");
 Assets = require("./assets");
 
 Utils = require('../common/utils');
+
+Path = require("path");
+
+Fs = require("fs");
 
 noop = function() {};
 
@@ -149,7 +153,7 @@ Task = (function() {
   };
 
   Task.prototype.watch = function() {
-    var checkExecute, customWatch, dir, dirRe, files, log, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
+    var checkExecute, customWatch, dirRe, files, log, pat, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
     if (this.watching) {
       return;
     }
@@ -165,8 +169,14 @@ Task = (function() {
     paths = [];
     for (_i = 0, _len = patterns.length; _i < _len; _i++) {
       pattern = patterns[_i];
-      dir = str.strLeft(pattern, '*');
-      paths.push(dir);
+      if (pattern.indexOf('/*') > -1) {
+        pat = str.strLeft(pattern, '*');
+      } else if (pattern.indexOf('*') > -1) {
+        pat = Path.dirname(str.strLeft(pattern, '*')) + '/';
+      } else {
+        pat = pattern;
+      }
+      paths.push(pat);
     }
     log = this.log;
     paths = _.unique(paths);

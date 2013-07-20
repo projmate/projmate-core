@@ -8,6 +8,8 @@ minimatch = require("minimatch")
 str = require("underscore.string")
 Assets = require("./assets")
 Utils = require('../common/utils')
+Path = require("path")
+Fs = require("fs")
 
 noop = ->
 
@@ -176,8 +178,13 @@ class Task
 
     paths = []
     for pattern in patterns
-      dir = str.strLeft(pattern, '*')
-      paths.push(dir)
+      if pattern.indexOf('/*') > -1
+        pat = str.strLeft(pattern, '*')
+      else if pattern.indexOf('*') > -1
+        pat = Path.dirname(str.strLeft(pattern, '*')) + '/'
+      else
+        pat = pattern
+      paths.push pat
 
     log = @log
     paths = _.unique(paths)

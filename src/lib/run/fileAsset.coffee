@@ -35,7 +35,7 @@ class FileAsset
       @_filename = filename
       @_extname = Path.extname(filename)
       @_dirname = Path.dirname(filename)
-      @basename = Path.basename(filename)
+      @_basename = Path.basename(filename)
 
   @property "text",
     get: -> @_text
@@ -46,14 +46,21 @@ class FileAsset
     set: (ext) ->
       # adjust paths to use new extension
       @basename = Path.basename(@basename, @_extname) + ext
-      @filename = Utils.unixPath(Path.join(@dirname, @basename))
+      @filename = Utils.unixPath(Path.join(@_dirname, @_basename))
       @_extname = ext
 
   @property "dirname",
     get: -> @_dirname
     set: (dirname) ->
       @_dirname = dirname
-      @_filename = Utils.unixPath(Path.join(dirname, @basename))
+      @_filename = Utils.unixPath(Path.join(dirname, @_basename))
+
+  @property "basename",
+    get: -> @_basename
+    set: (basename) ->
+      @_basename = basename
+      @_extname = Path.extname(basename)
+      @_filename = Utils.unixPath(Path.join(@_dirname, @_basename))
 
   toString: -> """
 originalFilename: #{@originalFilename}
