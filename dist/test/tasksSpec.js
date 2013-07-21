@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var assert, runProject, _ref;
 
 _ref = require("./helper"), assert = _ref.assert, runProject = _ref.runProject;
@@ -595,3 +589,8 @@ describe("Tasks", function() {
     });
   });
 });
+
+
+/*
+//@ sourceMappingURL=tasksSpec.map
+*/

@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var $, Buffer, Fs, Path, Utils, getEncoding, globEx, _;
 
 Fs = require("fs");
@@ -204,3 +198,8 @@ Utils = {
 };
 
 module.exports = Utils;
+
+
+/*
+//@ sourceMappingURL=utils.map
+*/

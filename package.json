@@ -23,7 +23,8 @@
     "websocket.io": "~0.2.1",
     "express": "~3.1.0",
     "vow": "git://github.com/mgutz/jspromise.git",
-    "mgutz-colors": "~0.1.1"
+    "mgutz-colors": "~0.1.1",
+    "source-map-support": "~0.1.9"
   },
   "devDependencies": {
     "chai": "~1.5.0",

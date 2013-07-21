@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Filter, FilterCollection, Projmate, _;
 
 _ = require("lodash");
@@ -101,3 +95,8 @@ FilterCollection = (function() {
 })();
 
 module.exports = FilterCollection;
+
+
+/*
+//@ sourceMappingURL=filterCollection.map
+*/

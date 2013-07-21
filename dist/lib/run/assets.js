@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Assets, FileAsset, cid, methods, _,
   __slice = [].slice;
 
@@ -100,3 +94,8 @@ methods.forEach(function(method) {
 });
 
 module.exports = Assets;
+
+
+/*
+//@ sourceMappingURL=assets.map
+*/

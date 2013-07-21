@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 exports.environmentAliases = {
   development: ['development', 'dev'],
   test: ['test', 'beta'],
@@ -21,3 +15,8 @@ exports.normalizeEnvironmentName = function(name) {
   }
   throw new Error("Run environment not recognized: " + name);
 };
+
+
+/*
+//@ sourceMappingURL=utils.map
+*/

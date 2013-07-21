@@ -1,3 +1,4 @@
+require('source-map-support').install(handleUncaughtException: true)
 Program = require("commander")
 Pkg = require("../../package.json")
 Fs = require("fs")

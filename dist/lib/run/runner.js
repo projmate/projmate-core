@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Async, FilterCollection, Fs, Logger, Path, Runner, Shell, Task, Util, Vow, log, logError, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
@@ -235,3 +229,8 @@ Runner = (function() {
 })();
 
 module.exports = Runner;
+
+
+/*
+//@ sourceMappingURL=runner.map
+*/

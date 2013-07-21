@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Fs, Helpers, Logger, Path, Pkg, Program, Runner, Str, filterDescriptions, loadFilters, log, prettyPrint, printExamples, printNote, printProperties, run, runProject, _;
 
 Program = require("commander");
@@ -272,3 +266,8 @@ if (process.argv.length < 3) {
 } else {
   run();
 }
+
+
+/*
+//@ sourceMappingURL=pm-filter.map
+*/

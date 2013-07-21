@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 (function() {
 var __customevents = {}, __protocol = {}, __connector = {}, __timer = {}, __options = {}, __reloader = {}, __livereload = {}, __less = {}, __startup = {};
 

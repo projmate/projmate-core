@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Create, Path, main, pkg, program;
 
 pkg = require("../../package.json");
@@ -33,3 +27,8 @@ if (program.args < 3) {
 } else {
   main();
 }
+
+
+/*
+//@ sourceMappingURL=pm-create.map
+*/

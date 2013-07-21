@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var FileAsset, Fs, Path, Promises, Utils, Vow, eventBus, log, mkdirp;
 
 Fs = require("fs");
@@ -169,3 +163,8 @@ FileAsset = (function() {
 })();
 
 module.exports = FileAsset;
+
+
+/*
+//@ sourceMappingURL=fileAsset.map
+*/

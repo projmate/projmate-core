@@ -1,10 +1,8 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var $, Fs, Helpers, Logger, Path, Pkg, Program, Run, Utils, log, run, taskDescriptions;
+
+require('source-map-support').install({
+  handleUncaughtException: true
+});
 
 Program = require("commander");
 
@@ -108,3 +106,8 @@ if (process.argv.length < 3) {
 } else {
   run();
 }
+
+
+/*
+//@ sourceMappingURL=pm-run.map
+*/

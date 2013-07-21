@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Fs, Path, Runner, Server, Str, loadProjfile, log, _run;
 
 Runner = require("./runner");
@@ -149,3 +143,8 @@ exports.taskDescriptions = function(options, cb) {
   };
   return _run(options, executeTasks, cb);
 };
+
+
+/*
+//@ sourceMappingURL=index.map
+*/

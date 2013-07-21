@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Server, defaults, eventBus, fs, log, path, url, ws, _,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -127,3 +121,8 @@ exports.attach = function(config) {
   srv.listen();
   return srv;
 };
+
+
+/*
+//@ sourceMappingURL=liveReload.map
+*/

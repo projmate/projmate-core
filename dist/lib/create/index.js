@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var $, Async, Fs, Path, Pkg, S, Sandbox, Temp, Utils, clone, cloneProject, getMeta, log, read, readSandboxedInputs, realUri, sandbox, template, updateMeta;
 
 $ = require("projmate-shell");
@@ -232,3 +226,8 @@ exports.run = function(options) {
     return log.info("OK");
   });
 };
+
+
+/*
+//@ sourceMappingURL=index.map
+*/

@@ -15,8 +15,8 @@ exports.project = (pm) ->
     files: "src/**/*.{coffee,js}"
 
     development: [
-      f.coffee(bare: true, sourceMap: false)
-      f.addHeader(filename: "doc/copyright.js")
+      f.coffee(bare: true, sourceMap: true)
+      #f.addHeader(filename: "doc/copyright.js")
       f.writeFile(distDir)
       f.intrude command: ->
         $.cp '-Rf', 'src/test/res/*', 'dist/test/res'

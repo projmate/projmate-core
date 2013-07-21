@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Assets, Async, Chokidar, Filter, Fs, Path, Task, TaskProcessor, Util, Utils, minimatch, noop, str, _;
 
 _ = require("lodash");
@@ -378,3 +372,8 @@ Task = (function() {
 })();
 
 module.exports = Task;
+
+
+/*
+//@ sourceMappingURL=task.map
+*/

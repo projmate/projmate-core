@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Vow, assert, emitter, eventBus;
 
 assert = require('./helper').assert;
@@ -37,3 +31,8 @@ describe('EventBus', function() {
     });
   });
 });
+
+
+/*
+//@ sourceMappingURL=eventBusSpec.map
+*/

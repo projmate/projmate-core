@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Fs, Pkg, Server, findProjfile, main, program;
 
 Pkg = require("../../package.json");
@@ -42,3 +36,8 @@ program.version(Pkg.version).usage("[dirname] [options]").option("-p, --http-por
 program._name = 'pm serve';
 
 main();
+
+
+/*
+//@ sourceMappingURL=pm-serve.map
+*/

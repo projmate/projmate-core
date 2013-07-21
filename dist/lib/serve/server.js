@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2013 Mario Gutierrez <mario@projmate.com>
- *
- * See the file COPYING for copying permission.
- */
-
 var Fs, Http, Https, Path, S, express, liveReload, log, readLocalProjfile, _;
 
 Fs = require("fs");
@@ -106,3 +100,8 @@ exports.run = function(options) {
   dname = "$PWD" + dname;
   return log.info("Serving " + dname + " on\n  http://" + httpDomain + "\n  https://" + httpsDomain);
 };
+
+
+/*
+//@ sourceMappingURL=server.map
+*/
