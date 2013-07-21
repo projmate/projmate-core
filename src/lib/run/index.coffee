@@ -77,19 +77,21 @@ exports.run = (options, cb) ->
 
     serve = program.serve
     serverConfig = pjfile.server
-    if serve
-      dirname = serve
-      if dirname.length > 0
-        serveOptions = {dirname}
-      else if serverConfig
-        serveOptions = serverConfig
-      else
-        serveOptions = dirname: "."
 
-      Server.run serveOptions
-    else if program.watch
-      runner.watchTasks()
-      log.info "Watching ..."
+    if serve || program.watch
+      if serve
+        dirname = serve
+        if dirname.length > 0
+          serveOptions = {dirname}
+        else if serverConfig
+          serveOptions = serverConfig
+        else
+          serveOptions = dirname: "."
+        Server.run serveOptions
+
+      if program.watch
+        runner.watchTasks()
+        log.info "Watching ..."
     else
       endTime = Date.now()
       elapsed = endTime - startTime

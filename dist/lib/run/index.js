@@ -95,23 +95,26 @@ exports.run = function(options, cb) {
     }
     serve = program.serve;
     serverConfig = pjfile.server;
-    if (serve) {
-      dirname = serve;
-      if (dirname.length > 0) {
-        serveOptions = {
-          dirname: dirname
-        };
-      } else if (serverConfig) {
-        serveOptions = serverConfig;
-      } else {
-        serveOptions = {
-          dirname: "."
-        };
+    if (serve || program.watch) {
+      if (serve) {
+        dirname = serve;
+        if (dirname.length > 0) {
+          serveOptions = {
+            dirname: dirname
+          };
+        } else if (serverConfig) {
+          serveOptions = serverConfig;
+        } else {
+          serveOptions = {
+            dirname: "."
+          };
+        }
+        Server.run(serveOptions);
       }
-      return Server.run(serveOptions);
-    } else if (program.watch) {
-      runner.watchTasks();
-      return log.info("Watching ...");
+      if (program.watch) {
+        runner.watchTasks();
+        return log.info("Watching ...");
+      }
     } else {
       endTime = Date.now();
       elapsed = endTime - startTime;
