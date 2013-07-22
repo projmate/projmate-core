@@ -22,17 +22,20 @@ Function.prototype.property = function(prop, desc) {
 
 FileAsset = (function() {
   function FileAsset(options) {
-    var cwd, filename, parent, stat, text;
-    cwd = options.cwd, filename = options.filename, parent = options.parent, text = options.text, stat = options.stat;
+    var cwd, dirname, filename, parent, stat, text;
+    cwd = options.cwd, filename = options.filename, dirname = options.dirname, parent = options.parent, text = options.text, stat = options.stat;
     if (options.parent == null) {
       throw new Error("parent property is required");
     }
-    filename = Utils.unixPath(filename);
-    this._filename = filename;
-    this.originalFilename = filename;
-    this._extname = Path.extname(filename);
-    this._dirname = Path.dirname(filename);
-    this.basename = Path.basename(filename);
+    if (filename != null) {
+      this._filename = filename;
+      this.originalFilename = filename;
+      this._extname = Path.extname(filename);
+      this._dirname = Path.dirname(filename);
+      this.basename = Path.basename(filename);
+    } else if (dirname != null) {
+      this._dirname = dirname;
+    }
     this.cwd = cwd;
     this.stat = stat;
     this._text = text;
@@ -80,7 +83,9 @@ FileAsset = (function() {
     },
     set: function(dirname) {
       this._dirname = dirname;
-      return this._filename = Utils.unixPath(Path.join(dirname, this._basename));
+      if (this._basename) {
+        return this._filename = Utils.unixPath(Path.join(dirname, this._basename));
+      }
     }
   });
 

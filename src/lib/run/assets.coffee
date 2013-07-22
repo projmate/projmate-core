@@ -65,7 +65,7 @@ methods = [
   'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke',
   'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest',
   'tail', 'drop', 'last', 'without', 'indexOf', 'shuffle', 'lastIndexOf',
-  'isEmpty'
+  'isEmpty', 'pluck'
 ]
 
 methods.forEach (method) ->
