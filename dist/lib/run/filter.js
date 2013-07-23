@@ -15,9 +15,9 @@ Filter = (function() {
     this.processOptions = processOptions != null ? processOptions : {};
     this.log = Logger.getLogger("F." + this.name);
     _.extend(this, this.config);
-    if (_.isFunction(this.processOptions)) {
+    if (_.isFunction(this.processOptions) || !_.isObject(this.processOptions)) {
       this.processOptions = {
-        command: this.processOptions
+        _args: this.processOptions
       };
     }
   }

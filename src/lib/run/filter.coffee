@@ -19,13 +19,9 @@ class Filter
     @log = Logger.getLogger("F."+@name)
     _.extend @, @config
 
-    # Allows a function shortcut for command attribute. Used by functoid
-    #
-    # The anonymous function `(asset) ->` results in `processOptions = {command: (asset) ->}
-    if _.isFunction(@processOptions)
-      @processOptions =
-        command: @processOptions
-
+    # ensure processOptions is always an object
+    if _.isFunction(@processOptions) or not _.isObject(@processOptions)
+      @processOptions = _args: @processOptions
 
 
   # Every concrete filter must implement this method.
