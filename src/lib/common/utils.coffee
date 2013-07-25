@@ -30,6 +30,10 @@ Utils =
 
   Promises: require('./promises')
 
+  $: $
+
+  shell: $
+
   # Finds string between strtToken and endToken
   #
   between: (s, startToken, endToken) ->
