@@ -3,7 +3,6 @@ Async = require("async")
 Chokidar = require("chokidar")
 Filter = require("./filter")
 TaskProcessor = require("./taskProcessor")
-Util = require("util")
 minimatch = require("minimatch")
 str = require("underscore.string")
 Assets = require("./assets")
@@ -177,7 +176,13 @@ class Task
     patterns = if customWatch then watch.include else files.include
 
     paths = []
-    for pattern in patterns
+    for pattern, i in patterns
+
+      # on a directory match everything
+      if Fs.existsSync(pattern) and Fs.statSync(pattern).isDirectory()
+        pattern = Utils.rensure(pattern, '/**/*')
+        patterns[i] = pattern
+
       if pattern.indexOf('/*') > -1
         pat = str.strLeft(pattern, '*')
       else if pattern.indexOf('*') > -1

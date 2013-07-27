@@ -1,4 +1,4 @@
-var Assets, Async, Chokidar, Filter, Fs, Path, Task, TaskProcessor, Util, Utils, minimatch, noop, str, _;
+var Assets, Async, Chokidar, Filter, Fs, Path, Task, TaskProcessor, Utils, minimatch, noop, str, _;
 
 _ = require("lodash");
 
@@ -9,8 +9,6 @@ Chokidar = require("chokidar");
 Filter = require("./filter");
 
 TaskProcessor = require("./taskProcessor");
-
-Util = require("util");
 
 minimatch = require("minimatch");
 
@@ -147,7 +145,7 @@ Task = (function() {
   };
 
   Task.prototype.watch = function() {
-    var checkExecute, customWatch, dirRe, files, log, pat, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
+    var checkExecute, customWatch, dirRe, files, i, log, pat, paths, pattern, patterns, subdirRe, that, watch, watcher, _i, _len, _ref;
     if (this.watching) {
       return;
     }
@@ -161,8 +159,12 @@ Task = (function() {
     customWatch = (watch != null ? watch.include : void 0) != null;
     patterns = customWatch ? watch.include : files.include;
     paths = [];
-    for (_i = 0, _len = patterns.length; _i < _len; _i++) {
-      pattern = patterns[_i];
+    for (i = _i = 0, _len = patterns.length; _i < _len; i = ++_i) {
+      pattern = patterns[i];
+      if (Fs.existsSync(pattern) && Fs.statSync(pattern).isDirectory()) {
+        pattern = Utils.rensure(pattern, '/**/*');
+        patterns[i] = pattern;
+      }
       if (pattern.indexOf('/*') > -1) {
         pat = str.strLeft(pattern, '*');
       } else if (pattern.indexOf('*') > -1) {
