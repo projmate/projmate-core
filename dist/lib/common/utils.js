@@ -35,7 +35,10 @@ Utils = {
   between: function(s, startToken, endToken) {
     var endPos, start, startPos;
     startPos = s.indexOf(startToken);
-    endPos = s.indexOf(endToken);
+    if (startPos < 0) {
+      return "";
+    }
+    endPos = s.indexOf(endToken, startPos);
     start = startPos + startToken.length;
     if (endPos > startPos) {
       return s.slice(start, endPos);

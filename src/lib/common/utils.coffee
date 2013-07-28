@@ -38,7 +38,8 @@ Utils =
   #
   between: (s, startToken, endToken) ->
     startPos = s.indexOf(startToken)
-    endPos = s.indexOf(endToken)
+    return "" if startPos < 0
+    endPos = s.indexOf(endToken, startPos)
     start = startPos + startToken.length
     if endPos > startPos then s.slice(start, endPos) else ""
 
