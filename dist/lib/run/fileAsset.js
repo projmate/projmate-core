@@ -27,6 +27,9 @@ FileAsset = (function() {
     if (options.parent == null) {
       throw new Error("parent property is required");
     }
+    if (!options.filename) {
+      throw new Error("filename property is required");
+    }
     if (filename != null) {
       this._filename = filename;
       this.originalFilename = filename;

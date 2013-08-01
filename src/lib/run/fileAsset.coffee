@@ -16,6 +16,7 @@ class FileAsset
   constructor: (options) ->
     {cwd, filename, dirname, parent, text, stat} = options
     throw new Error("parent property is required") unless options.parent?
+    throw new Error("filename property is required") unless options.filename
 
     if filename?
       @_filename = filename

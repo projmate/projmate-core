@@ -86,7 +86,8 @@ class Filter
 
     if $asset
       isAsset = assetOrTask.originalFilename?
-      assets = if isAsset then [assetOrTask] else assertOrTask.assets.array()
+      @log.log "ASSETORTASK", assetOrTask._assets?.length
+      assets = if isAsset then [assetOrTask] else assetOrTask.assets.array()
 
       for prop, modifiers of $asset
         for asset in assets
@@ -183,7 +184,7 @@ class Filter
     try
       @process assetOrTask, options, processed
     catch ex
-      console.error "CAUGHT #{assetOrTask.filename}"
+      log.error "Unexpected error: #{assetOrTask.filename}"
       cb ex
 
 

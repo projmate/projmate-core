@@ -64,7 +64,7 @@ Filter = (function() {
   };
 
   Filter.prototype.checkAssetModifiers = function(assetOrTask) {
-    var $asset, args, asset, assets, chain, fn, isAsset, modifiers, prop, reserved, _i, _len, _ref, _results;
+    var $asset, args, asset, assets, chain, fn, isAsset, modifiers, prop, reserved, _i, _len, _ref, _ref1, _results;
     $asset = this.processOptions.$asset;
     _ref = ["_filename"];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -78,7 +78,8 @@ Filter = (function() {
     }
     if ($asset) {
       isAsset = assetOrTask.originalFilename != null;
-      assets = isAsset ? [assetOrTask] : assertOrTask.assets.array();
+      this.log.log("ASSETORTASK", (_ref1 = assetOrTask._assets) != null ? _ref1.length : void 0);
+      assets = isAsset ? [assetOrTask] : assetOrTask.assets.array();
       _results = [];
       for (prop in $asset) {
         modifiers = $asset[prop];
@@ -183,7 +184,7 @@ Filter = (function() {
       return this.process(assetOrTask, options, processed);
     } catch (_error) {
       ex = _error;
-      console.error("CAUGHT " + assetOrTask.filename);
+      log.error("Unexpected error: " + assetOrTask.filename);
       return cb(ex);
     }
   };
