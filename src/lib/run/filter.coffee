@@ -86,7 +86,6 @@ class Filter
 
     if $asset
       isAsset = assetOrTask.originalFilename?
-      @log.log "ASSETORTASK", assetOrTask._assets?.length
       assets = if isAsset then [assetOrTask] else assetOrTask.assets.array()
 
       for prop, modifiers of $asset
